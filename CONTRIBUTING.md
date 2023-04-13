@@ -1,4 +1,4 @@
-# Contributing to Wasm Kernel Module
+# Contributing to Wasm Kernel Module CLI
 
 Thank you for taking the time to start contributing! We want to make contributing to this project as easy and transparent as possible, whether it's:
 
@@ -11,7 +11,6 @@ Thank you for taking the time to start contributing! We want to make contributin
 To get started:
 
 - Support the development of this project and star this repo! :star:
-- If you use Wasm Kernel Module in a production environment, add yourself to the list of [adopters](ADOPTERS.md). :metal:
 
 ## Contributing on GitHub
 
@@ -19,7 +18,7 @@ We use GitHub to host code, track issues or feature requests, and accept pull re
 
 ### Issues
 
-We use GitHub issues to track bugs and problems. Report a bug by [opening a new issue](https://github.com/cisco-open/wasm-kernel-module/issues).
+We use GitHub issues to track bugs and problems. Report a bug by [opening a new issue](https://github.com/cisco-open/wasm-kernel-module-cli/issues).
 
 Please format your issues in such a way as to help others who might be facing similar challenges.
 Give your issues meaningful titles, that offer context and help us and the community to understand and quickly ramp up on it.
@@ -73,4 +72,3 @@ and
 ## License
 
 By contributing, you agree that your contributions will be licensed under MIT.
-
