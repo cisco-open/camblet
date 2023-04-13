@@ -1,6 +1,7 @@
-# wasm-kernel-module
+# wasm-kernel-module-cli
 
-This Linux Kernel module runs and exposes a [Wasm](https://webassembly.org) runtime as a proof of concept for checking:
+This repository contains a CLI and samples for [wasm-kernel-module](https://github.com/cisco-open/wasm-kernel-module), which is a kernel module that
+runs and exposes a [Wasm](https://webassembly.org) runtime as a proof of concept for checking:
 - Wasm is capable of running the kernel space
 - running code in kernel space in allmost all languages compiled to Wasm
 - expose Wasm functionality written in Wasm to eBPF securely
@@ -19,81 +20,7 @@ Current restrictions for kernel-space wasm3:
 
 ## Development environment
 
-Our primary development environment is [Lima](https://lima-vm.io) since it supports x86_64 and ARM as well.
-
-### Lima
-
-Install Lima itself, for example on macOS using brew:
-```bash
-brew install lima
-```
-
-Launch the default VM which is an Ubuntu and matches the host's architecture by default:
-```bash
-limactl start
-```
-
-Setup the required depdendencies in the VM:
-```bash
-lima # enter the VM
-...
-sudo apt update && sudo apt install make
-make setup-vm
-```
-
-### Vagrant/Virtualbox
-
-If you happen to use Vagrant, there is a Vagrantfile prepared which uses VirtualBox.
-
-On macOS install Vagrant and VirtualBox with brew:
-
-```bash
-brew install vagrant virtualbox
-```
-
-Bring up the Vagrant machine, this installs the required dependencies atuomatically into it:
-
-```bash
-vagrant up
-```
-
-Connect to the Vagrant machine through SSH:
-
-```bash
-vagrant ssh
-```
-
-## Build and install
-
-*This assumes that you have created a development environment according to the previous section.*
-
-Checkout the code:
-```
-bash
-git clone --recurse-submodules git@wwwin-github.cisco.com:eti/wasm-kernel-module.git
-cd wasm-kernel-module
-```
-
-Build the Wasm kernel module:
-
-```bash
-make
-```
-
-Build the Wasm kernel module:
-```
-make insmod
-```
-
-Build the Wasm kernel module:
-```
-make rmmod
-```
-
-Follow the kernel logs:
-```
-make logs
-```
+Our primary development environment is [Lima](https://lima-vm.io) since it supports x86_64 and ARM as well. Follow the instructions for [wasm-kernel-module](https://github.com/cisco-open/wasm-kernel-module) for setting up the development environment.
 
 ## CLI
 
