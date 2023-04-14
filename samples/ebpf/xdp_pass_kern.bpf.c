@@ -21,7 +21,7 @@
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_endian.h>
 #include <linux/if_ether.h>
-#include <linux/sched.h>
+#include <stdbool.h>
 
 extern int bpf_opa_eval(char *input) __ksym;
 
@@ -61,9 +61,8 @@ int xdp_prog_simple(struct xdp_md *ctx)
     BPF_SNPRINTF(json, 256, "{\"proto\":%d}", h_proto);
 
     int res = bpf_opa_eval(json);
-    bpf_printk("bpf_opa_eval(input=%s) -> %d", json, res);
 
-    if (!res)
+    if (res != true)
     {
         return XDP_PASS;
     }
@@ -85,10 +84,7 @@ int xdp_prog_simple(struct xdp_md *ctx)
 
     *cnt += 1;
 
-    if (h_proto == ETH_P_IP || h_proto == ETH_P_IPV6)
-    {
-        bpf_printk("Hello %d. IPv4/6 packet from the eBPF/xdp World!", *cnt);
-    }
+    bpf_printk("Hello %d. IPv4/6 packet, you are allowed by OPA to enter!", *cnt);
 
     return XDP_PASS;
 }
