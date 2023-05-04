@@ -33,20 +33,23 @@ import (
 )
 
 type ModuleCommand struct {
-	Command string `json:"command"`
-	Name    string `json:"name"`
-	Code    []byte `json:"code"`
+	Command    string `json:"command"`
+	Name       string `json:"name"`
+	Code       []byte `json:"code"`
+	Entrypoint string `json:"entrypoint,omitempty"`
 }
 
 type loadFlags struct {
-	File string
-	Name string
+	File       string
+	Name       string
+	Entrypoint string
 }
 
 func (c *loadFlags) Flags() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.StringVar(&c.File, "file", "my-module.wasm", "the file path of the loaded Wasm module")
-	fs.StringVar(&c.Name, "name", "my-module", "how to name the loaded Wasm module")
+	fs.StringVar(&c.Name, "name", "", "how to name the loaded Wasm module")
+	fs.StringVar(&c.Entrypoint, "entrypoint", "", "initial function to invoke after loading the Wasm module")
 	return fs
 }
 
@@ -79,9 +82,10 @@ var cmds = []cli.Command{
 			}
 
 			c := ModuleCommand{
-				Command: "load",
-				Name:    name,
-				Code:    code,
+				Command:    "load",
+				Name:       name,
+				Code:       code,
+				Entrypoint: cfg.Entrypoint,
 			}
 
 			return sendCommand(c)
