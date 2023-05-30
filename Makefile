@@ -17,16 +17,16 @@ build-ebpf-xdp-prog:
 	cd samples/ebpf; make
 
 load-hello-rust-wasm:
-	sudo cli/cli load -file samples/hello-world-rust/target/wasm32-unknown-unknown/release/hello-world.wasm
+	sudo ./w3k load -file samples/hello-world-rust/target/wasm32-unknown-unknown/release/hello-world.wasm
 
 load-dns-go-wasm:
-	sudo cli/cli load -file samples/dns-go/dns-go.wasm
+	sudo ./w3k load -file samples/dns-go/dns-go.wasm
 
 load-dns-rust-wasm:
-	sudo cli/cli load -name dns -file samples/dns-rust/target/wasm32-unknown-unknown/release/dns-rust.wasm
+	sudo ./w3k load -name dns -file samples/dns-rust/target/wasm32-unknown-unknown/release/dns-rust.wasm
 
 load-opa-policy-wasm:
-	sudo cli/cli load -name opa -file samples/opa/policy.wasm
+	sudo ./w3k load -name opa -file samples/opa/policy.wasm
 
 load-ebpf-xdp-prog:
 	cd samples/ebpf; make loadxdp
@@ -35,4 +35,4 @@ unload-ebpf-xdp-prog:
 	cd samples/ebpf; make unloadxdp
 
 build-cli:
-	cd cli; go build
+	go build ./cmd/w3k
