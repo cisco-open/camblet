@@ -12,5 +12,5 @@
 *.dwo
 *.wasm
 *.tar.gz
-cli/cli
 target/
+w3k
