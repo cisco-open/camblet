@@ -111,6 +111,9 @@ func sendCommand(c ModuleCommand) error {
 		return err
 	}
 
+	// append end of string to j
+	j = append(j, 0)
+
 	err = ioutil.WriteFile("/dev/wasm", j, fs.ModeDevice)
 	if err != nil {
 		return err
