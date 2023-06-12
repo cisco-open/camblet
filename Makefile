@@ -35,4 +35,4 @@ unload-ebpf-xdp-prog:
 	cd samples/ebpf; make unloadxdp
 
 build-cli:
-	go build ./cmd/w3k
+	GOOS=linux go build ./cmd/w3k
