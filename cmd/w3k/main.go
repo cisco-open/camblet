@@ -20,12 +20,15 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"encoding/json"
 	"flag"
 	"io/fs"
 	"io/ioutil"
 	"log"
+	"os"
+	"os/signal"
 	"path/filepath"
 	"strings"
 
@@ -103,6 +106,34 @@ var cmds = []cli.Command{
 			return sendCommand(c)
 		},
 	},
+	{
+		Name:        "server",
+		Description: "run the support server for the kernel module",
+		Alias:       "s",
+		ExecFunc: func(ctx context.Context, args []string) error {
+			// open the /dev/wasm file
+
+			dev, err := os.Open("/dev/wasm")
+			if err != nil {
+				return err
+			}
+
+			defer dev.Close()
+
+			scanner := bufio.NewScanner(dev)
+
+			for scanner.Scan() {
+				var command ModuleCommand
+				err := json.Unmarshal(scanner.Bytes(), &command)
+				if err != nil {
+					return err
+				}
+				log.Printf("command: %+v", command)
+			}
+
+			return nil
+		},
+	},
 }
 
 func sendCommand(c ModuleCommand) error {
@@ -123,6 +154,13 @@ func sendCommand(c ModuleCommand) error {
 }
 
 func main() {
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	go func() {
+		<-c
+		os.Exit(0)
+	}()
+
 	r := cli.RunnerOf(cmds, cli.Config{
 		AppName:        "w3k",
 		AppDescription: "cli to control the wasm kernel module",
