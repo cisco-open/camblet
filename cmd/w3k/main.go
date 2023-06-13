@@ -143,7 +143,7 @@ func sendCommand(c ModuleCommand) error {
 	}
 
 	// append end of string to j
-	j = append(j, 0)
+	j = append(j, '\n')
 
 	err = ioutil.WriteFile("/dev/wasm", j, fs.ModeDevice)
 	if err != nil {
