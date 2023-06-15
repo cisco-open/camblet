@@ -1,7 +1,7 @@
 logs:
 	sudo dmesg -T --follow
 
-build-dns-hello-world-wasm:
+build-hello-world-rust-wasm:
 	cd samples/hello-world-rust; make
 
 build-dns-go-wasm:
@@ -16,7 +16,7 @@ build-opa-policy-wasm:
 build-ebpf-xdp-prog:
 	cd samples/ebpf; make
 
-load-hello-rust-wasm:
+load-hello-world-rust-wasm:
 	sudo ./w3k load -file samples/hello-world-rust/target/wasm32-unknown-unknown/release/hello-world.wasm
 
 load-dns-go-wasm:
