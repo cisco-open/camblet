@@ -14,6 +14,31 @@ extern "C" {
     fn _debug(s: &str) -> i32;
 }
 
+/// Allocate memory into the module's linear memory
+/// and return the offset to the start of the block.
+#[no_mangle]
+pub fn csr_malloc(len: usize) -> *mut u8 {
+    // create a new mutable buffer with capacity `len`
+    let mut buf = Vec::with_capacity(len);
+    // take a mutable pointer to the buffer
+    let ptr = buf.as_mut_ptr();
+    // take ownership of the memory block and
+    // ensure that its destructor is not
+    // called when the object goes out of scope
+    // at the end of the function
+    std::mem::forget(buf);
+    // return the pointer so the runtime
+    // can write data at this offset
+    return ptr;
+}
+
+#[no_mangle]
+pub unsafe fn csr_free(ptr: *mut u8, size: usize) {
+    let data = Vec::from_raw_parts(ptr, size, size);
+
+    std::mem::drop(data);
+}
+
 #[macro_export]
 macro_rules! println {
     () => {
@@ -60,14 +85,14 @@ pub unsafe extern "C" fn gen_csr(priv_key: *mut u8, priv_key_lenght: usize) -> i
     let binding = String::from_raw_parts(priv_key, priv_key_lenght, priv_key_lenght);
     let raw_priv_key = binding.as_str();
 
-    let subject = Name::from_str("CN=banzai.cloud").unwrap();
+    let subject = Name::from_str("CN=banzai.cloud").expect("error during getting subject");
 
     let private_key = RsaPrivateKey::from_pkcs8_pem(raw_priv_key).expect("failed to generate key");
     let signing_key = SigningKey::<Sha256>::new(private_key);
     
     let builder = RequestBuilder::new(subject, &signing_key).expect("Creating certificate signing");
-    let cert_req = builder.build().unwrap();
-    let encoded_csr = cert_req.to_pem(LineEnding::LF).unwrap();
+    let cert_req = builder.build().expect("error building the certreq");
+    let encoded_csr = cert_req.to_pem(LineEnding::LF).expect("error encoding the csr");
     ((encoded_csr.as_ptr() as i64) << 32) | (encoded_csr.len() as i64)
 }
 
