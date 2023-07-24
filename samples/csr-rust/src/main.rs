@@ -11,7 +11,7 @@ use rsa::RsaPrivateKey;
 // import some WASM runtime functions from the module `env`
 #[link(wasm_import_module = "env")]
 extern "C" {
-    fn _debug(s: &str) -> i32;
+    fn _debug(s: &str, len: i32) -> i32;
 }
 
 /// Allocate memory into the module's linear memory
@@ -42,10 +42,11 @@ pub unsafe fn csr_free(ptr: *mut u8, size: usize) {
 #[macro_export]
 macro_rules! println {
     () => {
-        _debug("\n")
+        _debug("\n", 1)
     };
     ($($arg:tt)*) => {{
-        _debug(&format!($($arg)*));
+        let s = format!($($arg)*);
+        _debug(&s, s.len() as i32);
     }};
 }
 
@@ -85,13 +86,25 @@ pub unsafe extern "C" fn gen_csr(priv_key: *mut u8, priv_key_lenght: usize) -> i
     let binding = String::from_raw_parts(priv_key, priv_key_lenght, priv_key_lenght);
     let raw_priv_key = binding.as_str();
 
-    let subject = Name::from_str("CN=banzai.cloud").expect("error during getting subject");
+    let subject = match Name::from_str("CN=banzai.cloud") {
+        Ok(name) => name,
+        Err(err) => { println!("error parsing name: {}", err); return 0 },
+    };
 
-    let private_key = RsaPrivateKey::from_pkcs8_pem(raw_priv_key).expect("failed to generate key");
+    let private_key = match RsaPrivateKey::from_pkcs8_pem(raw_priv_key) {
+        Ok(key) => key,
+        Err(err) => { println!("error parsing private key: {}", err); return 0 },
+    };
     let signing_key = SigningKey::<Sha256>::new(private_key);
     
-    let builder = RequestBuilder::new(subject, &signing_key).expect("Creating certificate signing");
-    let cert_req = builder.build().expect("error building the certreq");
+    let builder = match RequestBuilder::new(subject, &signing_key) {
+        Ok(builder) => builder,
+        Err(err) => { println!("error creating builder: {}", err); return 0 },
+    };
+    let cert_req = match builder.build() {
+        Ok(cert_req) => cert_req,
+        Err(err) => { println!("error building cert request: {}", err); return 0 },
+    };
     let encoded_csr = cert_req.to_pem(LineEnding::LF).expect("error encoding the csr");
     ((encoded_csr.as_ptr() as i64) << 32) | (encoded_csr.len() as i64)
 }
