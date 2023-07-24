@@ -11,7 +11,7 @@ use rsa::RsaPrivateKey;
 // import some WASM runtime functions from the module `env`
 #[link(wasm_import_module = "env")]
 extern "C" {
-    fn _debug(s: &str, len: i32) -> i32;
+    fn _debug(s: &str) -> i32;
 }
 
 /// Allocate memory into the module's linear memory
@@ -42,11 +42,11 @@ pub unsafe fn csr_free(ptr: *mut u8, size: usize) {
 #[macro_export]
 macro_rules! println {
     () => {
-        _debug("\n", 1)
+        _debug("\n")
     };
     ($($arg:tt)*) => {{
         let s = format!($($arg)*);
-        _debug(&s, s.len() as i32);
+        _debug(&s);
     }};
 }
 
@@ -54,7 +54,7 @@ macro_rules! println {
 //Using single return value since the multi return value is still buggy. See https://github.com/rust-lang/rust/issues/73755
 #[no_mangle]
 pub unsafe extern "C" fn gen_csr(priv_key: *mut u8, priv_key_lenght: usize) -> i64 {
-
+    println!("Generating CSR");
 //     let raw_priv_key = "-----BEGIN PRIVATE KEY-----
 // MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCmtj45x5lT7LnG
 // yv+svbRqcgg6ctYjNTiUym5Ge/6zorsPrxRCHpW1rDdb2Ku4SD0qHsDhEInKTNqM
@@ -105,7 +105,10 @@ pub unsafe extern "C" fn gen_csr(priv_key: *mut u8, priv_key_lenght: usize) -> i
         Ok(cert_req) => cert_req,
         Err(err) => { println!("error building cert request: {}", err); return 0 },
     };
-    let encoded_csr = cert_req.to_pem(LineEnding::LF).expect("error encoding the csr");
+    let encoded_csr = match cert_req.to_pem(LineEnding::LF) {
+        Ok(encoded_csr) => encoded_csr,
+        Err(err) => { println!("error encoding cert request: {}", err); return 0 },
+    };
     ((encoded_csr.as_ptr() as i64) << 32) | (encoded_csr.len() as i64)
 }
 

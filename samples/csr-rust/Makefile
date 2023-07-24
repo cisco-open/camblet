@@ -1,3 +1,3 @@
 rust-sample:
 	cargo build --release
-	cp target/wasm32-wasi/release/csr-rust.wasm .
+	cp target/wasm32-unknown-unknown/release/csr-rust.wasm .
