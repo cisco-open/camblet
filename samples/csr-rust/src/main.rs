@@ -53,7 +53,7 @@ macro_rules! println {
 
 //Using single return value since the multi return value is still buggy. See https://github.com/rust-lang/rust/issues/73755
 #[no_mangle]
-pub unsafe extern "C" fn gen_csr(priv_key: *mut u8, priv_key_lenght: usize) -> i64 {
+pub unsafe extern "C" fn gen_csr(priv_key: &[u8]) -> i64 {
     println!("Generating CSR");
 //     let raw_priv_key = "-----BEGIN PRIVATE KEY-----
 // MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCmtj45x5lT7LnG
@@ -82,16 +82,13 @@ pub unsafe extern "C" fn gen_csr(priv_key: *mut u8, priv_key_lenght: usize) -> i
 // R/PUYvQGv9h0bKafurlxTVIPETNviGmN4TEYa/lOaYp2irBNrJ3ocRigtzHA8xn0
 // ZFn7mRfTRtZO9xyLmoVJpa9A+YXLMaJVKaxZTIsqKzayvr+altsS+Pe7DcDypSUJ
 // gpde4liGsq0/gY/JSFF8lGHx
-// -----END PRIVATE KEY-----";
-    let binding = String::from_raw_parts(priv_key, priv_key_lenght, priv_key_lenght);
-    let raw_priv_key = binding.as_str();
-
+// -----END PRIVATE KEY-----";`
     let subject = match Name::from_str("CN=banzai.cloud") {
         Ok(name) => name,
         Err(err) => { println!("error parsing name: {}", err); return 0 },
     };
 
-    let private_key = match RsaPrivateKey::from_pkcs8_pem(raw_priv_key) {
+    let private_key = match RsaPrivateKey::from_pkcs8_der(priv_key) {
         Ok(key) => key,
         Err(err) => { println!("error parsing private key: {}", err); return 0 },
     };
