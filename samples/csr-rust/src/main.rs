@@ -53,33 +53,34 @@ macro_rules! println {
 
 //Using single return value since the multi return value is still buggy. See https://github.com/rust-lang/rust/issues/73755
 #[no_mangle]
-pub unsafe extern "C" fn gen_csr(priv_key: &[u8]) -> (i32, i32) {
+pub unsafe extern "C" fn gen_csr(priv_key: &[u8]) -> i64 {
     println!("Generating CSR");
     let subject = match Name::from_str("CN=banzai.cloud") {
         Ok(name) => name,
-        Err(err) => { println!("error parsing name: {}", err); return (0, 0) },
+        Err(err) => { println!("error parsing name: {}", err); return 0 },
     };
-
+    println!("Generating Private Key from bytes");
     let private_key = match RsaPrivateKey::from_pkcs8_der(priv_key) {
         Ok(key) => key,
-        Err(err) => { println!("error parsing private key: {}", err); return (0, 0) },
+        Err(err) => { println!("error parsing private key: {}", err); return 0 },
     };
     let signing_key = SigningKey::<Sha256>::new(private_key);
     
+    println!("Building new request from signing key and subject");
     let builder = match RequestBuilder::new(subject, &signing_key) {
         Ok(builder) => builder,
-        Err(err) => { println!("error creating builder: {}", err); return (0, 0) },
+        Err(err) => { println!("error creating builder: {}", err); return 0 },
     };
     let cert_req = match builder.build() {
         Ok(cert_req) => cert_req,
-        Err(err) => { println!("error building cert request: {}", err); return (0, 0) },
+        Err(err) => { println!("error building cert request: {}", err); return 0 },
     };
     let encoded_csr = match cert_req.to_pem(LineEnding::LF) {
         Ok(encoded_csr) => encoded_csr,
-        Err(err) => { println!("error encoding cert request: {}", err); return (0, 0) },
+        Err(err) => { println!("error encoding cert request: {}", err); return 0 },
     };
-    return (encoded_csr.as_ptr() as i32, encoded_csr.len() as i32)
-    // ((encoded_csr.as_ptr() as i64) << 32) | (encoded_csr.len() as i64)
+    
+    ((encoded_csr.as_ptr() as i64) << 32) | (encoded_csr.len() as i64)
 }
 
 
