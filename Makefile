@@ -16,6 +16,9 @@ build-opa-policy-wasm:
 build-ebpf-xdp-prog:
 	cd samples/ebpf; make
 
+build-csr-gen-rust-wasm:
+	cd samples/csr-rust; make
+
 load-hello-world-rust-wasm:
 	sudo ./w3k load -file samples/hello-world-rust/target/wasm32-unknown-unknown/release/hello-world.wasm
 

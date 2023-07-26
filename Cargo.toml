@@ -1,0 +1,7 @@
+[workspace]
+
+members = [
+    "samples/csr-rust",
+    "samples/dns-rust",
+    "samples/hello-world-rust"
+]
