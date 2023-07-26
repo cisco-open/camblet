@@ -32,6 +32,7 @@ pub fn csr_malloc(len: usize) -> *mut u8 {
     return ptr;
 }
 
+/// Free memory from the module's linear memory
 #[no_mangle]
 pub unsafe fn csr_free(ptr: *mut u8, size: usize) {
     let data = Vec::from_raw_parts(ptr, size, size);
@@ -53,20 +54,18 @@ macro_rules! println {
 
 //Using single return value since the multi return value is still buggy. See https://github.com/rust-lang/rust/issues/73755
 #[no_mangle]
-pub unsafe extern "C" fn gen_csr(priv_key: &[u8]) -> i64 {
-    println!("Generating CSR");
+pub unsafe extern "C" fn csr_gen(priv_key: &[u8]) -> i64 {
     let subject = match Name::from_str("CN=banzai.cloud") {
         Ok(name) => name,
         Err(err) => { println!("error parsing name: {}", err); return 0 },
     };
-    println!("Generating Private Key from bytes");
+
     let private_key = match RsaPrivateKey::from_pkcs8_der(priv_key) {
         Ok(key) => key,
         Err(err) => { println!("error parsing private key: {}", err); return 0 },
     };
     let signing_key = SigningKey::<Sha256>::new(private_key);
     
-    println!("Building new request from signing key and subject");
     let builder = match RequestBuilder::new(subject, &signing_key) {
         Ok(builder) => builder,
         Err(err) => { println!("error creating builder: {}", err); return 0 },
@@ -79,10 +78,8 @@ pub unsafe extern "C" fn gen_csr(priv_key: &[u8]) -> i64 {
         Ok(encoded_csr) => encoded_csr,
         Err(err) => { println!("error encoding cert request: {}", err); return 0 },
     };
-    
+
     ((encoded_csr.as_ptr() as i64) << 32) | (encoded_csr.len() as i64)
 }
-
-
 
 fn main() {}
