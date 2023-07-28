@@ -36,10 +36,13 @@ import (
 )
 
 type ModuleCommand struct {
+	ID         int    `json:"id,omitempty"`
 	Command    string `json:"command"`
 	Name       string `json:"name"`
 	Code       []byte `json:"code"`
 	Entrypoint string `json:"entrypoint,omitempty"`
+	Error      string `json:"error,omitempty"`
+	Answer     string `json:"answer,omitempty"`
 }
 
 type loadFlags struct {
@@ -111,9 +114,8 @@ var cmds = []cli.Command{
 		Description: "run the support server for the kernel module",
 		Alias:       "s",
 		ExecFunc: func(ctx context.Context, args []string) error {
-			// open the /dev/wasm file
 
-			dev, err := os.Open("/dev/wasm")
+			dev, err := os.OpenFile("/dev/wasm", os.O_RDWR, 0666)
 			if err != nil {
 				return err
 			}
@@ -122,13 +124,35 @@ var cmds = []cli.Command{
 
 			scanner := bufio.NewScanner(dev)
 
+			log.Printf("listening for commands")
+
 			for scanner.Scan() {
 				var command ModuleCommand
 				err := json.Unmarshal(scanner.Bytes(), &command)
 				if err != nil {
 					return err
 				}
-				log.Printf("command: %+v", command)
+				switch command.Command {
+				case "csr":
+					log.Printf("csr: %+v", command)
+				case "accept":
+					log.Printf("accept: %+v", command)
+					answer := ModuleCommand{
+						Command: "answer",
+						ID:      command.ID,
+						Answer:  "ok",
+					}
+
+					answerJson, _ := json.Marshal(answer)
+
+					_, err = dev.Write(append(answerJson, '\n'))
+					if err != nil {
+						log.Printf("error writing answer: %v", err)
+					}
+
+				default:
+					log.Printf("unknown command: %+v", command)
+				}
 			}
 
 			return nil
