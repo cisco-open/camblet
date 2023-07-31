@@ -46,7 +46,7 @@ type Command struct {
 }
 
 type Answer struct {
-	ID      string `json:"id,omitempty"`
+	ID      string `json:"id"`
 	Command string `json:"command"`
 	Answer  string `json:"answer,omitempty"`
 	Error   string `json:"error,omitempty"`
