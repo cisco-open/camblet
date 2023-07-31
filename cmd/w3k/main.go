@@ -23,6 +23,7 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"errors"
 	"flag"
 	"io/fs"
 	"io/ioutil"
@@ -35,14 +36,32 @@ import (
 	cli "github.com/cristalhq/acmd"
 )
 
-type ModuleCommand struct {
-	ID         int    `json:"id,omitempty"`
+type Command struct {
+	ID         []byte `json:"id,omitempty"`
 	Command    string `json:"command"`
 	Name       string `json:"name"`
 	Code       []byte `json:"code"`
 	Entrypoint string `json:"entrypoint,omitempty"`
 	Error      string `json:"error,omitempty"`
 	Answer     string `json:"answer,omitempty"`
+}
+
+type Answer struct {
+	ID      []byte `json:"id,omitempty"`
+	Command string `json:"command"`
+	Answer  string `json:"answer,omitempty"`
+	Error   string `json:"error,omitempty"`
+}
+
+type CommandHandler interface {
+	HandleCommand(c Command) (string, error)
+}
+
+type AcceptHandler struct {
+}
+
+func (h *AcceptHandler) HandleCommand(c Command) (string, error) {
+	return "ok", nil
 }
 
 type loadFlags struct {
@@ -58,6 +77,8 @@ func (c *loadFlags) Flags() *flag.FlagSet {
 	fs.StringVar(&c.Entrypoint, "entrypoint", "", "initial function to invoke after loading the Wasm module")
 	return fs
 }
+
+var ErrInvalidCommand = errors.New("invalid command")
 
 var cmds = []cli.Command{
 	{
@@ -87,7 +108,7 @@ var cmds = []cli.Command{
 				name = strings.TrimSuffix(basename, filepath.Ext(basename))
 			}
 
-			c := ModuleCommand{
+			c := Command{
 				Command:    "load",
 				Name:       name,
 				Code:       code,
@@ -102,7 +123,7 @@ var cmds = []cli.Command{
 		Description: "reset the wasm vm in the kernel",
 		Alias:       "r",
 		ExecFunc: func(ctx context.Context, args []string) error {
-			c := ModuleCommand{
+			c := Command{
 				Command: "reset",
 			}
 
@@ -127,31 +148,46 @@ var cmds = []cli.Command{
 			log.Printf("listening for commands")
 
 			for scanner.Scan() {
-				var command ModuleCommand
+				var command Command
+				var answer string
 				err := json.Unmarshal(scanner.Bytes(), &command)
 				if err != nil {
 					return err
 				}
+
+				log.Printf("received command: %+v", command)
+
 				switch command.Command {
 				case "csr":
-					log.Printf("csr: %+v", command)
 				case "accept":
-					log.Printf("accept: %+v", command)
-					answer := ModuleCommand{
-						Command: "answer",
-						ID:      command.ID,
-						Answer:  "ok",
-					}
-
-					answerJson, _ := json.Marshal(answer)
-
-					_, err = dev.Write(append(answerJson, '\n'))
-					if err != nil {
-						log.Printf("error writing answer: %v", err)
-					}
-
+					handler := &AcceptHandler{}
+					answer, err = handler.HandleCommand(command)
 				default:
-					log.Printf("unknown command: %+v", command)
+					err = ErrInvalidCommand
+				}
+
+				answerObj := Answer{
+					ID:      command.ID,
+					Command: "answer",
+					Answer:  answer,
+				}
+
+				if err != nil {
+					log.Printf("error answering command: %+v", err)
+					answerObj.Error = err.Error()
+				}
+
+				answerJson, err := json.Marshal(answerObj)
+				if err != nil {
+					log.Printf("error marshalling answer: %v", err)
+					answerObj.Error = err.Error()
+				}
+
+				log.Println("sending answer: ", string(answerJson))
+
+				_, err = dev.Write(append(answerJson, '\n'))
+				if err != nil {
+					log.Printf("error writing answer: %v", err)
 				}
 			}
 
@@ -160,7 +196,7 @@ var cmds = []cli.Command{
 	},
 }
 
-func sendCommand(c ModuleCommand) error {
+func sendCommand(c Command) error {
 	j, err := json.Marshal(c)
 	if err != nil {
 		return err
