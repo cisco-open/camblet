@@ -57,10 +57,13 @@ type CommandHandler interface {
 	HandleCommand(c Command) (string, error)
 }
 
-type AcceptHandler struct {
+type CommandHandlerFunc func(Command) (string, error)
+
+func (f CommandHandlerFunc) HandleCommand(c Command) (string, error) {
+	return f(c)
 }
 
-func (h *AcceptHandler) HandleCommand(c Command) (string, error) {
+func AcceptOk(Command) (string, error) {
 	return "ok", nil
 }
 
@@ -79,6 +82,14 @@ func (c *loadFlags) Flags() *flag.FlagSet {
 }
 
 var ErrInvalidCommand = errors.New("invalid command")
+
+var commandHandlers map[string]CommandHandler
+
+func init() {
+	commandHandlers = map[string]CommandHandler{
+		"accept": CommandHandlerFunc(AcceptOk),
+	}
+}
 
 var cmds = []cli.Command{
 	{
@@ -157,12 +168,9 @@ var cmds = []cli.Command{
 
 				log.Printf("received command: %+v", command)
 
-				switch command.Command {
-				case "csr":
-				case "accept":
-					handler := &AcceptHandler{}
+				if handler, ok := commandHandlers[command.Command]; ok {
 					answer, err = handler.HandleCommand(command)
-				default:
+				} else {
 					err = ErrInvalidCommand
 				}
 
