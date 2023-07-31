@@ -37,17 +37,16 @@ import (
 )
 
 type Command struct {
-	ID         []byte `json:"id,omitempty"`
+	ID         string `json:"id,omitempty"`
 	Command    string `json:"command"`
-	Name       string `json:"name"`
-	Code       []byte `json:"code"`
+	Name       string `json:"name,omitempty"`
+	Code       []byte `json:"code,omitempty"`
 	Entrypoint string `json:"entrypoint,omitempty"`
-	Error      string `json:"error,omitempty"`
-	Answer     string `json:"answer,omitempty"`
+	Data       string `json:"data,omitempty"`
 }
 
 type Answer struct {
-	ID      []byte `json:"id,omitempty"`
+	ID      string `json:"id,omitempty"`
 	Command string `json:"command"`
 	Answer  string `json:"answer,omitempty"`
 	Error   string `json:"error,omitempty"`
