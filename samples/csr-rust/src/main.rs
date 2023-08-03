@@ -79,7 +79,13 @@ pub unsafe extern "C" fn csr_gen(priv_key: &[u8]) -> i64 {
         Err(err) => { println!("error encoding cert request: {}", err); return 0 },
     };
 
-    ((encoded_csr.as_ptr() as i64) << 32) | (encoded_csr.len() as i64)
+    let encoded_csr_ptr = encoded_csr.as_ptr();
+    let encoded_csr_len = encoded_csr.len();
+
+    // We must tell the rust compiler to abandon the buffer otherwise it will be freed before we can use it at the host side.
+    std::mem::forget(encoded_csr);
+
+    ((encoded_csr_ptr as i64) << 32) | (encoded_csr_len as i64)
 }
 
 fn main() {}
