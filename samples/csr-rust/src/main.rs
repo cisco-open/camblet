@@ -85,7 +85,6 @@ pub unsafe extern "C" fn csr_gen(priv_key: &[u8]) -> i64 {
     // We must tell the rust compiler to abandon the buffer otherwise it will be freed before we can use it at the host side.
     std::mem::forget(encoded_csr);
 
-
     ((encoded_csr_ptr as i64) << 32) | (encoded_csr_len as i64)
 }
 
