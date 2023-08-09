@@ -3,7 +3,7 @@
 This repository contains a CLI and samples for [wasm-kernel-module](https://github.com/cisco-open/wasm-kernel-module), which is a kernel module that
 runs and exposes a [Wasm](https://webassembly.org) runtime as a proof of concept for checking:
 - Wasm is capable of running the kernel space
-- running code in kernel space in allmost all languages compiled to Wasm
+- running code in kernel space in almost all languages compiled to Wasm
 - expose Wasm functionality written in Wasm to eBPF securely
 
 ## Why doing this?
@@ -12,7 +12,7 @@ runs and exposes a [Wasm](https://webassembly.org) runtime as a proof of concept
 
 ## Which Wasm runtime?
 
-The [wasm3](https://github.com/wasm3/wasm3) runtime got choosen since it is written in C and has minimal dependencies (except a C library) and this it is extremely portable. In kernel space there is no libc, but we maintain a fork of wasm3 which can run in kernel space as well (check the `thrid-party/wasm3/` submodule).
+The [wasm3](https://github.com/wasm3/wasm3) runtime got chosen since it is written in C and has minimal dependencies (except a C library) and it is extremely portable. In kernel space, there is no libc, but we maintain a fork of wasm3 which can run in kernel space as well (check the `thrid-party/wasm3/` submodule).
 
 Current restrictions for kernel-space wasm3:
 - no floating point support [can be soft-emulated if needed]
@@ -24,7 +24,7 @@ Our primary development environment is [Lima](https://lima-vm.io) since it suppo
 
 ## CLI
 
-The Wasm kernel module comes with a user space [CLI](./cli/) written in Go. The kernel module exposes a character device: `/dev/wasm`, this can be used to interact with the module through the CLI. One usually runs this CLI on the Linux host itself.
+The Wasm kernel module comes with a user space [CLI](./cli/) written in Go. The kernel module exposes a character device: `/dev/wasm`, which can be used to interact with the module through the CLI. One usually runs this CLI on the Linux host itself.
 
 ### Build
 
@@ -41,7 +41,7 @@ You can find a few sample applications compiled to Wasm and also EBPF code snipp
 Build and load the Hello World Wasm module to the runtime inside the kernel module:
 
 ```bash
-make build-hello-world-rust-wasm
+make build-rust-wasm # This builds basically all Rust Wasm samples
 lima make load-hello-world-rust-wasm
 ```
 
