@@ -5,3 +5,8 @@ members = [
     "samples/dns-rust",
     "samples/hello-world-rust"
 ]
+
+[profile.release]
+lto = 'thin'
+opt-level = "s"
+debug = false
