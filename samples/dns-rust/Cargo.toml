@@ -12,6 +12,3 @@ domain = { version = "0.7.1", default-features = false }
 
 [[bin]]
 name = "dns-rust"
-
-[profile.release]
-lto = true
