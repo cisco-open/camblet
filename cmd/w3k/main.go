@@ -26,12 +26,12 @@ import (
 	"errors"
 	"flag"
 	"io/fs"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/signal"
 	"path/filepath"
 	"strings"
+	"syscall"
 
 	cli "github.com/cristalhq/acmd"
 )
@@ -107,7 +107,7 @@ var cmds = []cli.Command{
 			}
 
 			filename := cfg.File
-			code, err := ioutil.ReadFile(filename)
+			code, err := os.ReadFile(filename)
 			if err != nil {
 				return err
 			}
@@ -212,7 +212,7 @@ func sendCommand(c Command) error {
 	// append end of string to j
 	j = append(j, '\n')
 
-	err = ioutil.WriteFile("/dev/wasm", j, fs.ModeDevice)
+	err = os.WriteFile("/dev/wasm", j, fs.ModeDevice)
 	if err != nil {
 		return err
 	}
@@ -222,7 +222,7 @@ func sendCommand(c Command) error {
 
 func main() {
 	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
 		<-c
 		os.Exit(0)
