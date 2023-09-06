@@ -34,15 +34,26 @@ import (
 	"syscall"
 
 	cli "github.com/cristalhq/acmd"
+
+	"github.com/cisco-open/wasm-kernel-module/pkg/tls"
 )
 
+type CommandContext struct {
+	UID         int    `json:"uid,omitempty"`
+	GID         int    `json:"gid,omitempty"`
+	PID         int    `json:"pid,omitempty"`
+	CommandName string `json:"command_name,omitempty"`
+	CommandPath string `json:"command_path,omitempty"`
+}
+
 type Command struct {
-	ID         string `json:"id,omitempty"`
-	Command    string `json:"command"`
-	Name       string `json:"name,omitempty"`
-	Code       []byte `json:"code,omitempty"`
-	Entrypoint string `json:"entrypoint,omitempty"`
-	Data       string `json:"data,omitempty"`
+	Context    CommandContext `json:"context,omitempty"`
+	ID         string         `json:"id,omitempty"`
+	Command    string         `json:"command"`
+	Name       string         `json:"name,omitempty"`
+	Code       []byte         `json:"code,omitempty"`
+	Entrypoint string         `json:"entrypoint,omitempty"`
+	Data       string         `json:"data,omitempty"`
 }
 
 type Answer struct {
@@ -66,6 +77,10 @@ func AcceptOk(Command) (string, error) {
 	return "ok", nil
 }
 
+func ConnectOk(Command) (string, error) {
+	return "ok", nil
+}
+
 type loadFlags struct {
 	File       string
 	Name       string
@@ -77,6 +92,18 @@ func (c *loadFlags) Flags() *flag.FlagSet {
 	fs.StringVar(&c.File, "file", "my-module.wasm", "the file path of the loaded Wasm module")
 	fs.StringVar(&c.Name, "name", "", "how to name the loaded Wasm module")
 	fs.StringVar(&c.Entrypoint, "entrypoint", "", "initial function to invoke after loading the Wasm module")
+
+	return fs
+}
+
+type serverFlags struct {
+	CAPemFileName string
+}
+
+func (c *serverFlags) Flags() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.StringVar(&c.CAPemFileName, "ca-pem-filename", "ca.pem", "root CA pem location for CA signer")
+
 	return fs
 }
 
@@ -86,7 +113,8 @@ var commandHandlers map[string]CommandHandler
 
 func init() {
 	commandHandlers = map[string]CommandHandler{
-		"accept": CommandHandlerFunc(AcceptOk),
+		"accept":  CommandHandlerFunc(AcceptOk),
+		"connect": CommandHandlerFunc(ConnectOk),
 	}
 }
 
@@ -144,7 +172,59 @@ var cmds = []cli.Command{
 		Name:        "server",
 		Description: "run the support server for the kernel module",
 		Alias:       "s",
+		FlagSet:     &serverFlags{},
 		ExecFunc: func(ctx context.Context, args []string) error {
+			var cfg serverFlags
+			if err := cfg.Flags().Parse(args); err != nil {
+				return err
+			}
+
+			signerCA, err := tls.NewSignerCA(cfg.CAPemFileName)
+			if err != nil {
+				return err
+			}
+			_ = signerCA.Certificate
+
+			commandHandlers["csr_sign"] = CommandHandlerFunc(func(c Command) (string, error) {
+				var data struct {
+					CSR string `json:"csr"`
+				}
+
+				if err := json.Unmarshal([]byte(c.Data), &data); err != nil {
+					return "jsonerror", err
+				}
+
+				containers, err := tls.ParsePEMs([]byte(data.CSR))
+				if err != nil {
+					return "error", err
+				}
+
+				if len(containers) != 1 {
+					return "error", errors.New("invalid csr")
+				}
+
+				certificate, err := signerCA.SignCertificateRequest(containers[0].GetX509CertificateRequest().CertificateRequest)
+				if err != nil {
+					return "error", err
+				}
+
+				caCertificate := signerCA.GetCaCertificate()
+
+				var response struct {
+					Certificate  *tls.X509Certificate   `json:"certificate"`
+					TrustAnchors []*tls.X509Certificate `json:"trust_anchors"`
+				}
+
+				response.Certificate = certificate
+				response.TrustAnchors = append(response.TrustAnchors, caCertificate)
+
+				j, err := json.Marshal(response)
+				if err != nil {
+					return "error", err
+				}
+
+				return string(j), nil
+			})
 
 			dev, err := os.OpenFile("/dev/wasm", os.O_RDWR, 0666)
 			if err != nil {
@@ -165,7 +245,7 @@ var cmds = []cli.Command{
 					return err
 				}
 
-				log.Printf("received command: %+v", command)
+				log.Printf("received command: (%s) %+v", scanner.Bytes(), command)
 
 				if handler, ok := commandHandlers[command.Command]; ok {
 					answer, err = handler.HandleCommand(command)

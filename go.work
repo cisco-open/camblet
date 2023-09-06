@@ -1,5 +1,5 @@
 go 1.20
 
-use ./cmd/w3k
+use .
 
 use ./samples/dns-go
