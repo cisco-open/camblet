@@ -18,9 +18,14 @@
  */
 
 use std::str::FromStr;
+use std::str;
 
 use x509_cert::builder::{RequestBuilder, Builder};
 use x509_cert::der::EncodePem;
+use x509_cert::der::asn1::Ia5String;
+use x509_cert::ext::pkix::SubjectAltName;
+use x509_cert::ext::pkix::name::GeneralName;
+use x509_cert::ext::pkix::name::GeneralName::{DnsName, UniformResourceIdentifier, Rfc822Name};
 use x509_cert::name::Name;
 use rsa::pkcs1v15::SigningKey;
 use rsa::pkcs8::{DecodePrivateKey, LineEnding};
@@ -73,22 +78,64 @@ macro_rules! println {
 
 //Using single return value since the multi return value is still buggy. See https://github.com/rust-lang/rust/issues/73755
 #[no_mangle]
-pub unsafe extern "C" fn csr_gen(priv_key: &[u8]) -> i64 {
-    let subject = match Name::from_str("CN=banzai.cloud") {
-        Ok(name) => name,
-        Err(err) => { println!("error parsing name: {}", err); return 0 },
-    };
+pub unsafe extern "C" fn csr_gen(priv_key: &[u8], subject: &[u8], dns: &[u8], uri: &[u8], email: &[u8], ip: &[u8]) -> i64 {
 
     let private_key = match RsaPrivateKey::from_pkcs8_der(priv_key) {
         Ok(key) => key,
         Err(err) => { println!("error parsing private key: {}", err); return 0 },
     };
     let signing_key = SigningKey::<Sha256>::new(private_key);
+
+    // Parse cert related parameters
+    let raw_subject = match str::from_utf8(&subject) {
+        Ok(s) => s,
+        Err(err) => { println!("error parsing subject: {}", err); return 0},
+    };
+    let subject = match Name::from_str(raw_subject) {
+        Ok(name) => name,
+        Err(err) => { println!("error parsing name: {}", err); return 0 },
+    };
+    use std::net::IpAddr;
+
+    let raw_ip = match str::from_utf8(&ip) {
+        Ok(ip) => ip,
+        Err(err) => { println!("error parsing ip: {}", err); return 0},
+    };
+    let parsed_ip = match IpAddr::from_str(raw_ip) {
+        Ok(pip) => pip,
+        Err(err) => { println!("error processing ip: {}", err); return 0},
+    };
+
+    let raw_dns = match Ia5String::new(&dns) {
+        Ok(dns) => dns,
+        Err(err) => { println!("error parsing dns name: {}", err); return 0},
+    };
+
+    let raw_uri = match Ia5String::new(&uri) {
+        Ok(uri) => uri,
+        Err(err) => { println!("error parsing uri name: {}", err); return 0},
+    };
+
+    let raw_email = match Ia5String::new(&email) {
+        Ok(email) => email,
+        Err(err) => {println!("error parsing email: {}", err); return 0},
+    };
     
-    let builder = match RequestBuilder::new(subject, &signing_key) {
+    let mut builder = match RequestBuilder::new(subject, &signing_key) {
         Ok(builder) => builder,
         Err(err) => { println!("error creating builder: {}", err); return 0 },
     };
+
+    let _ = match builder.add_extension(&SubjectAltName(vec![
+        DnsName(raw_dns), 
+        UniformResourceIdentifier(raw_uri),
+        GeneralName::from(parsed_ip),
+        Rfc822Name(raw_email),
+        ])) {
+            Ok(()) => (),
+            Err(err) => { println!("error adding extension Subject Alt Name to cert req builder: {}", err); return 0},
+    };
+
     let cert_req = match builder.build() {
         Ok(cert_req) => cert_req,
         Err(err) => { println!("error building cert request: {}", err); return 0 },
