@@ -91,9 +91,9 @@ pub unsafe extern "C" fn csr_gen(priv_key: &[u8], subject: &[u8], dns: &[u8], ur
         Ok(s) => s,
         Err(err) => { println!("error parsing subject: {}", err); return 0},
     };
-    let subject = match Name::from_str(raw_subject) {
+    let subject = match Name::from_str(raw_subject.trim_end_matches(char::from(0))) {
         Ok(name) => name,
-        Err(err) => { println!("error parsing name: {}", err); return 0 },
+        Err(err) => { println!("error processing subject: {}", err); return 0 },
     };
     use std::net::IpAddr;
 
@@ -101,7 +101,7 @@ pub unsafe extern "C" fn csr_gen(priv_key: &[u8], subject: &[u8], dns: &[u8], ur
         Ok(ip) => ip,
         Err(err) => { println!("error parsing ip: {}", err); return 0},
     };
-    let parsed_ip = match IpAddr::from_str(raw_ip) {
+    let parsed_ip: IpAddr = match raw_ip.trim_end_matches(char::from(0)).parse() {
         Ok(pip) => pip,
         Err(err) => { println!("error processing ip: {}", err); return 0},
     };
