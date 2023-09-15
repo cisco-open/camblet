@@ -102,7 +102,7 @@ type serverFlags struct {
 
 func (c *serverFlags) Flags() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.StringVar(&c.CAPemFileName, "ca-pem-filename", "ca.pem", "root CA pem location for CA signer")
+	fs.StringVar(&c.CAPemFileName, "ca-pem-filename", "", "root CA pem location for CA signer")
 
 	return fs
 }
