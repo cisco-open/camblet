@@ -43,6 +43,7 @@ const (
 	CertificateSupportedPEMType        SupportedPEMType = "CERTIFICATE"
 	PublicKeySupportedPEMType          SupportedPEMType = "PUBLIC KEY"
 	PrivateKeySupportedPEMType         SupportedPEMType = "PRIVATE KEY"
+	RSAPrivateKeySupportedPEMType      SupportedPEMType = "RSA PRIVATE KEY"
 	ECPrivateKeySupportedPEMType       SupportedPEMType = "EC PRIVATE KEY"
 )
 
@@ -246,7 +247,7 @@ func ParsePEM(block *pem.Block) (*Container, error) {
 			Type:   PublicKeyContainerType,
 			Object: obj,
 		}, err
-	case PrivateKeySupportedPEMType, ECPrivateKeySupportedPEMType:
+	case PrivateKeySupportedPEMType, RSAPrivateKeySupportedPEMType, ECPrivateKeySupportedPEMType:
 		obj, err := ParseX509PrivateKey(block.Bytes)
 
 		return &Container{

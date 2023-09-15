@@ -20,9 +20,12 @@
 package tls
 
 import (
+	"bytes"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
+	"crypto/x509/pkix"
+	"encoding/pem"
 	"math/big"
 	"time"
 
@@ -37,7 +40,18 @@ type SignerCA struct {
 func NewSignerCA(caPEMFileName string) (*SignerCA, error) {
 	signer := &SignerCA{}
 
-	containers, err := ParsePEMFromFile(caPEMFileName)
+	var containers []*Container
+	var err error
+
+	if caPEMFileName == "" {
+		if caCertPEM, err := signer.createCACertPEM(); err != nil {
+			return nil, errors.WrapIf(err, "could not create self signed CA PEM")
+		} else {
+			containers, err = ParsePEMs(caCertPEM)
+		}
+	} else {
+		containers, err = ParsePEMFromFile(caPEMFileName)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -64,6 +78,46 @@ func NewSignerCA(caPEMFileName string) (*SignerCA, error) {
 	}
 
 	return signer, nil
+}
+
+func (s *SignerCA) createCACertPEM() (caPEM []byte, err error) {
+	serial, err := rand.Int(rand.Reader, (&big.Int{}).Exp(big.NewInt(2), big.NewInt(159), nil))
+	if err != nil {
+		return nil, err
+	}
+
+	ca := &x509.Certificate{
+		SerialNumber:          serial,
+		Subject:               pkix.Name{},
+		NotBefore:             time.Now(),
+		NotAfter:              time.Now().AddDate(10, 0, 0),
+		IsCA:                  true,
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
+		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
+		BasicConstraintsValid: true,
+	}
+
+	caPrivKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		return nil, errors.WrapIf(err, "could not generate RSA key for the CA")
+	}
+
+	caPrivKeyPEM := pem.EncodeToMemory(&pem.Block{
+		Type:  string(RSAPrivateKeySupportedPEMType),
+		Bytes: x509.MarshalPKCS1PrivateKey(caPrivKey),
+	})
+
+	caBytes, err := x509.CreateCertificate(rand.Reader, ca, ca, &caPrivKey.PublicKey, caPrivKey)
+	if err != nil {
+		return nil, errors.WrapIf(err, "could not create CA certificate")
+	}
+
+	caCertPEM := pem.EncodeToMemory(&pem.Block{
+		Type:  string(CertificateSupportedPEMType),
+		Bytes: caBytes,
+	})
+
+	return bytes.Join([][]byte{caCertPEM, caPrivKeyPEM}, nil), nil
 }
 
 func (s *SignerCA) GetCaCertificate() *X509Certificate {
