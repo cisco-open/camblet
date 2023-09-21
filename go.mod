@@ -1,4 +1,4 @@
-module github.com/cisco-open/wasm-kernel-module
+module github.com/cisco-open/nasp
 
 go 1.18
 
