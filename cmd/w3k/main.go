@@ -35,7 +35,7 @@ import (
 
 	cli "github.com/cristalhq/acmd"
 
-	"github.com/cisco-open/wasm-kernel-module/pkg/tls"
+	"github.com/cisco-open/nasp/pkg/tls"
 )
 
 type CommandContext struct {

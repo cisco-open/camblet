@@ -13,4 +13,4 @@
 *.wasm
 *.tar.gz
 target/
-w3k
+/w3k
