@@ -21,6 +21,10 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/cisco-open/nasp/internal/cli"
 	"github.com/cisco-open/nasp/internal/cli/cmd"
@@ -31,6 +35,14 @@ const (
 )
 
 func main() {
+	sc := make(chan os.Signal, 1)
+	signal.Notify(sc, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-sc
+		fmt.Println("signal: interrupt")
+		os.Exit(0)
+	}()
+
 	c := cli.NewCLI(name, cli.BuildInfo{
 		Version:    version,
 		CommitHash: commitHash,
