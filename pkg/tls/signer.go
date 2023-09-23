@@ -44,9 +44,9 @@ func NewSignerCA(caPEMFileName string) (*SignerCA, error) {
 	var err error
 
 	if caPEMFileName == "" {
-		if caCertPEM, err := signer.createCACertPEM(); err != nil {
+		if caCertPEM, createErr := signer.createCACertPEM(); createErr != nil {
 			return nil, errors.WrapIf(err, "could not create self signed CA PEM")
-		} else {
+		} else { //nolint:revive
 			containers, err = ParsePEMs(caCertPEM)
 		}
 	} else {
