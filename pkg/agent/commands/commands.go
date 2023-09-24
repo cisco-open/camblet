@@ -29,7 +29,6 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/werbenhu/eventbus"
 
-	"github.com/cisco-open/nasp/internal/cli"
 	"github.com/cisco-open/nasp/pkg/agent/messenger"
 )
 
@@ -51,9 +50,10 @@ type handler struct {
 	handlersMux sync.Mutex
 }
 
-func NewHandler(eventBus *eventbus.EventBus) (*handler, error) {
+func NewHandler(eventBus *eventbus.EventBus, logger logr.Logger) (*handler, error) {
 	h := &handler{
 		eventBus: eventBus,
+		logger:   logger,
 
 		handlers: make(map[string]CommandHandler),
 	}
@@ -70,8 +70,6 @@ func NewHandler(eventBus *eventbus.EventBus) (*handler, error) {
 }
 
 func (h *handler) Run(ctx context.Context) error {
-	h.logger = cli.LoggerFromContext(ctx)
-
 	return h.eventBus.Subscribe(messenger.MessageIncomingTopic, h.handleCommand)
 }
 
