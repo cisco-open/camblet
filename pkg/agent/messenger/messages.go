@@ -17,41 +17,28 @@
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package main
+package messenger
 
-import (
-	"context"
-	"fmt"
-	"os"
-	"os/signal"
-	"syscall"
+import "encoding/json"
 
-	"github.com/cisco-open/nasp/internal/cli"
-	"github.com/cisco-open/nasp/internal/cli/cmd"
-)
+type MessageType string
 
-const (
-	name = "Nasp"
-)
+type Message struct {
+	Type MessageType `json:"type"`
+	Data []byte      `json:"data"`
+}
 
-func main() {
-	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		<-sc
-		fmt.Println("signal: interrupt")
-		os.Exit(0)
-	}()
-
-	c := cli.NewCLI(name, cli.BuildInfo{
-		Version:    version,
-		CommitHash: commitHash,
-		BuildDate:  buildDate,
-	})
-
-	ctx := cli.ContextWithCLI(context.Background(), c)
-
-	if err := cmd.NewRootCommand(c).ExecuteContext(ctx); err != nil {
-		c.Logger().Error(err, "command error")
+func (m *Message) SetData(v any) error {
+	j, err := json.Marshal(v)
+	if err != nil {
+		return err
 	}
+
+	m.Data = j
+
+	return nil
+}
+
+func (m Message) Unmarshal(v any) error {
+	return json.Unmarshal(m.Data, v)
 }

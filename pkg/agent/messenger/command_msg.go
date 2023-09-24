@@ -17,27 +17,49 @@
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package server
+package messenger
 
-import (
-	"github.com/spf13/cobra"
+import "emperror.dev/errors"
 
-	"github.com/cisco-open/nasp/internal/cli"
-)
+const CommandMessageType MessageType = "command"
 
-func NewCommand(c cli.CLI) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:               "server",
-		Short:             "Nasp server",
-		SilenceErrors:     false,
-		SilenceUsage:      true,
-		DisableAutoGenTag: true,
-		Run:               func(cmd *cobra.Command, params []string) {},
+func NewCommand(cmd Command) Message {
+	m := &Message{
+		Type: CommandMessageType,
 	}
 
-	cmd.Flags().StringP("address", "a", "127.0.0.2", "ab")
+	_ = m.SetData(cmd)
 
-	cli.BindCMDFlags(c.Viper(), cmd)
+	return *m
+}
 
-	return cmd
+func GetCommand(msg Message) (Command, error) {
+	var cmd Command
+	if msg.Type != CommandMessageType {
+		return cmd, errors.New("invalid message type")
+	}
+
+	if err := msg.Unmarshal(&cmd); err != nil {
+		return cmd, err
+	}
+
+	return cmd, nil
+}
+
+type CommandContext struct {
+	UID         int    `json:"uid,omitempty"`
+	GID         int    `json:"gid,omitempty"`
+	PID         int    `json:"pid,omitempty"`
+	CommandName string `json:"command_name,omitempty"`
+	CommandPath string `json:"command_path,omitempty"`
+}
+
+type Command struct {
+	Context    CommandContext `json:"context,omitempty"`
+	ID         string         `json:"id,omitempty"`
+	Command    string         `json:"command"`
+	Name       string         `json:"name,omitempty"`
+	Code       []byte         `json:"code,omitempty"`
+	Entrypoint string         `json:"entrypoint,omitempty"`
+	Data       string         `json:"data,omitempty"`
 }
