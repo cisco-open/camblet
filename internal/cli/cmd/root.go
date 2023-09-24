@@ -30,7 +30,7 @@ import (
 
 	"github.com/cisco-open/nasp/internal/cli"
 	"github.com/cisco-open/nasp/internal/cli/cmd/agent"
-	"github.com/cisco-open/nasp/internal/config"
+	"github.com/cisco-open/nasp/pkg/config"
 )
 
 func NewRootCommand(c cli.CLI) *cobra.Command {

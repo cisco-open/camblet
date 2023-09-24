@@ -33,7 +33,7 @@ import (
 	"github.com/werbenhu/eventbus"
 	"k8s.io/klog/v2"
 
-	"github.com/cisco-open/nasp/internal/config"
+	"github.com/cisco-open/nasp/pkg/config"
 )
 
 type CLI interface {

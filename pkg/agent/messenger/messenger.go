@@ -25,15 +25,15 @@ import (
 	"encoding/json"
 	"os"
 
+	"github.com/go-logr/logr"
 	"github.com/werbenhu/eventbus"
-
-	"github.com/cisco-open/nasp/internal/cli"
 )
 
 type messenger struct {
 	dev *os.File
 
 	eventBus *eventbus.EventBus
+	logger   logr.Logger
 }
 
 const (
@@ -41,22 +41,22 @@ const (
 	MessageOutgoingTopic string = "message.outgoing"
 )
 
-func New(eventBus *eventbus.EventBus) *messenger {
+func New(eventBus *eventbus.EventBus, logger logr.Logger) *messenger {
 	m := &messenger{
 		eventBus: eventBus,
+		logger:   logger,
 	}
 
 	return m
 }
 
 func (m *messenger) Run(ctx context.Context, name string) error {
-	log := cli.LoggerFromContext(ctx)
-	log.Info("starting kernel device message handler")
+	m.logger.Info("starting kernel device message handler")
 
 	if err := m.eventBus.Subscribe(MessageOutgoingTopic, func(topic string, msg Message) {
 		if m.dev != nil {
 			if _, err := m.dev.Write(append(msg.Data, '\n')); err != nil {
-				log.Error(err, "could not write command reply")
+				m.logger.Error(err, "could not write command reply")
 			}
 		}
 	}); err != nil {
