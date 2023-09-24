@@ -37,7 +37,7 @@ func NewCommand(c cli.CLI) *cobra.Command {
 		SilenceUsage:      true,
 		DisableAutoGenTag: true,
 		RunE: func(cmd *cobra.Command, params []string) error {
-			h, err := commands.NewHandler(c.EventBus())
+			h, err := commands.NewHandler(c.EventBus(), c.Logger())
 			if err != nil {
 				return err
 			}
@@ -47,10 +47,10 @@ func NewCommand(c cli.CLI) *cobra.Command {
 
 			errChan := make(chan error)
 			go func() {
-				errChan <- messenger.New(c.EventBus()).Run(cmd.Context(), c.Configuration().Agent.KernelModuleDevice)
+				errChan <- messenger.New(c.EventBus(), c.Logger()).Run(cmd.Context(), c.Configuration().Agent.KernelModuleDevice)
 			}()
 			go func() {
-				errChan <- server.New(c.Configuration().Agent).ListenAndServe(cmd.Context())
+				errChan <- server.New(c.Configuration().Agent, c.EventBus(), c.Logger()).ListenAndServe(cmd.Context())
 			}()
 
 			select {

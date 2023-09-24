@@ -27,12 +27,13 @@ import (
 	"path/filepath"
 
 	"emperror.dev/errors"
+	"github.com/go-logr/logr"
+	"github.com/werbenhu/eventbus"
 	"google.golang.org/grpc"
 
 	apicommonv1 "github.com/cisco-open/nasp/api/agent/common/v1"
-	"github.com/cisco-open/nasp/internal/cli"
-	"github.com/cisco-open/nasp/internal/config"
 	commonv1 "github.com/cisco-open/nasp/pkg/agent/api/common/v1"
+	"github.com/cisco-open/nasp/pkg/config"
 )
 
 type Server interface {
@@ -40,24 +41,23 @@ type Server interface {
 }
 
 type server struct {
-	conf config.Agent
+	conf     config.Agent
+	eventBus *eventbus.EventBus
+	logger   logr.Logger
 }
 
-func New(conf config.Agent) Server {
+func New(conf config.Agent, eventBus *eventbus.EventBus, logger logr.Logger) Server {
 	return &server{
-		conf: conf,
+		conf:     conf,
+		eventBus: eventBus,
+		logger:   logger,
 	}
 }
 
 func (s *server) ListenAndServe(ctx context.Context) error {
 	server := grpc.NewServer()
 
-	c := cli.FromContext(ctx)
-	if c == nil {
-		return errors.New("cli is missing from context")
-	}
-
-	apicommonv1.RegisterCommonServer(server, commonv1.New(c.EventBus()))
+	apicommonv1.RegisterCommonServer(server, commonv1.New(s.eventBus))
 
 	localAddr, err := getUnixAddr(s.conf.LocalAddress)
 	if err != nil {
@@ -74,7 +74,7 @@ func (s *server) ListenAndServe(ctx context.Context) error {
 		return err
 	}
 
-	log := cli.LoggerFromContext(ctx)
+	log := s.logger
 
 	log.Info("starting Agent APIs")
 	errChan := make(chan error)
