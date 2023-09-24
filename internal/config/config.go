@@ -28,9 +28,7 @@ import (
 // Config holds any kind of configuration that comes from the outside world and
 // is necessary for running the application
 type Config struct {
-	Server struct {
-		Address string `json:"address,omitempty"`
-	} `json:"server,omitemtpy,omitempty"`
+	Agent Agent `json:"agent,omitemtpy,omitempty"`
 }
 
 // Validate validates the configuration

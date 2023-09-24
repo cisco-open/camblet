@@ -30,6 +30,8 @@ import (
 	"github.com/iand/logfmtr"
 	"github.com/mattn/go-isatty"
 	"github.com/spf13/viper"
+	"github.com/werbenhu/eventbus"
+	"k8s.io/klog/v2"
 
 	"github.com/cisco-open/nasp/internal/config"
 )
@@ -39,7 +41,9 @@ type CLI interface {
 	BuildInfo() BuildInfo
 	Color() bool
 	Interactive() bool
+
 	Viper() *viper.Viper
+	EventBus() *eventbus.EventBus
 
 	Logger() logr.Logger
 
@@ -66,8 +70,9 @@ type cli struct {
 	name      string
 	buildInfo BuildInfo
 
-	logger logr.Logger
-	viper  *viper.Viper
+	logger   logr.Logger
+	viper    *viper.Viper
+	eventBus *eventbus.EventBus
 
 	configuration config.Config
 }
@@ -86,11 +91,21 @@ func FromContext(ctx context.Context) CLI {
 	return nil
 }
 
+func LoggerFromContext(ctx context.Context) logr.Logger {
+	cli := FromContext(ctx)
+	if cli == nil {
+		return klog.Background()
+	}
+
+	return cli.Logger()
+}
+
 func NewCLI(name string, buildInfo BuildInfo) CLI {
 	return &cli{
 		name:      name,
 		buildInfo: buildInfo,
 		viper:     viper.New(),
+		eventBus:  eventbus.New(),
 	}
 }
 
@@ -114,6 +129,10 @@ func (c *cli) Viper() *viper.Viper {
 	return c.viper
 }
 
+func (c *cli) EventBus() *eventbus.EventBus {
+	return c.eventBus
+}
+
 func (c *cli) Logger() logr.Logger {
 	if c.logger == (logr.Logger{}) {
 		c.logger = c.createLogger()
@@ -127,6 +146,7 @@ func (c *cli) createLogger() logr.Logger {
 	opts.AddCaller = true
 	opts.Colorize = c.Color()
 	opts.Humanize = c.Interactive()
+	opts.CallerSkip = 2
 
 	return logfmtr.NewWithOptions(opts)
 }

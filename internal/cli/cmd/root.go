@@ -29,7 +29,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/cisco-open/nasp/internal/cli"
-	"github.com/cisco-open/nasp/internal/cli/cmd/server"
+	"github.com/cisco-open/nasp/internal/cli/cmd/agent"
 	"github.com/cisco-open/nasp/internal/config"
 )
 
@@ -46,7 +46,7 @@ func NewRootCommand(c cli.CLI) *cobra.Command {
 
 	v := c.Viper()
 
-	cmd.AddCommand(server.NewCommand(c))
+	cmd.AddCommand(agent.NewCommand(c))
 
 	flags := cmd.PersistentFlags()
 
