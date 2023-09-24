@@ -17,41 +17,78 @@
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package main
+package messenger
 
 import (
+	"bufio"
 	"context"
-	"fmt"
+	"encoding/json"
 	"os"
-	"os/signal"
-	"syscall"
+
+	"github.com/werbenhu/eventbus"
 
 	"github.com/cisco-open/nasp/internal/cli"
-	"github.com/cisco-open/nasp/internal/cli/cmd"
 )
+
+type messenger struct {
+	dev *os.File
+
+	eventBus *eventbus.EventBus
+}
 
 const (
-	name = "Nasp"
+	MessageIncomingTopic string = "message.incoming"
+	MessageOutgoingTopic string = "message.outgoing"
 )
 
-func main() {
-	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		<-sc
-		fmt.Println("signal: interrupt")
-		os.Exit(0)
+func New(eventBus *eventbus.EventBus) *messenger {
+	m := &messenger{
+		eventBus: eventBus,
+	}
+
+	return m
+}
+
+func (m *messenger) Run(ctx context.Context, name string) error {
+	log := cli.LoggerFromContext(ctx)
+	log.Info("starting kernel device message handler")
+
+	if err := m.eventBus.Subscribe(MessageOutgoingTopic, func(topic string, msg Message) {
+		if m.dev != nil {
+			if _, err := m.dev.Write(append(msg.Data, '\n')); err != nil {
+				log.Error(err, "could not write command reply")
+			}
+		}
+	}); err != nil {
+		return err
+	}
+
+	var err error
+	m.dev, err = os.OpenFile(name, os.O_RDWR, 0666)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		m.dev.Close()
+		m.dev = nil
 	}()
 
-	c := cli.NewCLI(name, cli.BuildInfo{
-		Version:    version,
-		CommitHash: commitHash,
-		BuildDate:  buildDate,
-	})
+	scanner := bufio.NewScanner(m.dev)
+	for scanner.Scan() {
+		var command Command
+		err := json.Unmarshal(scanner.Bytes(), &command)
+		if err != nil {
+			return err
+		}
 
-	ctx := cli.ContextWithCLI(context.Background(), c)
-
-	if err := cmd.NewRootCommand(c).ExecuteContext(ctx); err != nil {
-		c.Logger().Error(err, "command error")
+		err = m.eventBus.Publish(MessageIncomingTopic, Message{
+			Type: CommandMessageType,
+			Data: scanner.Bytes(),
+		})
+		if err != nil {
+			return err
+		}
 	}
+
+	return nil
 }

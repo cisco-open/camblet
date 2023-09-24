@@ -17,41 +17,37 @@
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package main
+package v1
 
 import (
 	"context"
-	"fmt"
-	"os"
-	"os/signal"
-	"syscall"
 
-	"github.com/cisco-open/nasp/internal/cli"
-	"github.com/cisco-open/nasp/internal/cli/cmd"
+	"google.golang.org/protobuf/types/known/emptypb"
+
+	"github.com/werbenhu/eventbus"
+
+	commonv1 "github.com/cisco-open/nasp/api/agent/common/v1"
+	"github.com/cisco-open/nasp/pkg/agent/messenger"
 )
 
-const (
-	name = "Nasp"
-)
+type Service struct {
+	commonv1.UnimplementedCommonServer
 
-func main() {
-	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		<-sc
-		fmt.Println("signal: interrupt")
-		os.Exit(0)
-	}()
+	eventBus *eventbus.EventBus
+}
 
-	c := cli.NewCLI(name, cli.BuildInfo{
-		Version:    version,
-		CommitHash: commitHash,
-		BuildDate:  buildDate,
+func New(eventBus *eventbus.EventBus) *Service {
+	return &Service{
+		eventBus: eventBus,
+	}
+}
+
+func (s *Service) ResetWASM(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
+	msg := messenger.NewCommand(messenger.Command{
+		Command: "reset",
 	})
 
-	ctx := cli.ContextWithCLI(context.Background(), c)
+	s.eventBus.Publish(messenger.MessageOutgoingTopic, msg)
 
-	if err := cmd.NewRootCommand(c).ExecuteContext(ctx); err != nil {
-		c.Logger().Error(err, "command error")
-	}
+	return &emptypb.Empty{}, nil
 }

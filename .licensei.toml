@@ -7,10 +7,12 @@ approved = [
   "unlicense",
 ]
 
-ignored = []
+ignored = [
+  "google.golang.org/protobuf",
+]
 
 [header]
-ignoreFiles = []
+ignoreFiles = ["*.pb.go"]
 ignorePaths = ["playground", "samples"]
 template = """/*
  * The MIT License (MIT)

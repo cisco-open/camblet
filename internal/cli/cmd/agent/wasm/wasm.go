@@ -17,41 +17,24 @@
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package main
+package wasm
 
 import (
-	"context"
-	"fmt"
-	"os"
-	"os/signal"
-	"syscall"
+	"github.com/spf13/cobra"
 
 	"github.com/cisco-open/nasp/internal/cli"
-	"github.com/cisco-open/nasp/internal/cli/cmd"
 )
 
-const (
-	name = "Nasp"
-)
-
-func main() {
-	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		<-sc
-		fmt.Println("signal: interrupt")
-		os.Exit(0)
-	}()
-
-	c := cli.NewCLI(name, cli.BuildInfo{
-		Version:    version,
-		CommitHash: commitHash,
-		BuildDate:  buildDate,
-	})
-
-	ctx := cli.ContextWithCLI(context.Background(), c)
-
-	if err := cmd.NewRootCommand(c).ExecuteContext(ctx); err != nil {
-		c.Logger().Error(err, "command error")
+func NewCommand(c cli.CLI) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:               "wasm",
+		Short:             "Manage wasm modules",
+		SilenceErrors:     true,
+		SilenceUsage:      true,
+		DisableAutoGenTag: true,
 	}
+
+	cmd.AddCommand(NewResetCommand(c))
+
+	return cmd
 }
