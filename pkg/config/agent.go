@@ -20,6 +20,6 @@
 package config
 
 type Agent struct {
-	LocalAddress       string `json:"localAddress,omitempty" mapstructure:"local-address"`
+	LocalAddress       string `json:"localAddress,omitempty" mapstructure:"agent-local-address"`
 	KernelModuleDevice string `json:"kernelModuleDevice" mapstructure:"kernel-module-device"`
 }

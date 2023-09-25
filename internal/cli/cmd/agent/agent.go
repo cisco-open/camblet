@@ -67,7 +67,7 @@ func NewCommand(c cli.CLI) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().String("local-address", "/tmp/nasp/agent.sock", "Local address")
+	cmd.PersistentFlags().String("agent-local-address", "/tmp/nasp/agent.sock", "Local address")
 	cmd.Flags().String("kernel-module-device", "/dev/wasm", "Device for the Nasp kernel module")
 
 	cli.BindCMDFlags(c.Viper(), cmd)
