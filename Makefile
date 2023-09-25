@@ -10,7 +10,7 @@ LDFLAGS += -X main.version=${VERSION} -X main.commitHash=${COMMIT_HASH} -X main.
 
 # Dependency versions
 GOLANGCI_VERSION = 1.54.2
-GOLANG_VERSION = 1.20
+GOLANG_VERSION = 1.21
 LICENSEI_VERSION = 0.9.0
 
 export CGO_ENABLED ?= 0
