@@ -4,6 +4,4 @@ toolchain go1.21.1
 
 use .
 
-use ./samples/dns-go
-
 use ./api

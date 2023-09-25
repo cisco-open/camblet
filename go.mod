@@ -6,7 +6,6 @@ require (
 	emperror.dev/errors v0.8.1
 	github.com/AlecAivazis/survey/v2 v2.3.7
 	github.com/cisco-open/nasp/api v0.0.0-00010101000000-000000000000
-	github.com/cristalhq/acmd v0.11.1
 	github.com/go-logr/logr v1.2.4
 	github.com/iand/logfmtr v0.2.2
 	github.com/mattn/go-isatty v0.0.19

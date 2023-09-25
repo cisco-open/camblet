@@ -18,10 +18,8 @@ jobs:
       with:
         go-version: '1.21'
 
-    - name: Build the CLI
-      run: make build-cli
+    - name: run linter
+      run: make lint
 
-    - name: Build the Rust Wasm samples
-      run: |
-        rustup target add wasm32-unknown-unknown
-        make build-rust-wasm
+    - name: Build the CLI
+      run: make build
