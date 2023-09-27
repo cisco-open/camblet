@@ -1,6 +1,6 @@
-# wasm-kernel-module-cli
+# Nasp
 
-This repository contains a CLI and samples for [wasm-kernel-module](https://github.com/cisco-open/wasm-kernel-module), which is a kernel module that
+This repository contains a CLI and samples for [nasp-kernel-module](https://github.com/cisco-open/nasp-kernel-module), which is a kernel module that
 runs and exposes a [Wasm](https://webassembly.org) runtime as a proof of concept for checking:
 - Wasm is capable of running the kernel space
 - running code in kernel space in almost all languages compiled to Wasm
@@ -20,11 +20,11 @@ Current restrictions for kernel-space wasm3:
 
 ## Development environment
 
-Our primary development environment is [Lima](https://lima-vm.io) since it supports x86_64 and ARM as well. Follow the instructions for [wasm-kernel-module](https://github.com/cisco-open/wasm-kernel-module) for setting up the development environment.
+Our primary development environment is [Lima](https://lima-vm.io) since it supports x86_64 and ARM as well. Follow the instructions for [nasp-kernel-module](https://github.com/cisco-open/nasp-kernel-module) for setting up the development environment.
 
 ## CLI
 
-The Wasm kernel module comes with a user space [CLI](./cli/) written in Go. The kernel module exposes a character device: `/dev/wasm`, which can be used to interact with the module through the CLI. One usually runs this CLI on the Linux host itself.
+The Nasp kernel module comes with a user space [CLI](./cli/) written in Go. The kernel module exposes a character device: `/dev/wasm`, which can be used to interact with the module through the CLI. One usually runs this CLI on the Linux host itself.
 
 ### Build
 
