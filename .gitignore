@@ -13,7 +13,6 @@
 *.wasm
 *.tar.gz
 target/
-/w3k
 bin
 build
 .licensei.cache
