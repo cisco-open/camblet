@@ -1,23 +1,6 @@
-approved = [
-  "mit",
-  "apache-2.0",
-  "bsd-3-clause",
-  "bsd-2-clause",
-  "mpl-2.0",
-  "unlicense",
-]
-
-ignored = [
-  "google.golang.org/protobuf", # bsd-3
-  "gopkg.in/fsnotify.v1",       # bsd-3
-]
-
-[header]
-ignoreFiles = ["*.pb.go"]
-ignorePaths = ["playground", "samples"]
-template = """/*
+/*
  * The MIT License (MIT)
- * Copyright (c) :YEAR: Cisco and/or its affiliates. All rights reserved.
+ * Copyright (c) 2023 Cisco and/or its affiliates. All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -32,4 +15,52 @@ template = """/*
  * TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */"""
+ */
+
+package linux
+
+import (
+	"crypto/sha256"
+	"encoding/hex"
+	"io"
+	"os"
+	"path/filepath"
+	"strconv"
+
+	"emperror.dev/errors"
+)
+
+func GetProcPath(pID int32, lastPath string) string {
+	procPath := os.Getenv("HOST_PROC")
+
+	if procPath == "" {
+		procPath = defaultProcPath
+	}
+
+	return filepath.Join(procPath, strconv.FormatInt(int64(pID), 10), lastPath)
+}
+
+func GetSHA256Digest(path string, limit int64) (string, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+	defer f.Close()
+
+	if limit > 0 {
+		fi, err := f.Stat()
+		if err != nil {
+			return "", errors.WithStack(err)
+		}
+		if fi.Size() > limit {
+			return "", errors.WrapIf(err, "content exceeds size limit")
+		}
+	}
+
+	h := sha256.New()
+	if _, err := io.Copy(h, f); err != nil {
+		return "", errors.WithStack(err)
+	}
+
+	return hex.EncodeToString(h.Sum(nil)), nil
+}

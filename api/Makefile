@@ -3,6 +3,9 @@ default: generate
 apiprotos := \
 	agent/common/v1/common.proto \
 
+protos := \
+	types/common.proto \
+
 bin_dir := bin
 os=$(shell uname -s)
 arch=$(shell uname -m)
@@ -35,7 +38,7 @@ download-deps: $(protoc_bin)
 	@./scripts/download-deps.sh
 
 .PHONY: generate
-generate: download-deps $(apiprotos:.proto=.pb.go) $(apiprotos:.proto=_grpc.pb.go)
+generate: download-deps $(protos:.proto=.pb.go) $(apiprotos:.proto=.pb.go) $(apiprotos:.proto=_grpc.pb.go)
 
 .PHONY: tidy
 tidy: ## Execute go mod tidy

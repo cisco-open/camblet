@@ -54,10 +54,24 @@ type X509Certificate struct {
 	Certificate *x509.Certificate `json:"-"`
 }
 
+func (c X509Certificate) GetPEM() []byte {
+	return pem.EncodeToMemory(&pem.Block{
+		Type:  string(CertificateSupportedPEMType),
+		Bytes: c.Raw,
+	})
+}
+
 type X509CertificateRequest struct {
 	*CertificateCommon `json:",inline"`
 
 	CertificateRequest *x509.CertificateRequest `json:"-"`
+}
+
+func (c X509CertificateRequest) GetPEM() []byte {
+	return pem.EncodeToMemory(&pem.Block{
+		Type:  string(CertificateRequestSupportedPEMType),
+		Bytes: c.Raw,
+	})
 }
 
 type CertificateCommon struct {
@@ -114,6 +128,13 @@ type PublicKey struct {
 	Key any    `json:"-"`
 }
 
+func (c PublicKey) GetPEM() []byte {
+	return pem.EncodeToMemory(&pem.Block{
+		Type:  string(PublicKeySupportedPEMType),
+		Bytes: c.Raw,
+	})
+}
+
 type PrivateKey struct {
 	Type string `json:"type,omitempty"`
 	Size int    `json:"size,omitempty"`
@@ -131,6 +152,13 @@ type PrivateKey struct {
 
 	Raw []byte `json:"raw,omitempty"`
 	Key any    `json:"-"`
+}
+
+func (c PrivateKey) GetPEM() []byte {
+	return pem.EncodeToMemory(&pem.Block{
+		Type:  string(PrivateKeySupportedPEMType),
+		Bytes: c.Raw,
+	})
 }
 
 type ContainerType string
@@ -417,6 +445,8 @@ func ParseX509PrivateKey(der []byte) (*PrivateKey, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	pk.Raw = der
 
 	return pk, nil
 }
