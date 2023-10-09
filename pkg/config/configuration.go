@@ -71,13 +71,18 @@ func bindEnvs(vip *viper.Viper, iface interface{}, parts ...string) {
 	for i := 0; i < ift.NumField(); i++ {
 		v := ifv.Field(i)
 		t := ift.Field(i)
-		tv, ok := t.Tag.Lookup("viperenv")
+		tv, ok := t.Tag.Lookup("json")
 		if !ok {
 			continue
 		}
+		tv, _, _ = strings.Cut(tv, ",")
 		switch v.Kind() {
 		case reflect.Struct:
-			bindEnvs(vip, v.Interface(), append(parts, tv)...)
+			_parts := parts
+			if tv != "" {
+				_parts = append(_parts, tv)
+			}
+			bindEnvs(vip, v.Interface(), _parts...)
 		default:
 			err := vip.BindEnv(strings.Join(append(parts, tv), "."))
 			if err != nil {

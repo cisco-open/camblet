@@ -28,11 +28,18 @@ import (
 // Config holds any kind of configuration that comes from the outside world and
 // is necessary for running the application
 type Config struct {
-	Agent Agent `json:"agent,omitemtpy,omitempty"`
+	Agent Agent `json:"agent,omitemtpy"`
 }
 
 // Validate validates the configuration
 func (c Config) Validate() (Config, error) {
+	var err error
+
+	c.Agent, err = c.Agent.Validate()
+	if err != nil {
+		return c, nil
+	}
+
 	return c, nil
 }
 
