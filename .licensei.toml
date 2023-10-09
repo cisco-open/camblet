@@ -8,7 +8,8 @@ approved = [
 ]
 
 ignored = [
-  "google.golang.org/protobuf",
+  "google.golang.org/protobuf", # bsd-3
+  "gopkg.in/fsnotify.v1",       # bsd-3
 ]
 
 [header]
