@@ -20,6 +20,9 @@
 package cli
 
 import (
+	"strings"
+
+	"github.com/iancoleman/strcase"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -27,14 +30,25 @@ import (
 
 func BindCMDFlags(v *viper.Viper, cmd *cobra.Command) {
 	cmd.Flags().VisitAll(func(flag *pflag.Flag) {
-		if err := v.BindPFlag(cmd.Name()+"."+flag.Name, flag); err != nil {
+		key := cmd.Name() + "." + camelize(strings.TrimPrefix(flag.Name, cmd.Name()+"."))
+		if err := v.BindPFlag(key, flag); err != nil {
 			return
 		}
 	})
 
 	cmd.PersistentFlags().VisitAll(func(flag *pflag.Flag) {
-		if err := v.BindPFlag(cmd.Name()+"."+flag.Name, flag); err != nil {
+		key := cmd.Name() + "." + strcase.ToLowerCamel(strings.TrimPrefix(flag.Name, cmd.Name()+"."))
+		if err := v.BindPFlag(key, flag); err != nil {
 			return
 		}
 	})
+}
+
+func camelize(str string) string {
+	parts := make([]string, 0)
+	for _, p := range strings.Split(str, ".") {
+		parts = append(parts, strcase.ToLowerCamel(p))
+	}
+
+	return strings.Join(parts, ".")
 }
