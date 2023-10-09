@@ -19,7 +19,74 @@
 
 package config
 
+import (
+	"github.com/cisco-open/nasp/pkg/plugin/workloadattestor/docker"
+	"github.com/cisco-open/nasp/pkg/plugin/workloadattestor/k8s"
+	"github.com/cisco-open/nasp/pkg/plugin/workloadattestor/linux"
+	"github.com/cisco-open/nasp/pkg/util"
+)
+
 type Agent struct {
-	LocalAddress       string `json:"localAddress,omitempty" mapstructure:"agent-local-address"`
-	KernelModuleDevice string `json:"kernelModuleDevice" mapstructure:"kernel-module-device"`
+	LocalAddress       string                 `json:"localAddress,omitempty"`
+	KernelModuleDevice string                 `json:"kernelModuleDevice,omitempty"`
+	WorkloadAttestors  AgentWorkloadAttestors `json:"workloadAttestors,omitempty"`
+}
+
+func (c Agent) Validate() (Agent, error) {
+	var err error
+
+	c.WorkloadAttestors, err = c.WorkloadAttestors.Validate()
+	if err != nil {
+		return c, err
+	}
+
+	return c, nil
+}
+
+type AgentWorkloadAttestors struct {
+	Linux struct {
+		linux.Config `json:",inline" mapstructure:",squash"`
+		Enabled      *bool `json:"enabled,omitempty"`
+	} `json:"linux,omitempty"`
+	Docker struct {
+		docker.Config `json:",inline" mapstructure:",squash"`
+		Enabled       *bool `json:"enabled,omitempty"`
+	} `json:"docker,omitempty"`
+	K8s struct {
+		k8s.Config `json:",inline" mapstructure:",squash"`
+		Enabled    *bool `json:"enabled,omitempty"`
+	} `json:"k8s,omitempty"`
+}
+
+func (c AgentWorkloadAttestors) Validate() (AgentWorkloadAttestors, error) {
+	var err error
+
+	if c.Linux.Enabled == nil {
+		c.Linux.Enabled = util.BoolPointer(true)
+	}
+
+	c.Linux.Config, err = c.Linux.Validate()
+	if err != nil {
+		return c, err
+	}
+
+	if c.Docker.Enabled == nil {
+		c.Docker.Enabled = util.BoolPointer(false)
+	}
+
+	c.Docker.Config, err = c.Docker.Validate()
+	if err != nil {
+		return c, err
+	}
+
+	if c.K8s.Enabled == nil {
+		c.K8s.Enabled = util.BoolPointer(false)
+	}
+
+	c.K8s.Config, err = c.K8s.Validate()
+	if err != nil {
+		return c, err
+	}
+
+	return c, nil
 }
