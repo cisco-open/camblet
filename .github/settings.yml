@@ -7,7 +7,7 @@ repository:
   name: nasp
 
   # A short description of the repository that will show up on GitHub
-  description: CLI and samples for Linux Kernel module running WASM filters with wasm3
+  description: Fine-grained, zero-trust workload identity & access control​
 
   # Either `true` to make the repository private, or `false` to make it public.
   private: false
@@ -83,11 +83,11 @@ teams:
     # * `triage` - Recommended for contributors who need to proactively manage issues and pull requests without write access.
   - name: org-admins
     permission: admin
-  - name: wasm-kernel-module
+  - name: nasp
     permission: triage
-  - name: wasm-kernel-module-maintainers
+  - name: nasp-maintainers
     permission: maintain
-  - name: wasm-kernel-module-admins
+  - name: nasp-admins
     permission: admin
 
 branches:
