@@ -100,7 +100,7 @@ func (c *agentCommand) run(cmd *cobra.Command) error {
 
 	errChan := make(chan error)
 
-	eventBus.Subscribe(messenger.MessageIncomingTopic, func(topic string, _ bool) {
+	eventBus.Subscribe(messenger.MessengerStartedTopic, func(topic string, _ bool) {
 		go func() {
 			r := rules.NewRuleFilesLoader(c.cli.Viper().GetStringSlice("agent.rulesPath"), logger)
 			if err := r.Run(cmd.Context(), func(r rules.Rules) {
