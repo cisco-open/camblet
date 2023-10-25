@@ -1,0 +1,11 @@
+agent:
+  workloadAttestors:
+    linux:
+      enabled: true
+      extractEnvs: false
+    k8s:
+      enabled: false
+      # kubeletCA: /tmp/cacert
+      # credentials: /var/lib/rancher/k3s/server/tls/client-admin.key, /var/lib/rancher/k3s/server/tls/client-admin.crt
+    docker:
+      enabled: true
