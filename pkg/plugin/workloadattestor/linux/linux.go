@@ -45,6 +45,7 @@ const (
 	effectiveGIDKey  = "effective_gid"
 	realGIDKey       = "real_gid"
 	additionalGIDKey = "additional_gid"
+	binaryNameKey    = "binary:name"
 	binaryPathKey    = "binary:path"
 	binaryHashKey    = "binary:sha256"
 )
@@ -137,6 +138,7 @@ func (a *attestor) binary(ctx context.Context, p *process.Process, tags *workloa
 	}
 
 	tags.Add(binaryPathKey, exe)
+	tags.Add(binaryNameKey, filepath.Base(exe))
 
 	root := GetProcPath(p.Pid, "root")
 	exePath := filepath.Join(root, exe)
