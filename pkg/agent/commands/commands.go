@@ -36,6 +36,11 @@ type CommandHandler interface {
 	HandleCommand(c messenger.Command) (string, error)
 }
 
+type Commander interface {
+	Run(ctx context.Context) error
+	AddHandler(commandName string, handler CommandHandler)
+}
+
 type CommandHandlerFunc func(messenger.Command) (string, error)
 
 func (f CommandHandlerFunc) HandleCommand(c messenger.Command) (string, error) {
@@ -46,31 +51,27 @@ type handler struct {
 	eventBus *eventbus.EventBus
 	logger   logr.Logger
 
-	handlers    map[string]CommandHandler
+	handlers    sync.Map
 	handlersMux sync.Mutex
 }
 
-func NewHandler(eventBus *eventbus.EventBus, logger logr.Logger) (*handler, error) {
+func NewHandler(eventBus *eventbus.EventBus, logger logr.Logger) (Commander, error) {
 	h := &handler{
 		eventBus: eventBus,
 		logger:   logger,
 
-		handlers: make(map[string]CommandHandler),
+		handlers: sync.Map{},
 	}
-
-	h.handlers["accept"] = Accept()
-	h.handlers["connect"] = Connect()
-	csrSign, err := CSRSign()
-	if err != nil {
-		return nil, err
-	}
-	h.handlers["csr_sign"] = csrSign
 
 	return h, nil
 }
 
 func (h *handler) Run(ctx context.Context) error {
 	return h.eventBus.Subscribe(messenger.MessageIncomingTopic, h.handleCommand)
+}
+
+func (h *handler) AddHandler(commandName string, handler CommandHandler) {
+	h.handlers.Store(commandName, handler)
 }
 
 func (h *handler) handleCommand(topic string, msg messenger.Message) {
@@ -81,8 +82,15 @@ func (h *handler) handleCommand(topic string, msg messenger.Message) {
 
 	h.logger.Info("incoming command", "type", cmd.Command, "id", cmd.ID, "context", cmd.Context)
 
+	var handler CommandHandler
+	if v, ok := h.handlers.Load(cmd.Command); ok {
+		if h, ok := v.(CommandHandler); ok {
+			handler = h
+		}
+	}
+
 	var answer string
-	if handler, ok := h.handlers[cmd.Command]; ok {
+	if handler != nil {
 		answer, err = handler.HandleCommand(cmd)
 	} else {
 		err = errors.New("invalid command")

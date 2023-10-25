@@ -37,8 +37,9 @@ type messenger struct {
 }
 
 const (
-	MessageIncomingTopic string = "message.incoming"
-	MessageOutgoingTopic string = "message.outgoing"
+	MessageIncomingTopic  string = "message.incoming"
+	MessageOutgoingTopic  string = "message.outgoing"
+	MessengerStartedTopic string = "messenger.started"
 )
 
 func New(eventBus *eventbus.EventBus, logger logr.Logger) *messenger {
@@ -72,6 +73,10 @@ func (m *messenger) Run(ctx context.Context, name string) error {
 		m.dev.Close()
 		m.dev = nil
 	}()
+
+	if err := m.eventBus.Publish(MessengerStartedTopic, true); err != nil {
+		return err
+	}
 
 	scanner := bufio.NewScanner(m.dev)
 	for scanner.Scan() {

@@ -23,9 +23,11 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/go-logr/logr"
 	"github.com/spf13/cobra"
 
 	"github.com/cisco-open/nasp/internal/cli"
+	"github.com/cisco-open/nasp/pkg/config"
 	"github.com/cisco-open/nasp/pkg/plugin/workloadattestor"
 	"github.com/cisco-open/nasp/pkg/plugin/workloadattestor/docker"
 	"github.com/cisco-open/nasp/pkg/plugin/workloadattestor/k8s"
@@ -42,19 +44,7 @@ func NewAttestCommand(c cli.CLI) *cobra.Command {
 		DisableAutoGenTag: true,
 		Args:              cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			attestor := workloadattestor.NewWorkloadAttestors(c.Logger())
-			attestorsConfig := c.Configuration().Agent.WorkloadAttestors
-			if util.PointerToBool(attestorsConfig.Linux.Enabled) {
-				attestor.Add(linux.New(attestorsConfig.Linux.Config))
-			}
-
-			if util.PointerToBool(attestorsConfig.Docker.Enabled) {
-				attestor.Add(docker.New(attestorsConfig.Docker.Config))
-			}
-
-			if util.PointerToBool(attestorsConfig.K8s.Enabled) {
-				attestor.Add(k8s.New(attestorsConfig.K8s.Config))
-			}
+			attestor := GetWorkloadAttestor(c.Configuration(), c.Logger())
 
 			pid, err := strconv.Atoi(args[0])
 			if err != nil {
@@ -76,4 +66,24 @@ func NewAttestCommand(c cli.CLI) *cobra.Command {
 	}
 
 	return cmd
+}
+
+func GetWorkloadAttestor(cfg config.Config, logger logr.Logger) workloadattestor.WorkloadAttestors {
+	attestor := workloadattestor.NewWorkloadAttestors(logger)
+
+	attestorsConfig := cfg.Agent.WorkloadAttestors
+
+	if util.PointerToBool(attestorsConfig.Linux.Enabled) {
+		attestor.Add(linux.New(attestorsConfig.Linux.Config))
+	}
+
+	if util.PointerToBool(attestorsConfig.Docker.Enabled) {
+		attestor.Add(docker.New(attestorsConfig.Docker.Config))
+	}
+
+	if util.PointerToBool(attestorsConfig.K8s.Enabled) {
+		attestor.Add(k8s.New(attestorsConfig.K8s.Config))
+	}
+
+	return attestor
 }
