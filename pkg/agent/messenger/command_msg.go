@@ -47,15 +47,26 @@ func GetCommand(msg Message) (Command, error) {
 }
 
 type CommandContext struct {
-	UID         int    `json:"uid,omitempty"`
-	GID         int    `json:"gid,omitempty"`
-	PID         int    `json:"pid,omitempty"`
-	CommandName string `json:"command_name,omitempty"`
-	CommandPath string `json:"command_path,omitempty"`
+	UID          int          `json:"uid,omitempty"`
+	GID          int          `json:"gid,omitempty"`
+	PID          int          `json:"pid,omitempty"`
+	CommandName  string       `json:"command_name,omitempty"`
+	CommandPath  string       `json:"command_path,omitempty"`
+	NamespaceIDs NamespaceIDs `json:"namespace_ids,omitempty"`
+}
+
+type NamespaceIDs struct {
+	UTS     int64 `json:"uts,omitempty"`
+	IPC     int64 `json:"ipc,omitempty"`
+	Mount   int64 `json:"mount,omitempty"`
+	PID     int64 `json:"pid,omitempty"`
+	Network int64 `json:"network,omitempty"`
+	Time    int64 `json:"time,omitempty"`
+	CGroup  int64 `json:"cGroup,omitempty"`
 }
 
 type Command struct {
-	Context    CommandContext `json:"context,omitempty"`
+	Context    CommandContext `json:"task_context,omitempty"`
 	ID         string         `json:"id,omitempty"`
 	Command    string         `json:"command"`
 	Name       string         `json:"name,omitempty"`
