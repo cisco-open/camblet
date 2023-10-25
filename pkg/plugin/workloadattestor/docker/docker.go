@@ -44,14 +44,9 @@ const (
 	labelKey       = "label"
 )
 
-// dockerCGroupRE matches cgroup paths that have the following properties.
-// 1) `\bdocker\b` the whole word docker
-// 2) `.+` followed by one or more characters (which will start on a word boundary due to #1)
-// 3) `\b([[:xdigit:]][64])\b` followed by a 64 hex-character container id on word boundary
-//
-// The "docker" prefix and 64-hex character container id can be anywhere in the path. The only
-// requirement is that the docker prefix comes before the id.
-var dockerCGroupRE = regexp.MustCompile(`\bdocker\b.+\b([[:xdigit:]]{64})\b`)
+// dockerCGroupRE matches cgroup paths.
+// `\b([[:xdigit:]][64])` a 64 hex-character container id on word boundary
+var dockerCGroupRE = regexp.MustCompile(`\b([[:xdigit:]]{64})`)
 
 type attestor struct {
 	config Config
