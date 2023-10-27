@@ -88,7 +88,7 @@ func (m *messenger) Run(ctx context.Context, name string) error {
 
 		err = m.eventBus.Publish(MessageIncomingTopic, Message{
 			Type: CommandMessageType,
-			Data: scanner.Bytes(),
+			Data: append([]byte{}, scanner.Bytes()...),
 		})
 		if err != nil {
 			return err
