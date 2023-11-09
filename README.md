@@ -9,9 +9,6 @@ The features are the following:
 - access control, authorization and authentication (through [OPA](https://www.openpolicyagent.org))
 - providing frictionless TLS termination for those TCP sockets
 - supporting every Linux based machine (bare-metal, vanilla VM, Kubernetes, etc... you name it)
-In-progress features:
-- run [proxy-wasm](https://github.com/proxy-wasm/spec) filters for every app
-*The kernel module will be capable of running proxy-wasm filters on your application data, this way it opens up a lot of oppurtunities to write custom logic for all (or a selected set of) your services in your environment. This allows basically an infinite number of possibilites of monitoring and changing the way how applications talk to each other in your system.*
 
 This repository contains the source code of the `nasp` multi-purpose binary for controlling the [nasp-kernel-module](https://github.com/cisco-open/nasp-kernel-module), which is a kernel module that does the processing of the user traffic.
 
