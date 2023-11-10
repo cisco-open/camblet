@@ -6,7 +6,7 @@ require (
 	emperror.dev/errors v0.8.1
 	github.com/AlecAivazis/survey/v2 v2.3.7
 	github.com/cisco-open/nasp/api v0.0.0-00010101000000-000000000000
-	github.com/docker/docker v24.0.6+incompatible
+	github.com/docker/docker v24.0.7+incompatible
 	github.com/go-logr/logr v1.2.4
 	github.com/google/uuid v1.3.0
 	github.com/iancoleman/strcase v0.3.0
