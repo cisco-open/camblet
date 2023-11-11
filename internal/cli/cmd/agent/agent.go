@@ -31,6 +31,7 @@ import (
 	"github.com/cisco-open/nasp/pkg/agent/commands"
 	"github.com/cisco-open/nasp/pkg/agent/messenger"
 	"github.com/cisco-open/nasp/pkg/agent/server"
+	"github.com/cisco-open/nasp/pkg/config"
 	"github.com/cisco-open/nasp/pkg/rules"
 )
 
@@ -54,7 +55,8 @@ func NewCommand(c cli.CLI) *cobra.Command {
 		},
 	}
 
-	cmd.PersistentFlags().String("agent.local-address", "/tmp/nasp/agent.sock", "Local address")
+	cmd.PersistentFlags().String("agent-local-address", "/tmp/nasp/agent.sock", "Local address")
+	cmd.PersistentFlags().String("trust-domain", config.DefaultTrustDomain, "Trust domain")
 	cmd.Flags().String("kernel-module-device", "/dev/nasp", "Device for the Nasp kernel module")
 	cmd.Flags().StringSlice("rules-path", nil, "Rules path")
 
@@ -100,6 +102,22 @@ func (c *agentCommand) run(cmd *cobra.Command) error {
 
 	errChan := make(chan error)
 
+	// kernel config
+	eventBus.Subscribe(messenger.MessengerStartedTopic, func(topic string, _ bool) {
+		logger.Info("sending config to kernel")
+		if cj, err := json.Marshal(config.KernelModuleConfig{TrustDomain: c.cli.Configuration().Agent.TrustDomain}); err != nil {
+			c.cli.Logger().Error(err, "could not marshal module config")
+
+			return
+		} else {
+			eventBus.Publish(messenger.MessageOutgoingTopic, messenger.NewCommand(messenger.Command{
+				Command: "load_config",
+				Code:    cj,
+			}))
+		}
+	})
+
+	// rules loader
 	eventBus.Subscribe(messenger.MessengerStartedTopic, func(topic string, _ bool) {
 		go func() {
 			r := rules.NewRuleFilesLoader(c.cli.Viper().GetStringSlice("agent.rulesPath"), logger)
@@ -125,17 +143,10 @@ func (c *agentCommand) run(cmd *cobra.Command) error {
 					Code:    y,
 				})
 
-				logger.Info("loading rules to kernel")
+				logger.Info("sending rules to kernel")
 				eventBus.Publish(messenger.MessageOutgoingTopic, msg)
 			}); err != nil {
 				errChan <- err
-			}
-
-			for {
-				select {
-				case <-cmd.Context().Done():
-					return
-				}
 			}
 		}()
 	})

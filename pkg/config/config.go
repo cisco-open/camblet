@@ -25,6 +25,11 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// KernelModuleConfig holds configuration for the kernel module
+type KernelModuleConfig struct {
+	TrustDomain string `json:"trust_domain"`
+}
+
 // Config holds any kind of configuration that comes from the outside world and
 // is necessary for running the application
 type Config struct {

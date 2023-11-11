@@ -26,14 +26,23 @@ import (
 	"github.com/cisco-open/nasp/pkg/util"
 )
 
+const (
+	DefaultTrustDomain = "nasp"
+)
+
 type Agent struct {
 	LocalAddress       string                 `json:"localAddress,omitempty"`
 	KernelModuleDevice string                 `json:"kernelModuleDevice,omitempty"`
 	WorkloadAttestors  AgentWorkloadAttestors `json:"workloadAttestors,omitempty"`
+	TrustDomain        string                 `json:"trustDomain,omitempty"`
 }
 
 func (c Agent) Validate() (Agent, error) {
 	var err error
+
+	if c.TrustDomain == "" {
+		c.TrustDomain = DefaultTrustDomain
+	}
 
 	c.WorkloadAttestors, err = c.WorkloadAttestors.Validate()
 	if err != nil {
