@@ -81,7 +81,7 @@ func (c *agentCommand) runCommander(ctx context.Context) error {
 	h.AddHandler("csr_sign", csrSign)
 
 	attestor := attest.GetWorkloadAttestor(c.cli.Configuration(), c.cli.Logger())
-	h.AddHandler("attest", commands.Attest(attestor))
+	h.AddHandler("attest", commands.Attest(ctx, attestor, c.cli.Logger()))
 
 	if err := h.Run(ctx); err != nil {
 		return err
