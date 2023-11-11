@@ -78,6 +78,7 @@ func (h *handler) handleCommand(topic string, msg messenger.Message) {
 	cmd, err := messenger.GetCommand(msg)
 	if err != nil {
 		h.logger.Error(err, "could not get command from incoming message")
+		return
 	}
 
 	h.logger.Info("incoming command", "type", cmd.Command, "id", cmd.ID, "context", cmd.Context)

@@ -19,7 +19,11 @@
 
 package messenger
 
-import "emperror.dev/errors"
+import (
+	"fmt"
+
+	"emperror.dev/errors"
+)
 
 const CommandMessageType MessageType = "command"
 
@@ -53,6 +57,17 @@ type CommandContext struct {
 	CommandName  string       `json:"command_name,omitempty"`
 	CommandPath  string       `json:"command_path,omitempty"`
 	NamespaceIDs NamespaceIDs `json:"namespace_ids,omitempty"`
+	CGroupPath   string       `json:"cgroup_path,omitempty"`
+}
+
+func (c CommandContext) UniqueString() string {
+	return fmt.Sprintf("%s-%d-%d-%s-%s",
+		c.CGroupPath,
+		c.UID,
+		c.GID,
+		c.CommandName,
+		c.CommandPath,
+	)
 }
 
 type NamespaceIDs struct {
