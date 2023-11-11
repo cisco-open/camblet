@@ -28,18 +28,36 @@ import (
 	"github.com/spf13/viper"
 )
 
+// BindCMDFlags binds cobra command flags with {cmd name}.{camelized flag name} format to viper
+// it also binds {cmd name}- prefixed flags with similar fashion
 func BindCMDFlags(v *viper.Viper, cmd *cobra.Command) {
+	getKey := func(cmdName, flagName string, prefixSeparator, trimSeparator string) string {
+		return cmdName + prefixSeparator + camelize(strings.TrimPrefix(flagName, cmdName+trimSeparator))
+	}
+
 	cmd.Flags().VisitAll(func(flag *pflag.Flag) {
-		key := cmd.Name() + "." + camelize(strings.TrimPrefix(flag.Name, cmd.Name()+"."))
+		key := getKey(cmd.Name(), flag.Name, ".", ".")
 		if err := v.BindPFlag(key, flag); err != nil {
 			return
+		}
+		if strings.HasPrefix(flag.Name, cmd.Name()+"-") {
+			key = getKey(cmd.Name(), flag.Name, ".", "-")
+			if err := v.BindPFlag(key, flag); err != nil {
+				return
+			}
 		}
 	})
 
 	cmd.PersistentFlags().VisitAll(func(flag *pflag.Flag) {
-		key := cmd.Name() + "." + strcase.ToLowerCamel(strings.TrimPrefix(flag.Name, cmd.Name()+"."))
+		key := getKey(cmd.Name(), flag.Name, ".", ".")
 		if err := v.BindPFlag(key, flag); err != nil {
 			return
+		}
+		if strings.HasPrefix(flag.Name, cmd.Name()+"-") {
+			key = getKey(cmd.Name(), flag.Name, ".", "-")
+			if err := v.BindPFlag(key, flag); err != nil {
+				return
+			}
 		}
 	})
 }

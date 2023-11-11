@@ -1,4 +1,5 @@
 agent:
+  trustDomain: acme.corp
   workloadAttestors:
     linux:
       enabled: true
