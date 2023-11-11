@@ -92,12 +92,7 @@ func (r *Rule) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		return err
 	}
 
-	y, err := yaml.Marshal(rule)
-	if err != nil {
-		return err
-	}
-
-	r.ID = uuid.NewSHA1(uuid.Nil, y).String()
+	r.ID = Rule(rule).getID()
 	r.Policy = rule.Policy
 	r.Properties = rule.Properties
 	r.Selectors = rule.Selectors
@@ -108,6 +103,15 @@ func (r *Rule) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 
 	return nil
+}
+
+func (r Rule) getID() string {
+	y, err := yaml.Marshal(r.Properties)
+	if err != nil {
+		return ""
+	}
+
+	return uuid.NewSHA1(uuid.Nil, y).String()
 }
 
 func IsMapSubset[K, V comparable](m, sub map[K]V) bool {
