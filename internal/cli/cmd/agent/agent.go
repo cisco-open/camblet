@@ -33,6 +33,7 @@ import (
 	"github.com/cisco-open/nasp/pkg/agent/server"
 	"github.com/cisco-open/nasp/pkg/config"
 	"github.com/cisco-open/nasp/pkg/rules"
+	"github.com/cisco-open/nasp/pkg/tls"
 )
 
 type agentCommand struct {
@@ -56,9 +57,10 @@ func NewCommand(c cli.CLI) *cobra.Command {
 	}
 
 	cmd.PersistentFlags().String("agent-local-address", "/tmp/nasp/agent.sock", "Local address")
-	cmd.PersistentFlags().String("trust-domain", config.DefaultTrustDomain, "Trust domain")
 	cmd.Flags().String("kernel-module-device", "/dev/nasp", "Device for the Nasp kernel module")
 	cmd.Flags().StringSlice("rules-path", nil, "Rules path")
+	cmd.Flags().String("trust-domain", config.DefaultTrustDomain, "Trust domain")
+	cmd.Flags().Duration("default-cert-ttl", config.DefaultCertTTLDuration, "Default certificate TTL")
 
 	cli.BindCMDFlags(c.Viper(), cmd)
 
@@ -76,7 +78,13 @@ func (c *agentCommand) runCommander(ctx context.Context) error {
 
 	h.AddHandler("accept", commands.Accept())
 	h.AddHandler("connect", commands.Connect())
-	csrSign, err := commands.CSRSign()
+
+	caSigner, err := tls.NewSignerCA("")
+	if err != nil {
+		return err
+	}
+
+	csrSign, err := commands.CSRSign(caSigner, c.cli.Configuration().Agent.DefaultCertTTLDuration)
 	if err != nil {
 		return err
 	}

@@ -42,7 +42,7 @@ func (c Config) Validate() (Config, error) {
 
 	c.Agent, err = c.Agent.Validate()
 	if err != nil {
-		return c, nil
+		return c, err
 	}
 
 	return c, nil

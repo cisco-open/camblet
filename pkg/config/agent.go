@@ -20,6 +20,10 @@
 package config
 
 import (
+	"time"
+
+	"emperror.dev/errors"
+
 	"github.com/cisco-open/nasp/pkg/plugin/workloadattestor/docker"
 	"github.com/cisco-open/nasp/pkg/plugin/workloadattestor/k8s"
 	"github.com/cisco-open/nasp/pkg/plugin/workloadattestor/linux"
@@ -27,14 +31,17 @@ import (
 )
 
 const (
-	DefaultTrustDomain = "nasp"
+	DefaultTrustDomain     = "nasp"
+	DefaultCertTTLDuration = time.Hour * 24
 )
 
 type Agent struct {
-	LocalAddress       string                 `json:"localAddress,omitempty"`
-	KernelModuleDevice string                 `json:"kernelModuleDevice,omitempty"`
-	WorkloadAttestors  AgentWorkloadAttestors `json:"workloadAttestors,omitempty"`
-	TrustDomain        string                 `json:"trustDomain,omitempty"`
+	LocalAddress           string                 `json:"localAddress,omitempty"`
+	KernelModuleDevice     string                 `json:"kernelModuleDevice,omitempty"`
+	WorkloadAttestors      AgentWorkloadAttestors `json:"workloadAttestors,omitempty"`
+	TrustDomain            string                 `json:"trustDomain,omitempty"`
+	DefaultCertTTL         string                 `json:"defaultCertTTL,omitempty"`
+	DefaultCertTTLDuration time.Duration          `json:"-"`
 }
 
 func (c Agent) Validate() (Agent, error) {
@@ -42,6 +49,16 @@ func (c Agent) Validate() (Agent, error) {
 
 	if c.TrustDomain == "" {
 		c.TrustDomain = DefaultTrustDomain
+	}
+
+	if c.DefaultCertTTL == "" {
+		c.DefaultCertTTL = DefaultCertTTLDuration.String()
+	}
+
+	if d, err := time.ParseDuration(c.DefaultCertTTL); err != nil {
+		return c, errors.WrapIf(err, "invalid default certificate ttl")
+	} else {
+		c.DefaultCertTTLDuration = d
 	}
 
 	c.WorkloadAttestors, err = c.WorkloadAttestors.Validate()
