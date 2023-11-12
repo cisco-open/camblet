@@ -120,7 +120,13 @@ func (c *agentCommand) run(cmd *cobra.Command) error {
 	// rules loader
 	eventBus.Subscribe(messenger.MessengerStartedTopic, func(topic string, _ bool) {
 		go func() {
-			r := rules.NewRuleFilesLoader(c.cli.Viper().GetStringSlice("agent.rulesPath"), logger)
+			r := rules.NewRuleFilesLoader(
+				c.cli.Viper().GetStringSlice("agent.rulesPath"),
+				logger,
+				rules.RuleFilesLoaderWithTemplater(rules.NewRuleTemplater(rules.RuleTemplateValues{
+					TrustDomain: c.cli.Configuration().Agent.TrustDomain,
+				}, c.cli.Logger()).Execute,
+				))
 			if err := r.Run(cmd.Context(), func(r rules.Rules) {
 				logger.Info("rule count", "count", len(r))
 
