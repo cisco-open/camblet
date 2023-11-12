@@ -22,6 +22,7 @@ package rules
 import (
 	"reflect"
 	"sort"
+	"time"
 
 	"github.com/google/uuid"
 	"gopkg.in/yaml.v3"
@@ -37,6 +38,7 @@ type Properties struct {
 	MTLS       *bool    `yaml:"mtls,omitempty" json:"mtls,omitempty"`
 	WorkloadID string   `yaml:"workloadID,omitempty" json:"workloadID,omitempty"`
 	DNS        []string `yaml:"dns,omitempty" json:"dns,omitempty"`
+	TTL        string   `yaml:"ttl,omitempty" json:"ttl,omitempty"`
 }
 
 type Policy struct {
@@ -97,6 +99,12 @@ func (r *Rule) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	r.Properties = rule.Properties
 	r.Selectors = rule.Selectors
 	r.Egress = rule.Egress
+
+	if r.Properties.TTL != "" {
+		if _, err := time.ParseDuration(r.Properties.TTL); err != nil {
+			return err
+		}
+	}
 
 	for _, sel := range rule.Selectors {
 		r.RawSelectors = append(r.RawSelectors, ConvertSelectorsToRawSelectors(sel)...)

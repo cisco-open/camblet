@@ -20,7 +20,9 @@
 package commands
 
 import (
+	"crypto/x509"
 	"encoding/json"
+	"time"
 
 	"emperror.dev/errors"
 
@@ -29,23 +31,26 @@ import (
 )
 
 type csrSignCommand struct {
-	signerCA *tls.SignerCA
+	certSigner     X509CertificateRequestSigner
+	defaultCertTTL time.Duration
 }
 
-func CSRSign() (CommandHandler, error) {
-	signerCA, err := tls.NewSignerCA("")
-	if err != nil {
-		return nil, err
-	}
+type X509CertificateRequestSigner interface {
+	SignCertificateRequest(req *x509.CertificateRequest, ttl time.Duration) (*tls.X509Certificate, error)
+	GetCaCertificate() *tls.X509Certificate
+}
 
+func CSRSign(certSigner X509CertificateRequestSigner, defaultCertTTL time.Duration) (CommandHandler, error) {
 	return &csrSignCommand{
-		signerCA: signerCA,
+		certSigner:     certSigner,
+		defaultCertTTL: defaultCertTTL,
 	}, nil
 }
 
 func (c *csrSignCommand) HandleCommand(cmd messenger.Command) (string, error) {
 	var data struct {
 		CSR string `json:"csr"`
+		TTL string `json:"ttl"`
 	}
 
 	if err := json.Unmarshal([]byte(cmd.Data), &data); err != nil {
@@ -61,12 +66,21 @@ func (c *csrSignCommand) HandleCommand(cmd messenger.Command) (string, error) {
 		return "error", errors.New("invalid csr")
 	}
 
-	certificate, err := c.signerCA.SignCertificateRequest(containers[0].GetX509CertificateRequest().CertificateRequest)
+	ttl := c.defaultCertTTL
+	if data.TTL != "" {
+		if d, err := time.ParseDuration(data.TTL); err != nil {
+			return "error", errors.WrapIf(err, "could not parse ttl value")
+		} else {
+			ttl = d
+		}
+	}
+
+	certificate, err := c.certSigner.SignCertificateRequest(containers[0].GetX509CertificateRequest().CertificateRequest, ttl)
 	if err != nil {
 		return "error", err
 	}
 
-	caCertificate := c.signerCA.GetCaCertificate()
+	caCertificate := c.certSigner.GetCaCertificate()
 
 	var response struct {
 		Certificate  *tls.X509Certificate   `json:"certificate"`

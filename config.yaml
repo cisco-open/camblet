@@ -1,5 +1,6 @@
 agent:
   trustDomain: acme.corp
+  defaultCertTTL: 2h
   workloadAttestors:
     linux:
       enabled: true
