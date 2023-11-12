@@ -29,8 +29,8 @@
     - b.acme.corp
   policy:
     spiffeID:
-    - spiffe://cluster.local/accounting
-    - spiffe://cluster.local/curl
+    - spiffe://{{.TrustDomain}}/accounting
+    - spiffe://{{.TrustDomain}}/curl
 
 # curl or wrk connection to port 8000 or 8080
 - selectors:
