@@ -27,6 +27,7 @@
     dns:
     - a.acme.corp
     - b.acme.corp
+    ttl: 1h
   policy:
     spiffeID:
     - spiffe://{{.TrustDomain}}/accounting

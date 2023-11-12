@@ -32,6 +32,10 @@ import (
 	"emperror.dev/errors"
 )
 
+const (
+	defaultCertTTLDuration = time.Hour * 24
+)
+
 type SignerCA struct {
 	PrivateKey  *PrivateKey
 	Certificate *X509Certificate
@@ -124,7 +128,7 @@ func (s *SignerCA) GetCaCertificate() *X509Certificate {
 	return s.Certificate
 }
 
-func (s *SignerCA) SignCertificateRequest(req *x509.CertificateRequest) (*X509Certificate, error) {
+func (s *SignerCA) SignCertificateRequest(req *x509.CertificateRequest, ttl time.Duration) (*X509Certificate, error) {
 	serial, err := rand.Int(rand.Reader, (&big.Int{}).Exp(big.NewInt(2), big.NewInt(159), nil))
 	if err != nil {
 		return nil, err
@@ -132,11 +136,15 @@ func (s *SignerCA) SignCertificateRequest(req *x509.CertificateRequest) (*X509Ce
 
 	pkey := s.PrivateKey.Key.(rsa.PrivateKey)
 
+	if ttl == 0 {
+		ttl = defaultCertTTLDuration
+	}
+
 	certByte, err := x509.CreateCertificate(rand.Reader, &x509.Certificate{
 		SerialNumber:    serial,
 		Subject:         req.Subject,
 		NotBefore:       time.Now(),
-		NotAfter:        time.Now().Add(time.Hour * 24),
+		NotAfter:        time.Now().Add(ttl),
 		ExtKeyUsage:     []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
 		KeyUsage:        x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
 		IsCA:            false,
