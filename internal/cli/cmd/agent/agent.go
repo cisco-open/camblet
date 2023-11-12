@@ -61,6 +61,7 @@ func NewCommand(c cli.CLI) *cobra.Command {
 	cmd.Flags().StringSlice("rules-path", nil, "Rules path")
 	cmd.Flags().String("trust-domain", config.DefaultTrustDomain, "Trust domain")
 	cmd.Flags().Duration("default-cert-ttl", config.DefaultCertTTLDuration, "Default certificate TTL")
+	cmd.Flags().String("ca-pem-path", "", "Path for CA pem")
 
 	cli.BindCMDFlags(c.Viper(), cmd)
 
@@ -79,7 +80,7 @@ func (c *agentCommand) runCommander(ctx context.Context) error {
 	h.AddHandler("accept", commands.Accept())
 	h.AddHandler("connect", commands.Connect())
 
-	caSigner, err := tls.NewSignerCA("")
+	caSigner, err := tls.NewSignerCA(c.cli.Configuration().Agent.CAPemPath)
 	if err != nil {
 		return err
 	}

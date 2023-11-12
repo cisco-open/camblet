@@ -57,7 +57,7 @@ func NewSignerCA(caPEMFileName string) (*SignerCA, error) {
 		containers, err = ParsePEMFromFile(caPEMFileName)
 	}
 	if err != nil {
-		return nil, err
+		return nil, errors.WrapIf(err, "could not start cert signer")
 	}
 
 	if len(containers) != 2 {

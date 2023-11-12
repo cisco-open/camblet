@@ -42,6 +42,7 @@ type Agent struct {
 	TrustDomain            string                 `json:"trustDomain,omitempty"`
 	DefaultCertTTL         string                 `json:"defaultCertTTL,omitempty"`
 	DefaultCertTTLDuration time.Duration          `json:"-"`
+	CAPemPath              string                 `json:"caPEMPath,omitempty"`
 }
 
 func (c Agent) Validate() (Agent, error) {
