@@ -36,21 +36,37 @@ type RulesLoader interface {
 type ruleFilesLoader struct {
 	fileContentLoader util.FileContentLoader
 	logger            logr.Logger
+	templater         TemplateFunc
 
 	mu sync.Mutex
 }
 
 type RulesHandlerFunc func(Rules)
+type TemplateFunc func([]byte) []byte
 
-func NewRuleFilesLoader(paths []string, logger logr.Logger) RulesLoader {
+type RuleFilesLoaderOption func(*ruleFilesLoader)
+
+func RuleFilesLoaderWithTemplater(f TemplateFunc) RuleFilesLoaderOption {
+	return func(l *ruleFilesLoader) {
+		l.templater = f
+	}
+}
+
+func NewRuleFilesLoader(paths []string, logger logr.Logger, opts ...RuleFilesLoaderOption) RulesLoader {
 	l := logger.WithName("ruleFileLoader")
 
-	return &ruleFilesLoader{
+	rfl := &ruleFilesLoader{
 		fileContentLoader: util.NewFileContentLoader(paths, l),
 		logger:            l,
 
 		mu: sync.Mutex{},
 	}
+
+	for _, f := range opts {
+		f(rfl)
+	}
+
+	return rfl
 }
 
 func (r *ruleFilesLoader) Run(ctx context.Context, h RulesHandlerFunc) error {
@@ -58,6 +74,9 @@ func (r *ruleFilesLoader) Run(ctx context.Context, h RulesHandlerFunc) error {
 		var loadedRules Rules
 
 		for file, content := range contents {
+			if r.templater != nil {
+				content = r.templater(content)
+			}
 			var _rules Rules
 			if err := yaml.Unmarshal(content, &_rules); err != nil {
 				r.logger.Error(err, "error during rule file parsing", "path", file)
