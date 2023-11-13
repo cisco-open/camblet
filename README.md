@@ -61,3 +61,7 @@ GOOS=linux make build
 ```bash
 sudo ./bin/nasp --rules-path $(pwd)/rules.d
 ```
+
+## Community
+
+Find us on [Slack](https://outshift.slack.com/channels/nasp) for more fun about Nasp!
