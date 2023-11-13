@@ -64,4 +64,5 @@ sudo ./bin/nasp --rules-path $(pwd)/rules.d
 
 ## Community
 
-Find us on [Slack](https://outshift.slack.com/channels/nasp) for more fun about Nasp!
+Join our community on [Slack](https://join.slack.com/t/outshift/shared_invite/zt-26xfl4muq-zcDSfsA_7eOWlyhjvBGqVQ), and then
+find us in the [Nasp](https://outshift.slack.com/channels/nasp) channel for more fun!
