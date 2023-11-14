@@ -20,7 +20,7 @@
   # local python or go file-server
   - linux:uid: [501, 1001]
     linux:binary:name: [python3.10, python3.11, file-server]
-    destination:port: 8000
+    destination:port: [8000, 8080]
   properties:
     mtls: true
     workloadID: accounting/department-a/important-backend
@@ -41,3 +41,8 @@
   properties:
     mtls: true
     workloadID: curl
+  egress:
+  - selectors:
+    - label: traefik
+    properties:
+      workloadID: specific-workload-id
