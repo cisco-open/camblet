@@ -35,7 +35,7 @@
 # curl or wrk connection to port 8000 or 8080
 - selectors:
   - linux:uid: [501, 1001]
-    linux:binary:name: [curl, wrk]
+    linux:binary:name: [curl, wrk, wget]
     destination:port: [8000, 8080]
   properties:
     mtls: true
