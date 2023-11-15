@@ -3,8 +3,8 @@
   - linux:uid:500
   - linux:binary:name:traefik
   addresses:
-  - 127.0.0.1:8000
+  - localhost:8000
 - addresses:
-  - 127.0.0.1:8080
+  - localhost:8080
   tags:
   - app-label:python
