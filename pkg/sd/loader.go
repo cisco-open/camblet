@@ -121,22 +121,32 @@ func resolveAddress(address string) []netip.AddrPort {
 		}
 	}
 
-	addrs := make([]netip.Addr, 0)
+	// there are some issues at some systems retrieving ipv4 address when there are ipv6 addresses as well
+	// for that reason there is a separate direct ipv4 lookup
+	// TODO @wayne - more investigation needed
+	addrs := make(map[netip.Addr]struct{})
 	if addr, err := netip.ParseAddr(host); err != nil {
-		netips, err := net.LookupIP(host)
-		if err != nil {
-			return nil
+		netips, err := net.DefaultResolver.LookupIP(context.Background(), "ip4", host)
+		if err == nil {
+			for _, ip := range netips {
+				if addr, ok := netip.AddrFromSlice(ip.To4()); ok {
+					addrs[addr] = struct{}{}
+				}
+			}
 		}
-		for _, ip := range netips {
-			if addr, ok := netip.AddrFromSlice(ip); ok {
-				addrs = append(addrs, addr)
+		netips, err = net.DefaultResolver.LookupIP(context.Background(), "ip", host)
+		if err == nil {
+			for _, ip := range netips {
+				if addr, ok := netip.AddrFromSlice(ip); ok {
+					addrs[addr] = struct{}{}
+				}
 			}
 		}
 	} else {
-		addrs = append(addrs, addr)
+		addrs[addr] = struct{}{}
 	}
 
-	for _, addr := range addrs {
+	for addr := range addrs {
 		addrporrs = append(addrporrs, netip.AddrPortFrom(addr, uint16(intport)))
 	}
 
