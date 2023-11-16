@@ -1,0 +1,12 @@
+[Unit]
+Description=NASP Agent Service
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/nasp agent --rules-path /etc/nasp/rules.d/
+Restart=always
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target

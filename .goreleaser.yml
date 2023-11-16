@@ -1,0 +1,21 @@
+builds:
+  -
+    binary: nasp
+    main: ./cmd/nasp
+    goos:
+      - linux
+    goarch:
+      - arm64
+      - amd64
+nfpms:
+  -
+    description: "NASP CLI and agent service"
+    maintainer: Nandor Kracser <nandork@cisco.com>
+    license: "MIT"
+    formats:
+      - deb
+    contents:
+      - dst: /etc/nasp/rules.d/ci.yaml
+        src: rules.d/ci.yaml
+      - dst: /etc/systemd/system/nasp.service
+        src: nasp.service
