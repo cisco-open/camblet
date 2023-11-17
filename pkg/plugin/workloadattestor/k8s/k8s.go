@@ -22,7 +22,6 @@ package k8s
 import (
 	"context"
 	"crypto/tls"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -30,8 +29,6 @@ import (
 	"strings"
 
 	"emperror.dev/errors"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/cisco-open/nasp/api/types"
@@ -90,14 +87,14 @@ func (a *attestor) Attest(ctx context.Context, pid int32) (*types.Tags, error) {
 		return nil, errors.WrapIf(err, "could not get pod list from kubelet")
 	}
 
-	podList := new(corev1.PodList)
-	if err := json.Unmarshal(j, &podList); err != nil {
-		return nil, status.Errorf(codes.Internal, "unable to decode pod info from kubelet response: %v", err)
+	pods, err := getPods(j)
+	if err != nil {
+		return nil, errors.WrapIf(err, "could not get pods from kubelet")
 	}
 
 	tags := workloadattestor.InitTagsWithPrefix("k8s")
 
-	pod, container, containerStatus := a.getPodAndContainer(podUID, containerID, podList.Items)
+	pod, container, containerStatus := a.getPodAndContainer(podUID, containerID, pods)
 	if pod.GetName() == "" {
 		return tags.Tags, nil
 	}
