@@ -21,12 +21,9 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"net"
 	"os"
-	"path/filepath"
 
-	"emperror.dev/errors"
 	"github.com/go-logr/logr"
 	"github.com/werbenhu/eventbus"
 	"google.golang.org/grpc"
@@ -91,24 +88,4 @@ func (s *server) ListenAndServe(ctx context.Context) error {
 		log.Info("agent APIs have stopped")
 		return nil
 	}
-}
-
-func prepareLocalAddr(localAddr net.Addr) error {
-	if err := os.MkdirAll(filepath.Dir(localAddr.String()), 0750); err != nil {
-		return fmt.Errorf("unable to create socket directory: %w", err)
-	}
-
-	return nil
-}
-
-func getUnixAddr(path string) (*net.UnixAddr, error) {
-	pathAbs, err := filepath.Abs(path)
-	if err != nil {
-		return nil, errors.WrapIf(err, "could not get absolute socket path")
-	}
-
-	return &net.UnixAddr{
-		Name: pathAbs,
-		Net:  "unix",
-	}, nil
 }

@@ -5,9 +5,6 @@ option go_package = "github.com/cisco-open/nasp/api/types";
 // Empty message
 message Empty {}
 
-/** A type which describes the conditions under which a registration
-entry is matched. */
-
 // Tag represents a tag which is a key, value pair
 message Tag {
     string key = 1;
