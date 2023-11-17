@@ -75,6 +75,7 @@ mailru/easyjson v0.7.7 github:mailru/easyjson:v0.7.7
 	Copyright (c) 2009 The Go Authors. All rights reserved
 stable_deref_trait 1.2.0 crates:stable_deref_trait/1.2.0
 	Copyright (c) 2017 Robert Grosse
+   Copyright The SPIFFE Project & Scytale, Inc
 
 
 Licenses: 
