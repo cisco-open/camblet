@@ -23,7 +23,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"regexp"
 	"strings"
 
 	"emperror.dev/errors"
@@ -43,10 +42,6 @@ const (
 	envKey         = "env"
 	labelKey       = "label"
 )
-
-// dockerCGroupRE matches cgroup paths.
-// `\b([[:xdigit:]][64])` a 64 hex-character container id on word boundary
-var dockerCGroupRE = regexp.MustCompile(`\b([[:xdigit:]]{64})`)
 
 type attestor struct {
 	config Config
@@ -81,7 +76,7 @@ func (a *attestor) Attest(ctx context.Context, pid int32) (*types.Tags, error) {
 	var cid string
 	var found bool
 	for _, cgroup := range cgroupList {
-		cid, found = a.findContainerID(cgroup.CGroupPath)
+		cid, found = FindContainerID(cgroup.CGroupPath)
 		if found {
 			break
 		}
@@ -136,13 +131,4 @@ func (a *attestor) envs(cj dockerapitypes.ContainerJSON, tags *workloadattestor.
 		p := strings.SplitN(env, "=", 2)
 		tags.Add(fmt.Sprintf("%s:%s", envKey, strings.ToUpper(p[0])), p[1])
 	}
-}
-
-func (a *attestor) findContainerID(cgroupPath string) (string, bool) {
-	m := dockerCGroupRE.FindStringSubmatch(cgroupPath)
-	if m != nil {
-		return m[1], true
-	}
-
-	return "", false
 }
