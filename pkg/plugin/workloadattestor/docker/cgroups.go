@@ -39,6 +39,7 @@ import (
 	"bufio"
 	"errors"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/cisco-open/nasp/pkg/plugin/workloadattestor/linux"
@@ -80,4 +81,17 @@ func GetCgroups(pid int32) ([]Cgroup, error) {
 	}
 
 	return cgroups, nil
+}
+
+// dockerCGroupRE matches cgroup paths.
+// `\b([[:xdigit:]][64])` a 64 hex-character container id on word boundary
+var dockerCGroupRE = regexp.MustCompile(`\b([[:xdigit:]]{64})`)
+
+func FindContainerID(cgroupPath string) (string, bool) {
+	m := dockerCGroupRE.FindStringSubmatch(cgroupPath)
+	if m != nil {
+		return m[1], true
+	}
+
+	return "", false
 }
