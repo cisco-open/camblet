@@ -59,7 +59,7 @@ sudo ./bin/nasp --rules-path $(pwd)/nasp.d/rules --sd-path $(pwd)/nasp.d/service
 
 ## Installation
 
-Currently, there are available packages for Debian only. We plan to support other distributions as well in the future.
+Currently, there are available packages for Debian and Red-Hat based Linux distributions. The packages are available on the [Nasp Repository](https://nasp.github.io/).
 
 ### Installing the package from the repository
 

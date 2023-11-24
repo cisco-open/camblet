@@ -14,6 +14,7 @@ nfpms:
     license: "MIT"
     formats:
       - deb
+      - rpm
     contents:
       - dst: /etc/nasp/rules.d/ci.yaml
         src: rules.d/ci.yaml
