@@ -32,7 +32,7 @@
     spiffeID:
     - spiffe://{{.TrustDomain}}/accounting
     - spiffe://{{.TrustDomain}}/curl
-    - spiffe://{{.TrustDomain}}/specific-workload-id
+    - spiffe://{{.TrustDomain}}/egress-specific-workload-id
 
 # curl or wrk connection to port 8000 or 8080
 - selectors:
@@ -55,9 +55,9 @@
     destination:port: [8000, 8080]
   properties:
     mtls: true
-    workloadID: curl
+    workloadID: wget
   egress:
   - selectors:
     - app:label: nginx
     properties:
-      workloadID: specific-workload-id
+      workloadID: egress-specific-workload-id
