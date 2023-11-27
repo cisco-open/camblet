@@ -71,14 +71,14 @@ func (r *filesLoader) Run(ctx context.Context, h EntryHandlerFunc) error {
 
 			for _, entry := range rawEntries {
 				// skip invalid entries
-				if len(entry.Tags) == 0 || len(entry.Addresses) == 0 {
+				if len(entry.Labels) == 0 || len(entry.Addresses) == 0 {
 					continue
 				}
 				for _, address := range entry.Addresses {
 					addrs := resolveAddress(address)
 					for _, addr := range addrs {
 						loadedEntries[addressToString(addr)] = Entry{
-							Tags: entry.Tags,
+							Labels: flattenLabels(entry.Labels),
 						}
 					}
 				}
@@ -87,6 +87,16 @@ func (r *filesLoader) Run(ctx context.Context, h EntryHandlerFunc) error {
 
 		h(loadedEntries)
 	})
+}
+
+func flattenLabels(labels map[string]string) []string {
+	flattened := make([]string, 0)
+
+	for k, v := range labels {
+		flattened = append(flattened, k+":"+v)
+	}
+
+	return flattened
 }
 
 func addressToString(addr netip.AddrPort) string {

@@ -24,10 +24,10 @@ type Entries map[string]Entry
 type RawEntries []*RawEntry
 
 type RawEntry struct {
-	Tags      []string `yaml:"tags,omitempty" json:"tags,omitempty"`
-	Addresses []string `yaml:"addresses,omitempty" json:"addresses,omitempty"`
+	Labels    map[string]string `yaml:"labels,omitempty" json:"labels,omitempty"`
+	Addresses []string          `yaml:"addresses,omitempty" json:"addresses,omitempty"`
 }
 
 type Entry struct {
-	Tags []string `yaml:"tags,omitempty" json:"tags,omitempty"`
+	Labels []string `yaml:"labels,omitempty" json:"labels,omitempty"`
 }

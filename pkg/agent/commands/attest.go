@@ -85,12 +85,12 @@ func (c *attestCommand) HandleCommand(cmd messenger.Command) (string, error) {
 	}
 
 	var response struct {
-		Selectors map[string]bool `json:"selectors"`
+		Labels map[string]bool `json:"labels"`
 	}
-	response.Selectors = make(map[string]bool)
+	response.Labels = make(map[string]bool)
 
 	for _, v := range tags.Entries {
-		response.Selectors[fmt.Sprintf("%s:%s", v.Key, v.Value)] = true
+		response.Labels[fmt.Sprintf("%s:%s", v.Key, v.Value)] = true
 	}
 
 	j, err := json.Marshal(response)
