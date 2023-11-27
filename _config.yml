@@ -1,0 +1,15 @@
+title: nasp-apt-repo
+email: balintmolnar91@gmail.com
+description: >- 
+  This project is ment to be an aptrepo hosted by github pages
+baseurl: ""
+url: "https://nasp.xyz"
+github_username: baluchicken
+
+# Build settings
+theme: minima
+plugins:
+  - jekyll-feed
+exclude:
+  - tools/
+  - doc/
