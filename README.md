@@ -57,45 +57,6 @@ GOOS=linux make build
 sudo ./bin/nasp --rules-path $(pwd)/nasp.d/rules --sd-path $(pwd)/nasp.d/services
 ```
 
-## Installation
-
-Currently, there are available packages for Debian and Red-Hat based Linux distributions. The packages are available on the [Nasp Repository](https://nasp.github.io/).
-
-### Installing the package from the repository
-
-Add the Nasp Repository GPG key:
-
-```bash
-wget -qO- https://nasp.github.io/aptrepo/nasp.asc | sudo tee /etc/apt/keyrings/nasp.asc > /dev/null
-```
-
-Add the Nasp Repository to the system sources:
-
-```bash
-echo "deb [arch=arm64 signed-by=/etc/apt/keyrings/nasp.asc] https://nasp.github.io/aptrepo/deb stable main" | sudo tee /etc/apt/sources.list.d/nasp.list > /dev/null
-```
-
-Update repositories:
-
-```bash
-sudo apt update
-```
-
-Install the Nasp package:
-
-```bash
-sudo apt install nasp
-```
-
-Enable and start the Nasp agent (kernel module required):
-
-```bash
-sudo systemctl enable nasp
-sudo systemctl start nasp
-```
-
-Find the configuration files under `/etc/nasp/`.
-
 ## Community
 
 Join our community on [Slack](https://join.slack.com/t/outshift/shared_invite/zt-26xfl4muq-zcDSfsA_7eOWlyhjvBGqVQ), and then
