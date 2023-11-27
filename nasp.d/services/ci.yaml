@@ -1,10 +1,8 @@
-- tags:
-  - app:label:traefik
-  - linux:uid:500
-  - linux:binary:name:traefik
-  addresses:
+- addresses:
   - localhost:8000
+  labels:
+    app:label: nginx
 - addresses:
   - localhost:8080
-  tags:
-  - app-label:python
+  labels:
+    app: python

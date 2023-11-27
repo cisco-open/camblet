@@ -32,17 +32,32 @@
     spiffeID:
     - spiffe://{{.TrustDomain}}/accounting
     - spiffe://{{.TrustDomain}}/curl
+    - spiffe://{{.TrustDomain}}/specific-workload-id
 
 # curl or wrk connection to port 8000 or 8080
 - selectors:
   - linux:uid: [501, 1001]
-    linux:binary:name: [curl, wrk, wget]
+    linux:binary:name: [curl, wrk]
     destination:port: [8000, 8080]
   properties:
     mtls: true
     workloadID: curl
   egress:
   - selectors:
-    - label: traefik
+    - app:label: traefik
+    properties:
+      workloadID: specific-workload-id
+
+# wget connection to port 8000 or 8080
+- selectors:
+  - linux:uid: [501, 1001]
+    linux:binary:name: wget
+    destination:port: [8000, 8080]
+  properties:
+    mtls: true
+    workloadID: curl
+  egress:
+  - selectors:
+    - app:label: nginx
     properties:
       workloadID: specific-workload-id
