@@ -8,8 +8,8 @@ import sitemap from "@astrojs/sitemap";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://cisco-open.github.io",
-  base: "nasp",
+  site: "https://nasp.rocks",
+  base: "/",
   integrations: [
     tailwind(),
     image({

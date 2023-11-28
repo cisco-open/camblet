@@ -13,7 +13,7 @@ export const OPEN_GRAPH = {
   twitter: 'astrodotbuild'
 }
 
-export const EDIT_URL = `https://github.com/cisco-open/nasp/tree/main`
+export const EDIT_URL = `https://github.com/cisco-open/nasp/tree/site`;
 
 // See "Algolia" section of the README for more information.
 export const ALGOLIA = {
