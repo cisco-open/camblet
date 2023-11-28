@@ -21,7 +21,7 @@ const sidebar = SIDEBAR
             <h2 class="text-xl font-bold lg:text-2xl">{header}</h2>
             <ul>
               {children.map((child) => {
-                const url = Astro.site?.pathname + "nasp/" + child.link
+                const url = Astro.site?.pathname + child.link
                 return (
                   <li class="nav-link">
                     <a
