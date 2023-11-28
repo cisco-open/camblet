@@ -1,9 +1,10 @@
 name: Build Astro site
 
 on:
-  - push
-  - pull_request
-
+  push:
+    branches: [site]
+  pull_request:
+    branches: [site]
 jobs:
   cache-install-and-build:
     runs-on: ubuntu-latest
