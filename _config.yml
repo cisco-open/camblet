@@ -3,7 +3,7 @@ email: balintmolnar91@gmail.com
 description: >- 
   This project is ment to be an aptrepo hosted by github pages
 baseurl: ""
-url: "https://nasp.xyz"
+url: "https://cisco-open.github.io/nasp"
 github_username: baluchicken
 
 # Build settings
