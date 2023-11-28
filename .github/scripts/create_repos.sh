@@ -12,7 +12,7 @@ generate_hashes() {
 main() {
   GOT_DEB=0
   GOT_RPM=0
-  DEB_POOL="_site/deb/pool/main"
+  DEB_POOL="site/deb/pool/main"
   DEB_DISTS_COMPONENTS="dists/stable/main/binary-all"
 
   REPOS_PATH=".github/config/gh_projects.txt"
@@ -46,8 +46,8 @@ main() {
       if [ -n "$rpm_file" ]
       then
         GOT_RPM=1
-        mkdir -p _site/rpm
-        pushd _site/rpm >/dev/null
+        mkdir -p site/rpm
+        pushd site/rpm >/dev/null
         echo "Getting RPM"
         wget -q "https://github.com/${repo}/releases/download/${tag}/${rpm_file}"
         (
@@ -64,14 +64,14 @@ main() {
 
   if [ $GOT_DEB -eq 1 ]
   then
-    pushd _site/deb >/dev/null
+    pushd site/deb >/dev/null
     mkdir -p "${DEB_DISTS_COMPONENTS}"
     echo "Scanning all downloaded DEB Packages and creating Packages file."
     dpkg-scanpackages --arch all pool/ > "${DEB_DISTS_COMPONENTS}/Packages"
     gzip -9 > "${DEB_DISTS_COMPONENTS}/Packages.gz" < "${DEB_DISTS_COMPONENTS}/Packages"
     bzip2 -9 > "${DEB_DISTS_COMPONENTS}/Packages.bz2" < "${DEB_DISTS_COMPONENTS}/Packages"
     popd >/dev/null
-    pushd "_site/deb/dists/stable/" >/dev/null
+    pushd "site/deb/dists/stable/" >/dev/null
     echo "Making Release file"
     {
       echo "Origin: ${ORIGIN}"
@@ -96,7 +96,7 @@ main() {
 
   if [ $GOT_RPM -eq 1 ]
   then
-    pushd _site/rpm >/dev/null
+    pushd site/rpm >/dev/null
     echo "Scanning RPM packages and creating the Repo"
     createrepo_c .
     echo "Signing the Repo Metadata"

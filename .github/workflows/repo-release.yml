@@ -44,8 +44,8 @@ jobs:
         with:
           gpg_private_key: ${{ secrets.PGP_PRIVATE_KEY }}
 
-      - name: Set permissions on the _site directory
-        run: sudo chown -R runner:docker _site
+      - name: Set permissions on the site directory
+        run: sudo chown -R runner:docker site
 
       # - name: Setup upterm session
       #   uses: lhotari/action-upterm@v1
