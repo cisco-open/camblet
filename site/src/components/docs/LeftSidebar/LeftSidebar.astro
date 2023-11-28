@@ -1,0 +1,72 @@
+---
+import { SIDEBAR } from '../../../consts'
+
+type Props = {
+  currentPage: string
+}
+
+const { currentPage } = Astro.props
+const currentPageMatch = currentPage.endsWith('/')
+  ? currentPage.slice(1, -1)
+  : currentPage.slice(1)
+const sidebar = SIDEBAR
+---
+
+<nav class="w-full mr-4 sticky top-20">
+  <ul class="overflow-x-visible overflow-y-auto">
+    {
+      Object.entries(sidebar).map(([header, children]) => (
+        <li>
+          <div class="nav-group">
+            <h2 class="text-xl font-bold lg:text-2xl">{header}</h2>
+            <ul>
+              {children.map((child) => {
+                const url = Astro.site?.pathname + "nasp/" + child.link
+                return (
+                  <li class="nav-link">
+                    <a
+                      href={url}
+                      aria-current={
+                        currentPageMatch === child.link ? 'page' : false
+                      }
+                      class={`block px-4 py-1.5 text-lg no-underline ${
+                        currentPageMatch === child.link
+                          ? 'text-theme-text-accent bg-theme-bg-accent font-semibold'
+                          : 'hover:bg-theme-bg-hover focus:bg-theme-bg-hover'
+                      }`}
+                    >
+                      {child.text}
+                    </a>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<script is:inline>
+  window.addEventListener('DOMContentLoaded', () => {
+    var target = document.querySelector('[aria-current="page"]')
+    if (target && target.offsetTop > window.innerHeight - 100) {
+      document.querySelector('.nav-groups').scrollTop = target.offsetTop
+    }
+  })
+</script>
+
+<style>
+  @media (min-width: 50em) {
+    .nav-groups {
+      padding: 0;
+    }
+  }
+</style>
+
+<style is:global>
+  :root.theme-dark .nav-link a[aria-current='page'] {
+    color: hsla(var(--color-base-white), 100%, 1);
+  }
+</style>

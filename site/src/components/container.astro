@@ -1,0 +1,12 @@
+---
+const { class: className, center = true, classProp } = Astro.props;
+---
+
+<div class:list={[
+  "max-w-screen-xl px-5",
+  center && "mx-auto", 
+  className, 
+  classProp,
+]}>
+  <slot />
+</div>

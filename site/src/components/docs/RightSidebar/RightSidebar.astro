@@ -1,0 +1,19 @@
+---
+import type { MarkdownHeading } from 'astro'
+import TableOfContents from './TableOfContents'
+import MoreMenu from './MoreMenu.astro'
+
+type Props = {
+  headings: MarkdownHeading[]
+  editUrl: string
+}
+
+const { headings, editUrl } = Astro.props
+---
+
+<nav class="sticky top-0">
+  <div>
+    <TableOfContents client:media="(min-width: 50em)" headings={headings} />
+    <MoreMenu editHref={editUrl} />
+  </div>
+</nav>

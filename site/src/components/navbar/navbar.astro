@@ -1,0 +1,107 @@
+---
+import Container from "@components/container.astro";
+import Link from "@components/ui/link.astro";
+import Dropdown from "./dropdown.astro";
+import { Astronav, MenuItems, MenuIcon } from "astro-navbar";
+import ThemeToggleButton from "@components/docs/RightSidebar/ThemeToggleButton";
+import { NewLineKind } from "typescript";
+import { Picture } from "@astrojs/image/components";
+import logo from "assets/logo.svg";
+
+
+interface MenuItem {
+  title: string;
+  path: string;
+  badge?: boolean;
+  children?: MenuItem[];
+}
+
+const menuitems: MenuItem[] = [
+  {
+    title: "Blog",
+    path: "/nasp/blog",
+  },
+  {
+    title: "Docs",
+    path: "/nasp/docs",
+  },
+  {
+    title: "Github",
+    path: "https://github.com/cisco-open/nasp",
+  },
+  {
+    title: "Slack",
+    path: "https://outshift.slack.com/",
+  },
+  {
+    title: "Contact",
+    path: "/nasp/contact",
+  },
+];
+---
+
+  <header class="flex flex-col lg:flex-row justify-between items-center my-5">
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <Astronav>
+      <div class="flex lg:w-auto items-center justify-between content-start">
+        <a href="/nasp/" class="text-lg flex w-auto lg:mt-0">
+            <Picture
+              src={logo}
+              alt="Logo"
+              widths={[20, 40, 60]}
+              aspectRatio="4:3"
+              sizes="(max-width: 80px) 10vw, 80px"
+              loading="eager"
+              format="avif"
+            />
+            <span class="text-slate-800 my-3 text-xl font-extrabold">Nasp</span>
+        </a>
+        <div class="block ml-10 mb-2 lg:hidden">
+          <MenuIcon class="h-10 text-gray-800 mt-1 content-end" />
+        </div>
+      </div>
+      <MenuItems class="hidden w-full lg:w-auto lg:flex">
+        <ul class="flex flex-col lg:flex-row lg:gap-3">
+          {
+            menuitems.map((item, index) => (
+              <>
+                {item.children && (
+                  <Dropdown
+                    title={item.title}
+                    children={item.children}
+                    lastItem={index === menuitems.length - 1}
+                  />
+                )}
+
+                {!item.children && (
+                  <li>
+                    <a
+                      href={item.path}
+                      class="flex lg:px-3 py-2 items-center justify-center text-gray-600 hover:text-gray-900">
+                      <span class="hover:bg-black hover:text-white rounded-3xl px-3 py-1 text-center"> {item.title}</span>
+                      {item.badge && (
+                        <span class="ml-1 px-2 py-0.5 text-[10px] animate-pulse font-semibold uppercase text-white bg-indigo-600 rounded-full">
+                          New
+                        </span>
+                      )}
+                    </a>
+                  </li>
+                )}
+                </>
+                ))
+              }
+            <!-- <li>
+              <a class="flex mt-20 lg:px-3 py-2 items-center text-gray-600 hover:text-gray-900 github-button" href="https://github.com/cisco-open/nasp" data-color-scheme="no-preference: dark; light: light; dark: dark;" data-show-count="true" aria-label="Star cisco-open/nasp on GitHub">Star</a>
+            </li> -->
+            <!-- <li>
+              <a
+                class="flex lg:px-3 py-2 items-center text-gray-600 hover:text-gray-900 ">
+                <span class="text-[10px] font-semibold uppercase text-white bg-black rounded-full">
+                  <ThemeToggleButton client:visible />
+                </span>
+              </a>
+            </li> -->
+          </ul>
+        </MenuItems>
+    </Astronav>
+  </header>

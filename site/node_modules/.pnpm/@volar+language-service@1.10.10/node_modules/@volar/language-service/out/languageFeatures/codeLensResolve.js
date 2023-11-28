@@ -1,0 +1,31 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.register = void 0;
+const references = require("./references");
+const cancellation_1 = require("../utils/cancellation");
+function register(context) {
+    const findReferences = references.register(context);
+    return async (item, token = cancellation_1.NoneCancellationToken) => {
+        const data = item.data;
+        if (data?.kind === 'normal') {
+            const service = context.services[data.serviceId];
+            if (!service.resolveCodeLens)
+                return item;
+            Object.assign(item, data.original);
+            item = await service.resolveCodeLens(item, token);
+            // item.range already transformed in codeLens request
+        }
+        if (data?.kind === 'references') {
+            let references = await findReferences(data.uri, item.range.start, token) ?? [];
+            const service = context.services[data.serviceId];
+            const document = context.getTextDocument(data.uri);
+            if (document && service.resolveReferencesCodeLensLocations) {
+                references = await service.resolveReferencesCodeLensLocations(document, data.range, references, token);
+            }
+            item.command = context.commands.showReferences.create(data.uri, data.range.start, references);
+        }
+        return item;
+    };
+}
+exports.register = register;
+//# sourceMappingURL=codeLensResolve.js.map

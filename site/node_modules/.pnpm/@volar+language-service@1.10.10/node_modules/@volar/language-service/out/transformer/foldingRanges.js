@@ -1,0 +1,24 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.transform = void 0;
+function transform(ranges, getOtherRange) {
+    const result = [];
+    for (const range of ranges) {
+        const otherRange = getOtherRange({
+            start: { line: range.startLine, character: range.startCharacter ?? 0 },
+            end: { line: range.endLine, character: range.endCharacter ?? 0 },
+        });
+        if (otherRange) {
+            range.startLine = otherRange.start.line;
+            range.endLine = otherRange.end.line;
+            if (range.startCharacter !== undefined)
+                range.startCharacter = otherRange.start.character;
+            if (range.endCharacter !== undefined)
+                range.endCharacter = otherRange.end.character;
+            result.push(range);
+        }
+    }
+    return result;
+}
+exports.transform = transform;
+//# sourceMappingURL=foldingRanges.js.map

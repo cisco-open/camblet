@@ -1,0 +1,70 @@
+{
+  "name": "@altano/tiny-async-pool",
+  "version": "1.0.2",
+  "description": "Run multiple promise-returning & async functions with limited concurrency using native ES9",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "LICENSE-MIT",
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts",
+    "dev": "tsup src/index.ts --watch --format esm --dts",
+    "format": "prettier --write src",
+    "lint": "TIMING=1 eslint src/**/*.ts* --fix",
+    "clean": "rm -rf .turbo && rm -rf .tsbuildinfo && rm -rf node_modules && rm -rf dist",
+    "test": "vitest --run",
+    "test:watch": "vitest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/altano/npm-packages",
+    "directory": "packages/tiny-async-pool"
+  },
+  "homepage": "https://github.com/altano/npm-packages/tree/main/packages/tiny-async-pool",
+  "keywords": [
+    "race",
+    "concurrency",
+    "promise",
+    "async",
+    "async iterator",
+    "async iteration",
+    "async generator",
+    "es9"
+  ],
+  "author": {
+    "name": "Alan Norbauer",
+    "email": "altano@gmail.com",
+    "url": "https://alan.norbauer.com"
+  },
+  "contributors": [
+    "Rafael Xavier de Souza"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@altano/tsconfig": "*",
+    "@types/node": "^18.6.4",
+    "@types/prettier": "^2.7.0",
+    "@typescript-eslint/eslint-plugin": "^5.36.1",
+    "@typescript-eslint/parser": "^5.36.1",
+    "@vitest/ui": "^0.21.0",
+    "chai-as-promised": "^7.1.1",
+    "chai": "^4.3.6",
+    "eslint-config-altano": "*",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint": "^8.23.0",
+    "mocha": "^10.0.0",
+    "prettier": "^2.7.1",
+    "tsup": "^6.2.3",
+    "typescript": "^4.8.2",
+    "vitest": "^0.21.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

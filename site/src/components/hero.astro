@@ -1,0 +1,56 @@
+---
+import { Picture } from "@astrojs/image/components";
+import heroImage from "assets/logo.svg";
+import Link from "@components/ui/link.astro";
+import { Icon } from "astro-icon";
+---
+
+<main
+  class="grid lg:grid-cols-2 place-items-center pt-16 pb-8 md:pt-12 md:pb-28 ">
+  <div class="py-6 md:order-1 hidden md:block ">
+    <Picture
+      src={heroImage}
+      alt="Logo"
+      widths={[200, 400, 600]}
+      aspectRatio="4:3"
+      sizes="(max-width: 800px) 100vw, 620px"
+      loading="eager"
+      format="avif"
+    />
+  </div>
+  <div>
+    <h1
+      class="text-5xl lg:text-6xl xl:text-7xl font-extrabold lg:tracking-tight xl:tracking-tighter ">
+      🚀 Nasp
+    </h1>
+    <p class="text-lg mt-4 text-slate-600 max-w-xl">
+      Fine-grained, zero-trust workload identity & access control​
+    </p>
+    <div class="flex flex-col lg:flex-row items-center my-5 gap-6">
+      <div class="transition duration-300 ease-in-out mt-6 flex flex-col sm:flex-row gap-3 ">
+        <Link
+          size="lg"
+          style="outline"
+          rel="noopener"
+          href="https://github.com/cisco-open/nasp"
+          class="flex gap-1 rounded-full items-center justify-center font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-pink-500 shadow-xl"
+          target="_blank">
+          <Icon class="text-black w-4 h-4" name="bx:bxl-github" />
+          GitHub Repo
+        </Link>
+      </div>
+      <div class="transition duration-300 ease-in-out lg:mt-6 flex flex-col sm:flex-row">
+        <Link
+          size="lg"
+          style="primary"
+          rel="noopener"
+          href="/nasp/docs/introduction"
+          class="flex rounded-full gap-1 items-center justify-center font-extrabold bg-black shadow-xl "
+          target="_blank">
+          <Icon class="text-white w-6 h-6" name="raphael:arrowright" />
+          Getting Started
+        </Link>
+      </div>
+    </div>
+  </div>
+</main>

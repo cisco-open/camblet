@@ -1,0 +1,10 @@
+---
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+---
+
+<span class:list={["astronav-open-icon astronav-toggle", className]}
+  ><slot /></span
+>

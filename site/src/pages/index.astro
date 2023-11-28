@@ -1,0 +1,19 @@
+---
+import Container from "@components/container.astro";
+import Cta from "@components/cta.astro";
+import Features from "@components/features.astro";
+import Hero from "@components/hero.astro";
+import Logos from "@components/logos.astro";
+import Layout from "@layouts/Layout.astro";
+import Card from "@components/card.astro";
+---
+
+<Layout title="" classProp="dark:bg-black bg-[radial-gradient(100%_70%_at_50%_50%,rgba(233,249,244,0.5)_10.92%,rgba(207,235,254,0.5)_31.75%,rgba(242,238,254,.5)_57.04%,transparent_100%)]">
+  <Container classProp=" animate-fade-up animate-ease-in-out">
+    <Hero />
+    <Features />
+    <Card/>
+    <Logos />
+    <Cta />
+  </Container>
+</Layout>

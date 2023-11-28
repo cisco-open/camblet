@@ -1,0 +1,26 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.asWorkspaceSymbol = exports.asDocumentSymbol = exports.asTextEdit = exports.asSelectionRanges = exports.asSelectionRange = exports.asLocations = exports.asLocation = exports.asHover = exports.asFoldingRanges = exports.asCompletionList = exports.asCompletionItem = void 0;
+var completionItem_1 = require("./completionItem");
+Object.defineProperty(exports, "asCompletionItem", { enumerable: true, get: function () { return completionItem_1.transform; } });
+var completionList_1 = require("./completionList");
+Object.defineProperty(exports, "asCompletionList", { enumerable: true, get: function () { return completionList_1.transform; } });
+var foldingRanges_1 = require("./foldingRanges");
+Object.defineProperty(exports, "asFoldingRanges", { enumerable: true, get: function () { return foldingRanges_1.transform; } });
+var hover_1 = require("./hover");
+Object.defineProperty(exports, "asHover", { enumerable: true, get: function () { return hover_1.transform; } });
+var locationLike_1 = require("./locationLike");
+Object.defineProperty(exports, "asLocation", { enumerable: true, get: function () { return locationLike_1.transform; } });
+var locationsLike_1 = require("./locationsLike");
+Object.defineProperty(exports, "asLocations", { enumerable: true, get: function () { return locationsLike_1.transform; } });
+var selectionRange_1 = require("./selectionRange");
+Object.defineProperty(exports, "asSelectionRange", { enumerable: true, get: function () { return selectionRange_1.transform; } });
+var selectionRanges_1 = require("./selectionRanges");
+Object.defineProperty(exports, "asSelectionRanges", { enumerable: true, get: function () { return selectionRanges_1.transform; } });
+var textEdit_1 = require("./textEdit");
+Object.defineProperty(exports, "asTextEdit", { enumerable: true, get: function () { return textEdit_1.transform; } });
+var documentSymbol_1 = require("./documentSymbol");
+Object.defineProperty(exports, "asDocumentSymbol", { enumerable: true, get: function () { return documentSymbol_1.transform; } });
+var workspaceSymbol_1 = require("./workspaceSymbol");
+Object.defineProperty(exports, "asWorkspaceSymbol", { enumerable: true, get: function () { return workspaceSymbol_1.transform; } });
+//# sourceMappingURL=index.js.map

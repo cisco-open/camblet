@@ -1,0 +1,38 @@
+{
+    "name": "tailwindcss-animated",
+    "description": "Extended animation utilities for Tailwind CSS",
+    "author": "new-data-services",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/new-data-services/tailwindcss-animated.git"
+    },
+    "homepage": "https://tailwindcss-animated.com",
+    "keywords": [
+        "tailwindcss",
+        "tailwind",
+        "plugin",
+        "animation",
+        "animated",
+        "keyframes"
+    ],
+    "files": [
+        "/src"
+    ],
+    "main": "src/index.js",
+    "scripts": {
+        "test": "jest --setupFilesAfterEnv '<rootDir>/jest/customMatchers.js'",
+        "eslint": "npx eslint src/**",
+        "eslint:fix": "npx eslint src/** --fix"
+    },
+    "peerDependencies": {
+        "tailwindcss": ">=3.1.0"
+    },
+    "devDependencies": {
+        "eslint": "^8.40.0",
+        "jest": "^29.5.0",
+        "prettier": "^2.8.8",
+        "tailwindcss": "^3.1.0"
+    },
+    "version": "1.0.1"
+}

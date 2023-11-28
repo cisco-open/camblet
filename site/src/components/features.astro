@@ -1,0 +1,65 @@
+---
+// @ts-ignore
+import { Icon } from "astro-icon";
+
+const features = [
+  {
+    title: "Providing zero-trust identity for UNIX TCP sockets through mTLS",
+    icon: "bx:bxs-briefcase",
+  },
+  {
+    title: "Access control, authorization and authentication (through OPA)",
+    icon: "bx:bxs-window-alt",
+  },
+  {
+    title: "Providing frictionless TLS termination for TCP sockets",
+    icon: "bx:bxs-data",
+  },
+  {
+    title: "Broad Integration",
+    description:
+      "Supporting every Linux based machine, bare-metal, vanilla VM, Kubernetes, etc. - You name it",
+    icon: "bx:bxs-bot",
+  },
+  {
+    title: "Frictionless",
+    description:
+      "Application developers can focus on their business logic instead of dealing with the complexity of TLS, mTLS, and other security-related concerns. - It just works!",
+    icon: "bx:bxs-file-find",
+  },
+  {
+    title: "Community",
+    description:
+      "NASP is an open source project powered by hundreds of contributors making thousands of individual contributions.",
+    icon: "bx:bxs-user",
+  },
+];
+---
+<div class="shadow-xl rounded-3xl p-16">
+  <div class="mt-16 md:mt-0 ">
+    <h2 class="text-4xl lg:text-5xl py-1 font-extrabold lg:tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-red-500 ">
+      Everything you need for true zero trust
+    </h2>
+    <p class="text-lg mt-4 text-slate-600">
+      NASP comes batteries included.
+      It takes the best parts of state-of-the-art
+      tools and adds its own innovations.
+    </p>
+  </div>
+  
+  <div class="grid sm:grid-cols-2 md:grid-cols-3 mt-16 gap-16 ">
+    {
+      features.map((item) => (
+        <div class="flex gap-4 items-start">
+          <div class="mt-1 bg-black rounded-full  p-2 w-8 h-8 shrink-0">
+            <Icon class="text-white" name={item.icon} />
+          </div>
+          <div>
+            <h3 class="font-semibold text-lg">{item.title}</h3>{" "}
+            <p class="text-slate-500 mt-2 leading-relaxed">{item.description}</p>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</div>
