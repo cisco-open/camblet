@@ -38,8 +38,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
       - name: Install dependencies
+        working-directory: ./site
         run: |
           pnpm install
       - name: Build site
+        working-directory: ./site
         run: |
           pnpm build
