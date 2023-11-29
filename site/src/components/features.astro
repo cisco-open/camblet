@@ -4,33 +4,39 @@ import { Icon } from "astro-icon";
 
 const features = [
   {
-    title: "Providing zero-trust identity for UNIX TCP sockets through mTLS",
+    title: "Available Everywhere",
+    description:
+      "Nasp is platform-independent. It runs seamlessly on Linux, irrespective of the environment – from Kubernetes to bare metal, in the cloud, or on-premises.",
     icon: "bx:bxs-briefcase",
   },
   {
-    title: "Access control, authorization and authentication (through OPA)",
+    title: "Simple and Efficient",
+    description:
+      "Security is streamlined at the Linux socket level, eliminating the need for network proxies or dependence on overlay networks, thus ensuring efficient operation.",
     icon: "bx:bxs-window-alt",
   },
   {
-    title: "Providing frictionless TLS termination for TCP sockets",
+    title: "Transparent Security",
+    description:
+      "Nasp simplifies complexity for application and network developers. Identity and mTLS are managed automatically, allowing developers to focus on their core work.",
     icon: "bx:bxs-data",
   },
   {
-    title: "Broad Integration",
+    title: "Lightweight Footprint",
     description:
-      "Supporting every Linux based machine, bare-metal, vanilla VM, Kubernetes, etc. - You name it",
+      "Designed to solve a specific problem with maximum efficiency, Nasp is memory-efficient and minimizes latency, ensuring a minimal impact on system resources.",
     icon: "bx:bxs-bot",
   },
   {
-    title: "Frictionless",
+    title: "Granular Policy Control",
     description:
-      "Application developers can focus on their business logic instead of dealing with the complexity of TLS, mTLS, and other security-related concerns. - It just works!",
+      "Nasp enables focused and efficient policy management without dealing with infrastructure complexities by directly assigning identities to Linux processes.",
     icon: "bx:bxs-file-find",
   },
   {
-    title: "Community",
+    title: "Community-Driven",
     description:
-      "NASP is an open source project powered by hundreds of contributors making thousands of individual contributions.",
+      "As an open-source project, Nasp thrives on community participation. Contributions, whether they're ideas, bug reports, or code, are highly valued and integral to its evolution.",
     icon: "bx:bxs-user",
   },
 ];
@@ -38,12 +44,12 @@ const features = [
 <div class="shadow-xl rounded-3xl p-16">
   <div class="mt-16 md:mt-0 ">
     <h2 class="text-4xl lg:text-5xl py-1 font-extrabold lg:tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-red-500 ">
-      Everything you need for true zero trust
+      A purpose-built tool for securing network connections
     </h2>
     <p class="text-lg mt-4 text-slate-600">
-      NASP comes batteries included.
-      It takes the best parts of state-of-the-art
-      tools and adds its own innovations.
+      Nasp, a bespoke solution designed specifically for securing internal workload communication, effectively implements the zero trust model of "never trust, always verify".
+      It safeguards against insider threats and prevents lateral movements during breaches.
+      By automatically authenticating and encrypting traffic through mutual TLS, and enforcing custom access control policies set by administrators, Nasp ensures a secure and controlled network environment.
     </p>
   </div>
   
