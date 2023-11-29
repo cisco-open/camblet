@@ -1,5 +1,5 @@
 {
-  "name": "NASP",
+  "name": "Nasp",
   "type": "module",
   "version": "0.0.1",
   "private": true,
@@ -44,8 +44,8 @@
     "typescript": "^5.3.2"
   },
   "devDependencies": {
-    "@astrojs/mdx": "^0.17.2",
-    "@astrojs/sitemap": "^1.1.0",
+    "@astrojs/mdx": "^0.19.7",
+    "@astrojs/sitemap": "^2.0.2",
     "astro-robots-txt": "^0.4.1",
     "html-escaper": "^3.0.3",
     "postcss": "^8.4.31",
