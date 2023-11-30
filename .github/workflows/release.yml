@@ -63,7 +63,7 @@ jobs:
       #     ## limits ssh access and adds the ssh public key for the user which triggered the workflow
       #     limit-access-to-actor: true
 
-      - name: Build DEB Repos
+      - name: Build DEB/RPM Repos
         run: |
           export GPG_FINGERPRINT="${{ steps.import_gpg.outputs.fingerprint }}"
           export ORIGIN="${{ steps.import_gpg.outputs.name }}"
