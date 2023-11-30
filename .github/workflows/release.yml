@@ -57,20 +57,25 @@ jobs:
         with:
           gpg_private_key: ${{ secrets.PGP_PRIVATE_KEY }}
 
-      - name: Set permissions on the site directory
-        run: sudo chown -R runner:docker site
-
       # - name: Setup upterm session
       #   uses: lhotari/action-upterm@v1
       #   with:
       #     ## limits ssh access and adds the ssh public key for the user which triggered the workflow
       #     limit-access-to-actor: true
 
-      - name: Build DEB Repos
+      - name: Build DEB/RPM Repos
         run: |
           export GPG_FINGERPRINT="${{ steps.import_gpg.outputs.fingerprint }}"
           export ORIGIN="${{ steps.import_gpg.outputs.name }}"
           .github/scripts/create_repos.sh
+      - name: Fix permissions
+        run: |
+          chmod -c -R +rX "generated_repo/" | while read line; do
+            echo "::warning title=Invalid file permissions automatically fixed::$line"
+          done
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2  
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: "./generated_repo"
+          name: repo
