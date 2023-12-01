@@ -99,8 +99,12 @@ header.header a {
     font-weight: 800;
 }
 
-header div.right-group {
-    display: none;
+.social-icons {
+    gap: 0;
+}
+
+.social-icons::after {
+    border: none;
 }
 
 .hero {
