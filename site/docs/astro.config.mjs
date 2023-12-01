@@ -17,12 +17,28 @@ export default defineConfig({
 			},
 			sidebar: [
 				{
-					label: 'Overview',
-					autogenerate: { directory: 'overview' },
-				},
-				{
 					label: 'Getting started',
 					autogenerate: { directory: 'start' },
+				},
+				{
+					label: 'Support',
+					link: '/support/',
+					attrs: { style: 'font-weight: normal' },
+				},
+				{
+					label: 'Contributing guide',
+					link: '/contributing/',
+					attrs: { style: 'font-weight: normal' },
+				},
+				{
+					label: 'Security procedures',
+					link: '/security/',
+					attrs: { style: 'font-weight: normal' },
+				},
+				{
+					label: 'Code of Conduct',
+					link: '/code-of-conduct/',
+					attrs: { style: 'font-weight: normal' },
 				},
 			],
 			customCss: [
