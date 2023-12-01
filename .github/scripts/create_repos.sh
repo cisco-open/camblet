@@ -1,4 +1,6 @@
 #!/bin/bash
+set +x;
+
 generate_hashes() {
   HASH_TYPE="$1"
   HASH_COMMAND="$2"
@@ -14,6 +16,7 @@ main() {
   GOT_RPM=0
   DEB_POOL="generated_repo/deb/pool/main"
   DEB_DISTS_COMPONENTS="dists/stable/main/binary-all"
+  TAG="0.0.0"
 
   REPOS_PATH=".github/config/gh_projects.txt"
   vim $REPOS_PATH -c "set ff=unix" -c ":wq"
@@ -27,20 +30,19 @@ main() {
 
   while IFS= read -r repo;
   do
-    if release=$(curl -fqs https://api.github.com/repos/${repo}/releases/tags/${GITHUB_REF_NAME})
+    if release=$(curl -fqs https://api.github.com/repos/${repo}/releases/tags/${TAG})
     then
-      tag="$GITHUB_REF_NAME"
       deb_file="$(echo "$release" | jq -r '.assets[] | select(.name | endswith(".deb")) | .name')"
       rpm_file="$(echo "$release" | jq -r '.assets[] | select(.name | endswith(".rpm")) | .name')"
       package_name="${repo##*/}"
-      echo "Parsing repo ${repo} at $tag"
+      echo "Parsing repo ${repo} at ${TAG}"
       if [ -n "$deb_file" ]
       then
         GOT_DEB=1
         mkdir -p "${DEB_POOL}/${package_name}"
         pushd "${DEB_POOL}/${package_name}" >/dev/null
         echo "Getting DEB"
-        wget -q "https://github.com/${repo}/releases/download/${tag}/${deb_file}"
+        wget -q "https://github.com/${repo}/releases/download/${TAG}/${deb_file}"
         popd >/dev/null
       fi
       if [ -n "$rpm_file" ]
@@ -49,7 +51,7 @@ main() {
         mkdir -p generated_repo/rpm
         pushd generated_repo/rpm >/dev/null
         echo "Getting RPM"
-        wget -q "https://github.com/${repo}/releases/download/${tag}/${rpm_file}"
+        wget -q "https://github.com/${repo}/releases/download/${TAG}/${rpm_file}"
         (
           if [ -n "$GPG_FINGERPRINT" ]
           then
@@ -105,4 +107,5 @@ main() {
     popd >/dev/null
   fi
 }
+
 main
