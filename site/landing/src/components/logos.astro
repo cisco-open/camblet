@@ -1,0 +1,25 @@
+---
+// @ts-ignore
+import { Icon } from "astro-icon";
+import Sectionhead from "@components/sectionhead.astro";
+import { Image } from "@astrojs/image/components";
+import spiffeIcon from "assets/spiffe-icon-black.svg";
+import opaIcon from "assets/opa-icon-black.svg";
+---
+
+<div class="pb-32">
+  <Sectionhead>
+    <Fragment slot="title">Built on well established technologies</Fragment>
+    <Fragment slot="desc">
+      Nasp is leveraging trusted open-source technologies, ensuring reliability
+      without reinventing the wheel.
+    </Fragment>
+  </Sectionhead>
+  <div class="flex gap-8 md:gap-20 items-center justify-center mt-10 flex-wrap">
+    <Icon class="h-8 md:h-14" name="simple-icons:linux" />
+    <Image src={spiffeIcon} width={40} height={40} alt="" />
+    <Image src={opaIcon} width={40} height={40} alt="" />
+    <Icon class="h-8 md:h-12" name="simple-icons:webassembly" />
+    <Icon class="h-8 md:h-12" name="simple-icons:kubernetes" />
+  </div>
+</div>

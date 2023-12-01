@@ -1,0 +1,42 @@
+---
+import { Picture } from "@astrojs/image/components";
+import heroImage from "assets/logo.svg";
+import Link from "@components/ui/link.astro";
+---
+
+<main class="grid lg:grid-cols-2 place-items-center pt-16 pb-8 md:pt-8">
+  <div class="py-6 md:order-1 hidden lg:block">
+    <Picture
+      src={heroImage}
+      alt="Logo"
+      widths={[1500]}
+      sizes="(max-width: 800px) 100vw, 400px"
+      aspectRatio={1.2}
+      loading="eager"
+      format="avif"
+    />
+  </div>
+  <div>
+    <h1 class="text-5xl lg:text-6xl xl:text-7xl font-bold lg:tracking-tight">
+      Kernel Space Access Control for Zero Trust Networking
+    </h1>
+    <p class="text-lg mt-4 text-slate-600 max-w-xl">
+      Nasp is an open source cloud native security tool that authenticates,
+      encrypts, and authorizes network communication between workloads. It
+      assigns strong identities to processes and transparently establishes mTLS
+      connections in Kernel space. Nasp facilitates the creation of a robust
+      zero-trust networking environment.
+    </p>
+    <div class="mt-6 flex flex-col sm:flex-row gap-3">
+      <Link href="#" href="docs">Get Started</Link>
+      <Link
+        size="lg"
+        style="outline"
+        rel="noopener"
+        href="https://github.com/cisco-open/nasp"
+        target="_blank">
+        View Repo
+      </Link>
+    </div>
+  </div>
+</main>
