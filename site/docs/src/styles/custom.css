@@ -1,0 +1,113 @@
+h1,
+h2,
+h3 {
+    text-wrap: balance;
+}
+
+.sidebar-content a[aria-current=true],
+.sidebar-content a[aria-current=page],
+.right-sidebar-panel a[aria-current=true],
+.right-sidebar-panel a[aria-current=page] {
+    background-color: inherit;
+    color: var(--sl-color-text-accent);
+}
+
+.sidebar-content a[aria-current=true]:hover,
+.sidebar-content a[aria-current=page]:hover,
+.right-sidebar-panel a[aria-current=true]:hover,
+.sidebar-content a[aria-current=page]:hover {
+    background-color: inherit;
+    color: var(--sl-color-text-accent);
+}
+
+a,
+a:hover {
+    color: var(--sl-color-text-accent);
+}
+
+.sidebar-content a,
+.right-sidebar-panel a,
+.right-sidebar-panel a:hover {
+    font-size: var(--sl-text-lg);
+    color: var(--sl-color-gray-2);
+}
+
+div.group-label span {
+    font-size: var(--sl-text-lg);
+}
+
+.sidebar-pane {
+    border-right: none;
+}
+
+.sidebar-pane ul.top-level {
+    margin-top: 1rem;
+}
+
+.sidebar-pane li {
+    border-inline-start: none;
+}
+
+.right-sidebar {
+    margin-top: 1rem;
+    border-left: none;
+}
+
+.pagination-links a {
+    border: none;
+    border-top: 1px solid #efefef;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+a.action.primary {
+    background-color: black;
+    border-radius: .25rem;
+}
+
+h1 {
+    font-weight: 700;
+    font-size: 4.5rem;
+    letter-spacing: -.025em;
+}
+
+.right-sidebar-panel h2 {
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    color: var(--sl-color-gray-1);
+}
+
+header.header {
+    background-color: #fff;
+    border: none;
+}
+
+.right-sidebar-panel nav a {
+    padding-right: 0;
+}
+
+.right-sidebar-panel nav {
+    text-align: right;
+}
+
+body {
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+header.header a {
+    color: #000;
+    font-weight: 800;
+}
+
+header div.right-group {
+    display: none;
+}
+
+.hero {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.hero:not(:has(img)) {
+    grid-template-columns: initial;
+}
