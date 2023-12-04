@@ -3,7 +3,7 @@
 # NASP installation script
 
 # Define the packages you want to install
-PACKAGES=("nasp" "nasp-kernel-module")
+PACKAGES=("nasp-agent" "nasp-kernel-module")
 
 # URL of your NASP repository
 NASP_REPO_URL="https://nasp.rocks"
@@ -32,13 +32,13 @@ install_package() {
 add_nasp_repo_and_key() {
     if [ -x "$(command -v apt)" ]; then
         # Debian/Ubuntu
-        sudo sh -c "echo 'deb $NASP_REPO_URL/deb /' > /etc/apt/sources.list.d/nasp.list"
-        sudo wget -O /etc/apt/trusted.gpg.d/nasp.gpg "$NASP_REPO_URL/nasp.gpg"
+        sudo sh -c "echo 'deb $NASP_REPO_URL/packages/deb /' > /etc/apt/sources.list.d/nasp.list"
+        sudo wget -O /etc/apt/trusted.gpg.d/nasp.gpg "$NASP_REPO_URL/packages/nasp.gpg"
         sudo apt update
     elif [ -x "$(command -v yum)" ]; then
         # CentOS/RHEL
         sudo rpm --import "$NASP_REPO_URL/nasp.gpg"
-        sudo yum-config-manager --add-repo="$NASP_REPO_URL/rpm"
+        sudo yum-config-manager --add-repo="$NASP_REPO_URL/packages/rpm"
     else
         echo "Unsupported package manager. Please add the NASP repository and key manually."
         exit 1
