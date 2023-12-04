@@ -27,7 +27,6 @@ import (
 
 	"github.com/shirou/gopsutil/v3/process"
 
-	"github.com/cisco-open/nasp/api/types"
 	"github.com/cisco-open/nasp/pkg/plugin"
 	"github.com/cisco-open/nasp/pkg/plugin/workloadattestor"
 	"github.com/cisco-open/nasp/pkg/util"
@@ -68,7 +67,7 @@ func (a *attestor) Type() plugin.PluginType {
 	return plugin.WorkloadAttestatorPluginType
 }
 
-func (a *attestor) Attest(ctx context.Context, pid int32) (*types.Tags, error) {
+func (a *attestor) Attest(ctx context.Context, pid int32) (*workloadattestor.Tags, error) {
 	p, err := process.NewProcess(pid)
 	if err != nil {
 		return nil, err
@@ -88,7 +87,7 @@ func (a *attestor) Attest(ctx context.Context, pid int32) (*types.Tags, error) {
 		f(ctx, p, tags)
 	}
 
-	return tags.Tags, nil
+	return tags, nil
 }
 
 func (a *attestor) uids(ctx context.Context, p *process.Process, tags *workloadattestor.Tags) {

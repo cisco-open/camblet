@@ -27,10 +27,8 @@ import (
 
 	"github.com/cisco-open/nasp/internal/cli"
 	"github.com/cisco-open/nasp/internal/cli/cmd/agent/attest"
-	"github.com/cisco-open/nasp/internal/cli/cmd/agent/wasm"
 	"github.com/cisco-open/nasp/pkg/agent/commands"
 	"github.com/cisco-open/nasp/pkg/agent/messenger"
-	"github.com/cisco-open/nasp/pkg/agent/server"
 	"github.com/cisco-open/nasp/pkg/config"
 	"github.com/cisco-open/nasp/pkg/rules"
 	"github.com/cisco-open/nasp/pkg/sd"
@@ -67,7 +65,6 @@ func NewCommand(c cli.CLI) *cobra.Command {
 
 	cli.BindCMDFlags(c.Viper(), cmd)
 
-	cmd.AddCommand(wasm.NewCommand(c))
 	cmd.AddCommand(attest.NewAttestCommand(c))
 
 	return cmd
@@ -187,9 +184,6 @@ func (c *agentCommand) run(cmd *cobra.Command) error {
 
 	go func() {
 		errChan <- messenger.New(eventBus, logger).Run(cmd.Context(), c.cli.Configuration().Agent.KernelModuleDevice)
-	}()
-	go func() {
-		errChan <- server.New(c.cli.Configuration().Agent, eventBus, logger).ListenAndServe(cmd.Context())
 	}()
 
 	select {
