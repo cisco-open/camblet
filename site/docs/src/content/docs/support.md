@@ -4,7 +4,7 @@ title: "Support"
 
 ## Community support
 
-If you encounter problems while using Nasp that the documentation does not address, [open an issue](https://github.com/naspio/) in the repository of the relevant component, or talk to us in the [#nasp channel of the Outshift Community Slack](https://outshift.com/slack).
+If you encounter problems while using Nasp that the documentation does not address, [open an issue](https://github.com/cisco-open/nasp/) in the repository of the relevant component, or talk to us in the [#nasp channel of the Outshift Community Slack](https://outshift.com/slack).
 
 Before reporting a new issue, please ensure that the issue was not already reported or fixed by searching through our issue tracker.
 
