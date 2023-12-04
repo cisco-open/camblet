@@ -31,7 +31,6 @@ import (
 	"emperror.dev/errors"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/cisco-open/nasp/api/types"
 	"github.com/cisco-open/nasp/pkg/plugin"
 	"github.com/cisco-open/nasp/pkg/plugin/workloadattestor"
 	"github.com/cisco-open/nasp/pkg/plugin/workloadattestor/docker"
@@ -62,7 +61,7 @@ func (a *attestor) Type() plugin.PluginType {
 	return plugin.WorkloadAttestatorPluginType
 }
 
-func (a *attestor) Attest(ctx context.Context, pid int32) (*types.Tags, error) {
+func (a *attestor) Attest(ctx context.Context, pid int32) (*workloadattestor.Tags, error) {
 	cgroups, err := docker.GetCgroups(pid)
 	if errors.Is(err, os.ErrNotExist) {
 		return nil, nil
@@ -96,7 +95,7 @@ func (a *attestor) Attest(ctx context.Context, pid int32) (*types.Tags, error) {
 
 	pod, container, containerStatus := a.getPodAndContainer(podUID, containerID, pods)
 	if pod.GetName() == "" {
-		return tags.Tags, nil
+		return tags, nil
 	}
 
 	tags.Add("pod:name", pod.GetName())
@@ -145,7 +144,7 @@ func (a *attestor) Attest(ctx context.Context, pid int32) (*types.Tags, error) {
 		tags.Add("container:image:id", containerStatus.ImageID)
 	}
 
-	return tags.Tags, nil
+	return tags, nil
 }
 
 func (a *attestor) getPodAndContainer(podUID, containerID string, pods []corev1.Pod) (pod corev1.Pod, container corev1.Container, containerStatus corev1.ContainerStatus) {

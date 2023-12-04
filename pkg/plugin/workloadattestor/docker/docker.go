@@ -28,7 +28,6 @@ import (
 	"emperror.dev/errors"
 	dockerapitypes "github.com/docker/docker/api/types"
 
-	"github.com/cisco-open/nasp/api/types"
 	"github.com/cisco-open/nasp/pkg/plugin"
 	"github.com/cisco-open/nasp/pkg/plugin/workloadattestor"
 )
@@ -61,7 +60,7 @@ func (a *attestor) Type() plugin.PluginType {
 	return plugin.WorkloadAttestatorPluginType
 }
 
-func (a *attestor) Attest(ctx context.Context, pid int32) (*types.Tags, error) {
+func (a *attestor) Attest(ctx context.Context, pid int32) (*workloadattestor.Tags, error) {
 	cgroupList, err := GetCgroups(pid)
 	if errors.Is(err, os.ErrNotExist) {
 		return nil, nil
@@ -83,7 +82,7 @@ func (a *attestor) Attest(ctx context.Context, pid int32) (*types.Tags, error) {
 	}
 
 	if !found {
-		return tags.Tags, nil
+		return tags, nil
 	}
 
 	dc, err := a.config.getDockerClient()
@@ -105,7 +104,7 @@ func (a *attestor) Attest(ctx context.Context, pid int32) (*types.Tags, error) {
 		f(cj, tags)
 	}
 
-	return tags.Tags, nil
+	return tags, nil
 }
 
 func (a *attestor) network(cj dockerapitypes.ContainerJSON, tags *workloadattestor.Tags) {

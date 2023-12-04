@@ -1,9 +1,0 @@
-syntax = "proto3";
-package nasp.api.agent.common.v1;
-option go_package = "github.com/cisco-open/nasp/api/agent/common/v1;commonv1";
-
-import "google/protobuf/empty.proto";
-
-service Common {
-    rpc ResetWASM(google.protobuf.Empty) returns (google.protobuf.Empty);
-}

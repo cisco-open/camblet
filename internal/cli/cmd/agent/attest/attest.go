@@ -56,7 +56,7 @@ func NewAttestCommand(c cli.CLI) *cobra.Command {
 				return err
 			}
 
-			for _, tag := range tags.GetEntries() {
+			for _, tag := range tags.Entries {
 				selector := fmt.Sprintf("%s:%s", tag.Key, tag.Value)
 				fmt.Println(selector)
 			}

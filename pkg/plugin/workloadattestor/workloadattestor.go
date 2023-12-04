@@ -26,14 +26,13 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 
-	"github.com/cisco-open/nasp/api/types"
 	"github.com/cisco-open/nasp/pkg/plugin"
 )
 
 type WorkloadAttestor interface {
 	plugin.Common
 
-	Attest(ctx context.Context, pid int32) (*types.Tags, error)
+	Attest(ctx context.Context, pid int32) (*Tags, error)
 }
 
 type WorkloadAttestors interface {
@@ -41,7 +40,7 @@ type WorkloadAttestors interface {
 	Add(WorkloadAttestor)
 	Clear()
 
-	Attest(ctx context.Context, pid int32) (*types.Tags, error)
+	Attest(ctx context.Context, pid int32) (*Tags, error)
 }
 
 type workloadAttestors struct {
@@ -56,9 +55,9 @@ func NewWorkloadAttestors(logger logr.Logger) WorkloadAttestors {
 	}
 }
 
-func (w *workloadAttestors) Attest(ctx context.Context, pid int32) (*types.Tags, error) {
-	tags := &types.Tags{
-		Entries: []*types.Tag{},
+func (w *workloadAttestors) Attest(ctx context.Context, pid int32) (*Tags, error) {
+	tags := &Tags{
+		Entries: []Tag{},
 	}
 
 	w.entries.Range(func(_, v any) bool {
@@ -69,7 +68,7 @@ func (w *workloadAttestors) Attest(ctx context.Context, pid int32) (*types.Tags,
 				return true
 			}
 
-			for _, e := range t.GetEntries() {
+			for _, e := range t.Entries {
 				tags.Entries = append(tags.Entries, e)
 			}
 		}

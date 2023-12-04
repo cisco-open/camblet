@@ -21,21 +21,22 @@ package workloadattestor
 
 import (
 	"fmt"
-
-	"github.com/cisco-open/nasp/api/types"
 )
 
 type Tags struct {
-	*types.Tags
-	prefix string
+	Entries []Tag
+	prefix  string
+}
+
+type Tag struct {
+	Key   string
+	Value string
 }
 
 func InitTagsWithPrefix(prefix string) *Tags {
 	return &Tags{
-		Tags: &types.Tags{
-			Entries: []*types.Tag{},
-		},
-		prefix: prefix,
+		Entries: make([]Tag, 0),
+		prefix:  prefix,
 	}
 }
 
@@ -43,7 +44,7 @@ func (t *Tags) Add(key, value string) {
 	if t.prefix != "" {
 		key = fmt.Sprintf("%s:%s", t.prefix, key)
 	}
-	t.Entries = append(t.Entries, &types.Tag{
+	t.Entries = append(t.Entries, Tag{
 		Key:   key,
 		Value: value,
 	})
