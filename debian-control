@@ -1,0 +1,10 @@
+Section: misc
+Priority: optional
+Standards-Version: 3.9.2
+Package: nasp
+Version: 1.0
+Maintainer: Nandor Kracser <nandork@cisco.com>
+Architecture: all
+Depends: nasp-agent, nasp-kernel-module
+Description: NASP system with the agent and the kernel module
+ This is a meta-package that depends on nasp-agent and nasp-kernel-module.

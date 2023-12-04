@@ -9,6 +9,7 @@ builds:
       - amd64
 nfpms:
   -
+    package_name: nasp-agent
     description: "NASP CLI and agent service"
     maintainer: Nandor Kracser <nandork@cisco.com>
     license: "MIT"
