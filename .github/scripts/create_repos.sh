@@ -16,7 +16,6 @@ main() {
   GOT_RPM=0
   DEB_POOL="generated_repo/deb/pool/main"
   DEB_DISTS_COMPONENTS="dists/stable/main/binary-all"
-  TAG="0.0.0"
 
   REPOS_PATH=".github/config/gh_projects.txt"
   vim $REPOS_PATH -c "set ff=unix" -c ":wq"
@@ -30,37 +29,45 @@ main() {
 
   while IFS= read -r repo;
   do
-    if release=$(curl -fqs https://api.github.com/repos/${repo}/releases/tags/${TAG})
+    package_name="${repo##*/}"
+    if release_ids=$(curl -fqs https://api.github.com/repos/${repo}/releases?per_page=100 | jq -r '.[].id')
     then
-      deb_file="$(echo "$release" | jq -r '.assets[] | select(.name | endswith(".deb")) | .name')"
-      rpm_file="$(echo "$release" | jq -r '.assets[] | select(.name | endswith(".rpm")) | .name')"
-      package_name="${repo##*/}"
-      echo "Parsing repo ${repo} at ${TAG}"
-      if [ -n "$deb_file" ]
-      then
-        GOT_DEB=1
-        mkdir -p "${DEB_POOL}/${package_name}"
-        pushd "${DEB_POOL}/${package_name}" >/dev/null
-        echo "Getting DEB"
-        wget -q "https://github.com/${repo}/releases/download/${TAG}/${deb_file}"
-        popd >/dev/null
-      fi
-      if [ -n "$rpm_file" ]
-      then
-        GOT_RPM=1
-        mkdir -p generated_repo/rpm
-        pushd generated_repo/rpm >/dev/null
-        echo "Getting RPM"
-        wget -q "https://github.com/${repo}/releases/download/${TAG}/${rpm_file}"
-        (
-          if [ -n "$GPG_FINGERPRINT" ]
-          then
-            echo "Signing RPM"
-            rpm --define "%_signature gpg" --define "%_gpg_name ${GPG_FINGERPRINT}" --addsign "${rpm_file}"
-          fi
-        )
-        popd >/dev/null
-      fi
+      for release_id in $release_ids;
+      do
+        echo "Processing release ID: $release_id"
+        if deb_asset_ids=$(curl -fqs https://api.github.com/repos/${repo}/releases/${release_id}/assets | jq -r '.[] | select(.name | endswith(".deb")) | .id')
+        then
+          for deb_asset_id in $deb_asset_ids;
+          do
+            GOT_DEB=1
+            mkdir -p "${DEB_POOL}/${package_name}"
+            pushd "${DEB_POOL}/${package_name}" >/dev/null
+            echo "Getting DEB"
+            curl -LOJ -H "Accept: application/octet-stream" "https://api.github.com/repos/${repo}/releases/assets/${deb_asset_id}"
+            popd >/dev/null
+          done
+        fi
+        if rpm_asset_ids=$(curl -fqs https://api.github.com/repos/${repo}/releases/${release_id}/assets | jq -r '.[] | select(.name | endswith(".rpm")) | .id')
+        then
+          for rpm_asset_id in $rpm_asset_ids;
+          do
+            GOT_RPM=1
+            mkdir -p generated_repo/rpm
+            pushd generated_repo/rpm >/dev/null
+            echo "Getting RPM"
+            rpm_file=$(curl -fqs https://api.github.com/repos/${repo}/releases/assets/${rpm_asset_id} | jq -r '.name')
+            curl -LOJ -H "Accept: application/octet-stream" "https://api.github.com/repos/${repo}/releases/assets/${rpm_asset_id}"
+            (
+              if [ -n "$GPG_FINGERPRINT" ]
+              then
+                echo "Signing RPM"
+                rpm --define "%_signature gpg" --define "%_gpg_name ${GPG_FINGERPRINT}" --addsign "${rpm_file}"
+              fi
+            )
+            popd >/dev/null
+          done
+        fi
+      done
     fi
   done < "$REPOS_PATH"
 
