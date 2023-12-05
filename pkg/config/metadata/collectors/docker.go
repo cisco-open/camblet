@@ -17,52 +17,45 @@
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package config
+package collectors
 
 import (
-	"time"
-
 	"emperror.dev/errors"
 
-	"github.com/cisco-open/nasp/pkg/config/metadata/collectors"
+	"github.com/gezacorp/metadatax"
+	"github.com/gezacorp/metadatax/collectors/docker"
 )
 
 const (
-	DefaultTrustDomain     = "nasp"
-	DefaultCertTTLDuration = time.Hour * 24
+	defaultDockerSocketPath = "unix:///var/run/docker.sock"
 )
 
-type Agent struct {
-	LocalAddress           string            `json:"localAddress,omitempty"`
-	KernelModuleDevice     string            `json:"kernelModuleDevice,omitempty"`
-	MetadataCollectors     collectors.Config `json:"metadataCollectors,omitempty"`
-	TrustDomain            string            `json:"trustDomain,omitempty"`
-	DefaultCertTTL         string            `json:"defaultCertTTL,omitempty"`
-	DefaultCertTTLDuration time.Duration     `json:"-"`
-	CAPemPath              string            `json:"caPEMPath,omitempty"`
+type DockerCollectorConfig struct {
+	BaseConfig `json:",inline" mapstructure:",squash"`
+
+	SocketPath string `json:"socketPath,omitempty"`
 }
 
-func (c Agent) Validate() (Agent, error) {
-	var err error
-
-	if c.TrustDomain == "" {
-		c.TrustDomain = DefaultTrustDomain
+func (c *DockerCollectorConfig) Validate() error {
+	if !c.IsEnabled() {
+		return nil
 	}
 
-	if c.DefaultCertTTL == "" {
-		c.DefaultCertTTL = DefaultCertTTLDuration.String()
+	if c.SocketPath == "" {
+		c.SocketPath = defaultDockerSocketPath
 	}
 
-	if d, err := time.ParseDuration(c.DefaultCertTTL); err != nil {
-		return c, errors.WrapIf(err, "invalid default certificate ttl")
-	} else {
-		c.DefaultCertTTLDuration = d
+	return nil
+}
+
+func (c DockerCollectorConfig) Instantiate() (metadatax.Collector, error) {
+	if !c.IsEnabled() {
+		return nil, errors.WithStack(DisabledCollectorError)
 	}
 
-	c.MetadataCollectors, err = c.MetadataCollectors.Validate()
-	if err != nil {
-		return c, err
-	}
+	opts := make([]docker.CollectorOption, 0)
 
-	return c, nil
+	opts = append(opts, docker.WithSocketPath(c.SocketPath))
+
+	return docker.New(opts...)
 }

@@ -17,52 +17,28 @@
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package config
+package collectors
 
 import (
-	"time"
-
 	"emperror.dev/errors"
 
-	"github.com/cisco-open/nasp/pkg/config/metadata/collectors"
+	"github.com/cisco-open/nasp/pkg/util"
+	"github.com/gezacorp/metadatax"
+	"github.com/gezacorp/metadatax/collectors/azure"
 )
 
-const (
-	DefaultTrustDomain     = "nasp"
-	DefaultCertTTLDuration = time.Hour * 24
-)
-
-type Agent struct {
-	LocalAddress           string            `json:"localAddress,omitempty"`
-	KernelModuleDevice     string            `json:"kernelModuleDevice,omitempty"`
-	MetadataCollectors     collectors.Config `json:"metadataCollectors,omitempty"`
-	TrustDomain            string            `json:"trustDomain,omitempty"`
-	DefaultCertTTL         string            `json:"defaultCertTTL,omitempty"`
-	DefaultCertTTLDuration time.Duration     `json:"-"`
-	CAPemPath              string            `json:"caPEMPath,omitempty"`
+type AzureCollectorConfig struct {
+	BaseConfig `json:",inline" mapstructure:",squash"`
 }
 
-func (c Agent) Validate() (Agent, error) {
-	var err error
+func (c *AzureCollectorConfig) Validate() error {
+	return nil
+}
 
-	if c.TrustDomain == "" {
-		c.TrustDomain = DefaultTrustDomain
+func (c AzureCollectorConfig) Instantiate() (metadatax.Collector, error) {
+	if !util.PointerToBool(c.Enabled) {
+		return nil, errors.WithStack(DisabledCollectorError)
 	}
 
-	if c.DefaultCertTTL == "" {
-		c.DefaultCertTTL = DefaultCertTTLDuration.String()
-	}
-
-	if d, err := time.ParseDuration(c.DefaultCertTTL); err != nil {
-		return c, errors.WrapIf(err, "invalid default certificate ttl")
-	} else {
-		c.DefaultCertTTLDuration = d
-	}
-
-	c.MetadataCollectors, err = c.MetadataCollectors.Validate()
-	if err != nil {
-		return c, err
-	}
-
-	return c, nil
+	return azure.New(), nil
 }
