@@ -93,7 +93,7 @@ main() {
       echo "Suite: stable"
       echo "Codename: stable"
       echo "Version: 1.0"
-      echo "Architectures: ${$architectures}"
+      echo "Architectures: ${architectures}"
       echo "Components: main"
       echo "Description: A repository for packages released by ${REPO_OWNER}}"
       echo "Date: $(date -Ru)"
