@@ -54,15 +54,15 @@ enable_and_start_unit() {
 
 # Function to check if a kernel module is available
 is_kernel_module_available() {
-    lsmod | grep "$1" &> /dev/null
+    find /lib/modules/$(uname -r) -type f -name '*.ko*' | grep -w "$1" &> /dev/null
 }
 
 # Function to load the "nasp" kernel module
 load_nasp_module() {
     if is_kernel_module_available "tls"; then
-        sudo modprobe nasp ktls_available=true
+        sudo modprobe nasp ktls_available=1
     else
-        sudo modprobe nasp ktls_available=false
+        sudo modprobe nasp ktls_available=0
     fi
 }
 
