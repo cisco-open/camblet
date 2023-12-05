@@ -22,34 +22,31 @@ package commands
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
-	"strconv"
-	"strings"
 	"time"
 
+	"emperror.dev/errors"
 	"github.com/go-logr/logr"
 	"github.com/jellydator/ttlcache/v3"
+	"github.com/prometheus/procfs"
 	"github.com/shirou/gopsutil/v3/process"
 
 	"github.com/cisco-open/nasp/pkg/agent/messenger"
-	"github.com/cisco-open/nasp/pkg/plugin/workloadattestor"
-	"github.com/cisco-open/nasp/pkg/plugin/workloadattestor/docker"
-	"github.com/cisco-open/nasp/pkg/plugin/workloadattestor/linux"
+	"github.com/gezacorp/metadatax"
+	"github.com/gezacorp/metadatax/collectors/docker"
 )
 
-type attestCommand struct {
-	attestor workloadattestor.WorkloadAttestors
-	logger   logr.Logger
-	cache    *ttlcache.Cache[string, string]
+type augmentCommand struct {
+	metadataCollector metadatax.Collector
+	logger            logr.Logger
+	cache             *ttlcache.Cache[string, string]
 }
 
-func Attest(ctx context.Context, attestor workloadattestor.WorkloadAttestors, logger logr.Logger) CommandHandler {
-	cmd := &attestCommand{
-		attestor: attestor,
-		logger:   logger,
+func Augment(ctx context.Context, metadataCollector metadatax.Collector, logger logr.Logger) CommandHandler {
+	cmd := &augmentCommand{
+		metadataCollector: metadataCollector,
+		logger:            logger,
 		cache: ttlcache.New[string, string](
 			ttlcache.WithTTL[string, string](5 * time.Minute),
 		),
@@ -66,7 +63,7 @@ func Attest(ctx context.Context, attestor workloadattestor.WorkloadAttestors, lo
 	return cmd
 }
 
-func (c *attestCommand) HandleCommand(cmd messenger.Command) (string, error) {
+func (c *augmentCommand) HandleCommand(cmd messenger.Command) (string, error) {
 	c.cache.DeleteExpired()
 
 	cacheKey := cmd.Context.UniqueString()
@@ -74,14 +71,16 @@ func (c *attestCommand) HandleCommand(cmd messenger.Command) (string, error) {
 	logger := c.logger.WithValues("pid", cmd.Context.PID, "path", cmd.Context.CommandPath, "cacheKey", cacheKey)
 
 	if item := c.cache.Get(cacheKey); item != nil {
-		logger.V(1).Info("attest response cache hit")
+		logger.V(1).Info("augmentation response cache hit")
 
 		return item.Value(), nil
 	}
 
-	tags, err := c.attestor.Attest(context.Background(), int32(cmd.Context.PID))
+	md, err := c.metadataCollector.GetMetadata(metadatax.ContextWithPID(context.Background(), int32(cmd.Context.PID)))
 	if err != nil {
-		return "error", err
+		for _, e := range errors.GetErrors(err) {
+			c.logger.Info("error during metadata collection", "error", e)
+		}
 	}
 
 	var response struct {
@@ -89,8 +88,8 @@ func (c *attestCommand) HandleCommand(cmd messenger.Command) (string, error) {
 	}
 	response.Labels = make(map[string]bool)
 
-	for _, v := range tags.Entries {
-		response.Labels[fmt.Sprintf("%s:%s", v.Key, v.Value)] = true
+	for _, label := range md.GetLabelsSlice() {
+		response.Labels[fmt.Sprintf("%s:%s", label.Name, label.Value)] = true
 	}
 
 	j, err := json.Marshal(response)
@@ -100,12 +99,15 @@ func (c *attestCommand) HandleCommand(cmd messenger.Command) (string, error) {
 
 	js := string(j)
 	c.cache.Set(cmd.Context.UniqueString(), js, ttlcache.DefaultTTL)
-	logger.V(2).Info("attest response cached")
+	if cmd.Context.PID == 25085 {
+		fmt.Printf("%d %s\n", cmd.Context.PID, js)
+	}
+	logger.V(2).Info("augmentation response cached")
 
 	return js, nil
 }
 
-func (c *attestCommand) init() {
+func (c *augmentCommand) init() {
 	pids, err := process.Pids()
 	if err != nil {
 		c.logger.Error(err, "could not get pids")
@@ -133,10 +135,10 @@ func getCMDContextFromPID(pid int32) (ctx messenger.CommandContext, err error) {
 
 	ctx.PID = int(pid)
 
-	if cgroups, err := docker.GetCgroups(pid); err != nil {
+	if cgroups, err := docker.GetCgroupsForPID(int(pid)); err != nil {
 		return ctx, err
 	} else if len(cgroups) > 0 {
-		ctx.CGroupPath = cgroups[0].CGroupPath
+		ctx.CGroupPath = cgroups[0].Path
 	}
 
 	ctx.CommandName, err = p.Name()
@@ -161,24 +163,19 @@ func getCMDContextFromPID(pid int32) (ctx messenger.CommandContext, err error) {
 		ctx.GID = int(gids[0])
 	}
 
-	base := linux.GetProcPath(pid, "ns")
+	namespaceIDs := map[string]uint32{}
 
-	entries, err := os.ReadDir(base)
+	pfs, err := procfs.NewProc(int(pid))
+	if err != nil {
+		return ctx, err
+	}
+	namespaces, err := pfs.Namespaces()
 	if err != nil {
 		return ctx, err
 	}
 
-	namespaceIDs := map[string]int{}
-
-	for _, entry := range entries {
-		s, err := os.Readlink(filepath.Join(base, entry.Name()))
-		if err != nil {
-			return ctx, err
-		}
-
-		if id, err := strconv.Atoi(s[strings.IndexByte(s, '[')+1 : strings.IndexByte(s, ']')]); err == nil {
-			namespaceIDs[entry.Name()] = id
-		}
+	for _, ns := range namespaces {
+		namespaceIDs[ns.Type] = ns.Inode
 	}
 
 	ctx.NamespaceIDs.CGroup = int64(namespaceIDs["cgroup"])

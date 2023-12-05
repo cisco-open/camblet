@@ -17,48 +17,47 @@
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package attest
+package augment
 
 import (
 	"fmt"
 	"strconv"
 
-	"github.com/go-logr/logr"
+	"emperror.dev/errors"
 	"github.com/spf13/cobra"
 
+	"github.com/gezacorp/metadatax"
+
 	"github.com/cisco-open/nasp/internal/cli"
-	"github.com/cisco-open/nasp/pkg/config"
-	"github.com/cisco-open/nasp/pkg/plugin/workloadattestor"
-	"github.com/cisco-open/nasp/pkg/plugin/workloadattestor/docker"
-	"github.com/cisco-open/nasp/pkg/plugin/workloadattestor/k8s"
-	"github.com/cisco-open/nasp/pkg/plugin/workloadattestor/linux"
-	"github.com/cisco-open/nasp/pkg/util"
+	"github.com/cisco-open/nasp/pkg/config/metadata/collectors"
 )
 
-func NewAttestCommand(c cli.CLI) *cobra.Command {
+func NewAugmentCommand(c cli.CLI) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:               "attest [pid]",
-		Short:             "attest workload by pid",
+		Use:               "augment [pid]",
+		Short:             "augment process information",
 		SilenceErrors:     true,
 		SilenceUsage:      true,
 		DisableAutoGenTag: true,
 		Args:              cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			attestor := GetWorkloadAttestor(c.Configuration(), c.Logger())
+			collector := collectors.GetMetadataCollector(c.Configuration().Agent.MetadataCollectors, c.Logger())
 
 			pid, err := strconv.Atoi(args[0])
 			if err != nil {
 				return err
 			}
 
-			tags, err := attestor.Attest(cmd.Context(), int32(pid))
+			md, err := collector.GetMetadata(metadatax.ContextWithPID(cmd.Context(), int32(pid)))
 			if err != nil {
-				return err
+				for _, e := range errors.GetErrors(err) {
+					c.Logger().Info("error during metadata collection", "error", e)
+				}
+				err = nil
 			}
 
-			for _, tag := range tags.Entries {
-				selector := fmt.Sprintf("%s:%s", tag.Key, tag.Value)
-				fmt.Println(selector)
+			for _, label := range md.GetLabelsSlice() {
+				fmt.Println(label.Name + ":" + label.Value)
 			}
 
 			return err
@@ -66,24 +65,4 @@ func NewAttestCommand(c cli.CLI) *cobra.Command {
 	}
 
 	return cmd
-}
-
-func GetWorkloadAttestor(cfg config.Config, logger logr.Logger) workloadattestor.WorkloadAttestors {
-	attestor := workloadattestor.NewWorkloadAttestors(logger)
-
-	attestorsConfig := cfg.Agent.WorkloadAttestors
-
-	if util.PointerToBool(attestorsConfig.Linux.Enabled) {
-		attestor.Add(linux.New(attestorsConfig.Linux.Config))
-	}
-
-	if util.PointerToBool(attestorsConfig.Docker.Enabled) {
-		attestor.Add(docker.New(attestorsConfig.Docker.Config))
-	}
-
-	if util.PointerToBool(attestorsConfig.K8s.Enabled) {
-		attestor.Add(k8s.New(attestorsConfig.K8s.Config))
-	}
-
-	return attestor
 }
