@@ -1,6 +1,6 @@
 # python plain tls on port 7000
 - selectors:
-  - linux:binary:name: [python3.10, python3.11]
+  - process:name: [python3]
     destination:port: 7000
   properties:
     mtls: false
@@ -9,17 +9,17 @@
 # nginx or python on port 8000
 - selectors:
   # local nginx
-  - linux:uid: 33
-    linux:binary:name: nginx
+  - process:uid: 33
+    process:name: nginx
     destination:port: 8000
   # local nginx in docker
-  - linux:uid: 101
-    linux:binary:name: nginx
+  - process:uid: 101
+    process:name: nginx
     docker:image:name:nginx: true
     destination:port: 80
   # local python or go file-server
-  - linux:uid: [501, 1001]
-    linux:binary:name: [python3.10, python3.11, file-server]
+  - process:uid: [501, 1001]
+    process:name: [python3, file-server]
     destination:port: [8000, 8080]
   properties:
     mtls: true
@@ -36,8 +36,8 @@
 
 # curl or wrk connection to port 8000 or 8080
 - selectors:
-  - linux:uid: [501, 1001]
-    linux:binary:name: [curl, wrk]
+  - process:uid: [501, 1001]
+    process:name: [curl, wrk]
     destination:port: [8000, 8080]
   properties:
     mtls: true
@@ -50,8 +50,8 @@
 
 # wget connection to port 8000 or 8080
 - selectors:
-  - linux:uid: [501, 1001]
-    linux:binary:name: wget
+  - process:uid: [501, 1001]
+    process:name: wget
     destination:port: [8000, 8080]
   properties:
     mtls: true
