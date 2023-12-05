@@ -1,0 +1,27 @@
+---
+import { Image } from "@astrojs/image/components";
+import architecture from "assets/nasp-architecture.png";
+import Link from "@components/ui/link.astro";
+import Sectionhead from "@components/sectionhead.astro";
+---
+
+<Sectionhead align="left">
+  <Fragment slot="title">
+    <h2
+      class="text-4xl lg:text-5xl py-1 font-extrabold lg:tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-red-500">
+      How it works
+    </h2>
+  </Fragment>
+  <Fragment slot="desc">
+    The Nasp system is a set of projects, which in tandem are capable of
+    enhancing plain old TCP sockets in a frictionless way, so that application
+    developers can focus on their business logic instead of dealing with the
+    complexity of TLS, mTLS, and other security-related concerns. It is doing
+    this seamlessly, no code changes or re-compilations or re-deployments are
+    required. You only have to configure Nasp itself, and it will do the rest.
+  </Fragment>
+</Sectionhead>
+
+<main class="place-items-center pt-16 pb-8">
+  <Image src={architecture} alt="Logo" height={968} width={1806} />
+</main>
