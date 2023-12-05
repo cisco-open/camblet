@@ -91,7 +91,7 @@ func (c *agentCommand) runCommander(ctx context.Context) error {
 	h.AddHandler("csr_sign", csrSign)
 
 	collector := collectors.GetMetadataCollector(c.cli.Configuration().Agent.MetadataCollectors, c.cli.Logger())
-	h.AddHandler("attest", commands.Augment(ctx, collector, c.cli.Logger()))
+	h.AddHandler("augment", commands.Augment(ctx, collector, c.cli.Logger()))
 
 	if err := h.Run(ctx); err != nil {
 		return err
