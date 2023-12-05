@@ -26,10 +26,11 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/cisco-open/nasp/internal/cli"
-	"github.com/cisco-open/nasp/internal/cli/cmd/agent/attest"
+	"github.com/cisco-open/nasp/internal/cli/cmd/agent/augment"
 	"github.com/cisco-open/nasp/pkg/agent/commands"
 	"github.com/cisco-open/nasp/pkg/agent/messenger"
 	"github.com/cisco-open/nasp/pkg/config"
+	"github.com/cisco-open/nasp/pkg/config/metadata/collectors"
 	"github.com/cisco-open/nasp/pkg/rules"
 	"github.com/cisco-open/nasp/pkg/sd"
 	"github.com/cisco-open/nasp/pkg/tls"
@@ -55,7 +56,6 @@ func NewCommand(c cli.CLI) *cobra.Command {
 		},
 	}
 
-	cmd.PersistentFlags().String("agent-local-address", "/tmp/nasp/agent.sock", "Local address")
 	cmd.Flags().String("kernel-module-device", "/dev/nasp", "Device for the Nasp kernel module")
 	cmd.Flags().StringSlice("rules-path", nil, "Rules path")
 	cmd.Flags().StringSlice("sd-path", nil, "Service discovery definition path")
@@ -65,7 +65,7 @@ func NewCommand(c cli.CLI) *cobra.Command {
 
 	cli.BindCMDFlags(c.Viper(), cmd)
 
-	cmd.AddCommand(attest.NewAttestCommand(c))
+	cmd.AddCommand(augment.NewAugmentCommand(c))
 
 	return cmd
 }
@@ -90,8 +90,8 @@ func (c *agentCommand) runCommander(ctx context.Context) error {
 	}
 	h.AddHandler("csr_sign", csrSign)
 
-	attestor := attest.GetWorkloadAttestor(c.cli.Configuration(), c.cli.Logger())
-	h.AddHandler("attest", commands.Attest(ctx, attestor, c.cli.Logger()))
+	collector := collectors.GetMetadataCollector(c.cli.Configuration().Agent.MetadataCollectors, c.cli.Logger())
+	h.AddHandler("attest", commands.Augment(ctx, collector, c.cli.Logger()))
 
 	if err := h.Run(ctx); err != nil {
 		return err
