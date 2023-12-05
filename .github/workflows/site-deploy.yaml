@@ -41,6 +41,7 @@ jobs:
         run: |
           export GPG_FINGERPRINT="${{ steps.import_gpg.outputs.fingerprint }}"
           export ORIGIN="${{ steps.import_gpg.outputs.name }}"
+          export GPG_TTY="$(tty)"
           .github/scripts/create_repos.sh
 
       - name: Fix permissions
@@ -93,8 +94,8 @@ jobs:
 
       - name: Untar the artifact
         run: |
-          mkdir -p dist
-          tar -xvf ../../artifact.tar -C dist
+          mkdir -p dist/packages
+          tar -xvf ../../artifact.tar -C dist/packages
         working-directory: ./site/landing
       
       - name: Upload Pages Artifact
