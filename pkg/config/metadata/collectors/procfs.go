@@ -17,52 +17,43 @@
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package config
+package collectors
 
 import (
-	"time"
-
 	"emperror.dev/errors"
 
-	"github.com/cisco-open/nasp/pkg/config/metadata/collectors"
+	"github.com/cisco-open/nasp/pkg/util"
+	"github.com/gezacorp/metadatax"
+	"github.com/gezacorp/metadatax/collectors/procfs"
 )
 
-const (
-	DefaultTrustDomain     = "nasp"
-	DefaultCertTTLDuration = time.Hour * 24
-)
+type ProcFSCollectorConfig struct {
+	BaseConfig `json:",inline" mapstructure:",squash"`
 
-type Agent struct {
-	LocalAddress           string            `json:"localAddress,omitempty"`
-	KernelModuleDevice     string            `json:"kernelModuleDevice,omitempty"`
-	MetadataCollectors     collectors.Config `json:"metadataCollectors,omitempty"`
-	TrustDomain            string            `json:"trustDomain,omitempty"`
-	DefaultCertTTL         string            `json:"defaultCertTTL,omitempty"`
-	DefaultCertTTLDuration time.Duration     `json:"-"`
-	CAPemPath              string            `json:"caPEMPath,omitempty"`
+	ExtractEnvs *bool `json:"extractEnvs,omitempty"`
 }
 
-func (c Agent) Validate() (Agent, error) {
-	var err error
-
-	if c.TrustDomain == "" {
-		c.TrustDomain = DefaultTrustDomain
+func (c *ProcFSCollectorConfig) Validate() error {
+	if !c.IsEnabled() {
+		return nil
 	}
 
-	if c.DefaultCertTTL == "" {
-		c.DefaultCertTTL = DefaultCertTTLDuration.String()
+	if c.ExtractEnvs == nil {
+		c.ExtractEnvs = util.BoolPointer(true)
 	}
 
-	if d, err := time.ParseDuration(c.DefaultCertTTL); err != nil {
-		return c, errors.WrapIf(err, "invalid default certificate ttl")
-	} else {
-		c.DefaultCertTTLDuration = d
+	return nil
+}
+
+func (c ProcFSCollectorConfig) Instantiate() (metadatax.Collector, error) {
+	if !util.PointerToBool(c.Enabled) {
+		return nil, errors.WithStack(DisabledCollectorError)
 	}
 
-	c.MetadataCollectors, err = c.MetadataCollectors.Validate()
-	if err != nil {
-		return c, err
+	opts := make([]procfs.CollectorOption, 0)
+	if util.PointerToBool(c.ExtractEnvs) {
+		opts = append(opts, procfs.CollectorWithExtractENVs())
 	}
 
-	return c, nil
+	return procfs.New(opts...), nil
 }
