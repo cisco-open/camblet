@@ -100,8 +100,9 @@ main() {
         generate_hashes SHA1 sha1sum
         generate_hashes SHA256 sha256sum
       } > ${arch}/Release
-      echo "Signing Release file"
+      popd >/dev/null
       pushd "generated_repo/deb/dists/stable/${arch}" >/dev/null
+      echo "Signing Release file"
       gpg --detach-sign --armor --sign > Release.gpg < Release
       gpg --detach-sign --armor --sign --clearsign > InRelease < Release
       echo "DEB repo built"
