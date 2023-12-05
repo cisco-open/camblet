@@ -41,6 +41,7 @@ jobs:
         run: |
           export GPG_FINGERPRINT="${{ steps.import_gpg.outputs.fingerprint }}"
           export ORIGIN="${{ steps.import_gpg.outputs.name }}"
+          export GPG_TTY="$(tty)"
           .github/scripts/create_repos.sh
 
       - name: Fix permissions

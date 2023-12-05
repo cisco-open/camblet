@@ -34,7 +34,7 @@ main() {
     then
       for release_id in $release_ids;
       do
-        echo "Processing release ID: $release_id"
+        echo "Processing release ID: $release_id for $package_name"
         if deb_asset_ids=$(curl -fqs https://api.github.com/repos/${repo}/releases/${release_id}/assets | jq -r '.[] | select(.name | endswith(".deb")) | .id')
         then
           for deb_asset_id in $deb_asset_ids;
