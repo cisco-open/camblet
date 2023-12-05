@@ -86,7 +86,7 @@ main() {
     popd >/dev/null
     mkdir -p "generated_repo/deb/dists/stable"
     pushd "generated_repo/deb/dists/stable" >/dev/null
-    echo "Making Release file 
+    echo "Making Release file"
     {
       echo "Origin: ${ORIGIN}"
       echo "Label: ${REPO_OWNER}"
