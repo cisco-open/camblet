@@ -73,41 +73,39 @@ main() {
 
   if [ $GOT_DEB -eq 1 ]
   then
+    pushd "generated_repo/deb" >/dev/null
     architectures="amd64 arm64 all"
     for arch in $architectures;
     do
-      pushd "generated_repo/deb" >/dev/null
       mkdir -p "${DEB_DISTS_COMPONENTS}-${arch}"
       echo "Scanning all downloaded DEB Packages and creating Packages file."
       dpkg-scanpackages --arch ${arch} pool/ > "${DEB_DISTS_COMPONENTS}-${arch}/Packages"
       gzip -9 > "${DEB_DISTS_COMPONENTS}-${arch}/Packages.gz" < "${DEB_DISTS_COMPONENTS}-${arch}/Packages"
       bzip2 -9 > "${DEB_DISTS_COMPONENTS}-${arch}/Packages.bz2" < "${DEB_DISTS_COMPONENTS}-${arch}/Packages"
-      popd >/dev/null
-      mkdir -p "generated_repo/deb/dists/stable/${arch}"
-      pushd "generated_repo/deb/dists/stable" >/dev/null
-      echo "Making Release file for ${arch}"
-      {
-        echo "Origin: ${ORIGIN}"
-        echo "Label: ${REPO_OWNER}"
-        echo "Suite: stable"
-        echo "Codename: stable"
-        echo "Version: 1.0"
-        echo "Architectures: ${arch}"
-        echo "Components: main"
-        echo "Description: A repository for packages released by ${REPO_OWNER}}"
-        echo "Date: $(date -Ru)"
-        generate_hashes MD5Sum md5sum
-        generate_hashes SHA1 sha1sum
-        generate_hashes SHA256 sha256sum
-      } > ${arch}/Release
-      popd >/dev/null
-      pushd "generated_repo/deb/dists/stable/${arch}" >/dev/null
-      echo "Signing Release file"
-      gpg --detach-sign --armor --sign > Release.gpg < Release
-      gpg --detach-sign --armor --sign --clearsign > InRelease < Release
-      echo "DEB repo built"
-      popd >/dev/null
     done
+    popd >/dev/null
+    mkdir -p "generated_repo/deb/dists/stable"
+    pushd "generated_repo/deb/dists/stable" >/dev/null
+    echo "Making Release file"
+    {
+      echo "Origin: ${ORIGIN}"
+      echo "Label: ${REPO_OWNER}"
+      echo "Suite: stable"
+      echo "Codename: stable"
+      echo "Version: 1.0"
+      echo "Architectures: ${architectures}"
+      echo "Components: main"
+      echo "Description: A repository for packages released by ${REPO_OWNER}}"
+      echo "Date: $(date -Ru)"
+      generate_hashes MD5Sum md5sum
+      generate_hashes SHA1 sha1sum
+      generate_hashes SHA256 sha256sum
+    } > Release
+    echo "Signing Release file"
+    gpg --detach-sign --armor --sign > Release.gpg < Release
+    gpg --detach-sign --armor --sign --clearsign > InRelease < Release
+    echo "DEB repo built"
+    popd >/dev/null
   fi
 
   if [ $GOT_RPM -eq 1 ]
