@@ -17,6 +17,8 @@ nfpms:
       - deb
       - rpm
     contents:
+      - dst: /etc/nasp/config.yaml
+        src: config.yaml
       - dst: /etc/nasp/rules/ci.yaml
         src: nasp.d/rules/ci.yaml
       - dst: /etc/nasp/services/ci.yaml
