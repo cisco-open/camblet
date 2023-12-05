@@ -37,7 +37,7 @@ add_nasp_repo_and_key() {
         sudo apt update
     elif [ -x "$(command -v yum)" ]; then
         # CentOS/RHEL
-        sudo rpm --import "$NASP_REPO_URL/nasp.gpg"
+        sudo rpm --import "$NASP_REPO_URL/packages/nasp.gpg"
         sudo yum-config-manager --add-repo="$NASP_REPO_URL/packages/rpm"
     else
         echo "Unsupported package manager. Please add the NASP repository and key manually."
