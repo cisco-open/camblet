@@ -76,7 +76,7 @@ main() {
     architectures="amd64 arm64 all"
     for arch in $architectures;
     do
-      pushd generated_repo/deb >/dev/null
+      pushd "generated_repo/deb" >/dev/null
       mkdir -p "${DEB_DISTS_COMPONENTS}-${arch}"
       echo "Scanning all downloaded DEB Packages and creating Packages file."
       dpkg-scanpackages --arch ${arch} pool/ > "${DEB_DISTS_COMPONENTS}-${arch}/Packages"
@@ -84,7 +84,7 @@ main() {
       bzip2 -9 > "${DEB_DISTS_COMPONENTS}-${arch}/Packages.bz2" < "${DEB_DISTS_COMPONENTS}-${arch}/Packages"
       popd >/dev/null
       mkdir -p "generated_repo/deb/dists/stable/${arch}"
-      pushd "generated_repo/deb/dists/stable/${arch}" >/dev/null
+      pushd "generated_repo/deb/dists/stable" >/dev/null
       echo "Making Release file for ${arch}"
       {
         echo "Origin: ${ORIGIN}"
@@ -99,8 +99,9 @@ main() {
         generate_hashes MD5Sum md5sum
         generate_hashes SHA1 sha1sum
         generate_hashes SHA256 sha256sum
-      } > Release
+      } > ${arch}/Release
       echo "Signing Release file"
+      pushd "{$arch}" >/dev/null
       gpg --detach-sign --armor --sign > Release.gpg < Release
       gpg --detach-sign --armor --sign --clearsign > InRelease < Release
       echo "DEB repo built"
