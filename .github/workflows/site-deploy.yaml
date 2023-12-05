@@ -94,8 +94,8 @@ jobs:
 
       - name: Untar the artifact
         run: |
-          mkdir -p dist
-          tar -xvf ../../artifact.tar -C dist
+          mkdir -p dist/packages
+          tar -xvf ../../artifact.tar -C dist/packages
         working-directory: ./site/landing
       
       - name: Upload Pages Artifact
