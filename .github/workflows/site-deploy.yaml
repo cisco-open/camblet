@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [site-v2]
+    branches: [site-v2, dyn-arch]
   workflow_dispatch:
 
 permissions:
@@ -97,6 +97,11 @@ jobs:
           mkdir -p dist/packages
           tar -xvf ../../artifact.tar -C dist/packages
         working-directory: ./site/landing
+
+      - name: Copy gpg public key to landing site
+        shell: "bash"
+        run: |
+          cp ./nasp-public.asc ./site/landing/dist/packages/nasp.gpg
       
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v2
