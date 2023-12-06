@@ -3,7 +3,7 @@ Priority: optional
 Standards-Version: 3.9.2
 Package: nasp
 Version: 0.1.0
-Maintainer: Nandor Kracser <nandork@cisco.com>
+Maintainer: Nasp maintainers <team@nasp.io>
 Architecture: all
 Depends: nasp-agent, nasp-kernel-module
 Description: NASP system with the agent and the kernel module
