@@ -7,6 +7,9 @@ builds:
     goarch:
       - arm64
       - amd64
+    env:
+      - CGO_ENABLED=0
+    ldflags: -w -s
 nfpms:
   -
     package_name: nasp-agent
