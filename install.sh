@@ -46,7 +46,7 @@ add_nasp_repo_and_key() {
     log "Adding NASP repository and key..."
     if [ -x "$(command -v apt)" ]; then
         # Debian/Ubuntu
-        sudo sh -c "echo 'deb $NASP_REPO_URL/packages/deb /' > /etc/apt/sources.list.d/nasp.list"
+        sudo sh -c "echo 'deb $NASP_REPO_URL/packages/deb stable main' > /etc/apt/sources.list.d/nasp.list"
         sudo wget -O /etc/apt/trusted.gpg.d/nasp.gpg "$NASP_REPO_URL/packages/nasp.gpg"
         sudo apt update
     elif [ -x "$(command -v dnf)" ]; then
