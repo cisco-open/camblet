@@ -88,14 +88,13 @@ main() {
     pushd "generated_repo/deb/dists/stable" >/dev/null
     echo "Making Release file"
     {
-      echo "Origin: ${ORIGIN}"
-      echo "Label: ${REPO_OWNER}"
+      echo "Origin: Nasp"
+      echo "Label: Nasp"
       echo "Suite: stable"
       echo "Codename: stable"
       echo "Version: 1.0"
       echo "Architectures: ${architectures}"
       echo "Components: main"
-      echo "Description: A repository for packages released by ${REPO_OWNER}}"
       echo "Date: $(date -Ru)"
       generate_hashes MD5Sum md5sum
       generate_hashes SHA1 sha1sum
