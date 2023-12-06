@@ -3,8 +3,9 @@
   - process:name: [python3]
     destination:port: 7000
   properties:
-    mtls: false
     workloadID: pythonwithoutmtls
+  policy:
+    mtls: false
 
 # nginx or python on port 8000
 - selectors:
@@ -22,14 +23,13 @@
     process:name: [python3, file-server]
     destination:port: [8000, 8080]
   properties:
-    mtls: true
     workloadID: accounting/department-a/important-backend
     dns:
     - a.acme.corp
     - b.acme.corp
     ttl: 1h
   policy:
-    spiffeID:
+    allowedSPIFFEIDs:
     - spiffe://{{.TrustDomain}}/accounting
     - spiffe://{{.TrustDomain}}/curl
     - spiffe://{{.TrustDomain}}/egress-specific-workload-id
@@ -40,7 +40,6 @@
     process:name: [curl, wrk]
     destination:port: [8000, 8080]
   properties:
-    mtls: true
     workloadID: curl
   egress:
   - selectors:
@@ -54,7 +53,6 @@
     process:name: wget
     destination:port: [8000, 8080]
   properties:
-    mtls: true
     workloadID: wget
   egress:
   - selectors:
