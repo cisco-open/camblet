@@ -16,7 +16,7 @@ error() {
 # enables and starts the systemd unit, and loads the "nasp" kernel module.
 
 # Define the packages you want to install
-PACKAGES=("nasp" "nasp-kernel-module")
+PACKAGES=("nasp")
 
 # URL of your NASP repository
 NASP_REPO_URL="https://nasp.rocks"
