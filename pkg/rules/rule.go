@@ -26,6 +26,8 @@ import (
 
 	"github.com/google/uuid"
 	"gopkg.in/yaml.v3"
+
+	"github.com/cisco-open/nasp/pkg/util"
 )
 
 type Rules []*Rule
@@ -35,14 +37,15 @@ type Selectors map[string]any
 type RawSelectors []map[string]bool
 
 type Properties struct {
-	MTLS       *bool    `yaml:"mtls,omitempty" json:"mtls,omitempty"`
 	WorkloadID string   `yaml:"workloadID,omitempty" json:"workloadID,omitempty"`
 	DNS        []string `yaml:"dns,omitempty" json:"dns,omitempty"`
 	TTL        string   `yaml:"ttl,omitempty" json:"ttl,omitempty"`
 }
 
 type Policy struct {
-	SpiffeID []string `yaml:"spiffeID,omitempty" json:"spiffeID,omitempty"`
+	MTLS             *bool    `yaml:"mtls,omitempty" json:"mtls,omitempty"`
+	Passthrough      *bool    `yaml:"passthrough,omitempty" json:"passthrough,omitempty"`
+	AllowedSPIFFEIDs []string `yaml:"allowedSPIFFEIDs,omitempty" json:"allowedSPIFFEIDs,omitempty"`
 }
 
 type Rule struct {
@@ -104,6 +107,10 @@ func (r *Rule) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		if _, err := time.ParseDuration(r.Properties.TTL); err != nil {
 			return err
 		}
+	}
+
+	if r.Policy.MTLS == nil {
+		r.Policy.MTLS = util.BoolPointer(true)
 	}
 
 	for _, sel := range rule.Selectors {
