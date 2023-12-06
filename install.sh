@@ -16,7 +16,7 @@ error() {
 # enables and starts the systemd unit, and loads the "nasp" kernel module.
 
 # Define the packages you want to install
-PACKAGES=("nasp")
+PACKAGES=("nasp" "nasp-kernel-module")
 
 # URL of your NASP repository
 NASP_REPO_URL="https://nasp.rocks"
@@ -28,7 +28,6 @@ is_package_installed() {
 
 # Function to install a package
 install_package() {
-    log "Installing $1..."
     if [ -x "$(command -v apt)" ]; then
         # Debian/Ubuntu
         sudo apt update
@@ -47,7 +46,8 @@ add_nasp_repo_and_key() {
     if [ -x "$(command -v apt)" ]; then
         # Debian/Ubuntu
         sudo sh -c "echo 'deb $NASP_REPO_URL/packages/deb stable main' > /etc/apt/sources.list.d/nasp.list"
-        sudo wget -O /etc/apt/trusted.gpg.d/nasp.gpg "$NASP_REPO_URL/packages/nasp.gpg"
+        sudo wget -O /tmp/nasp.gpg "$NASP_REPO_URL/packages/nasp.gpg"
+        cat /tmp/nasp.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/nasp.gpg >/dev/null
         sudo apt update
     elif [ -x "$(command -v dnf)" ]; then
         # CentOS/RHEL
