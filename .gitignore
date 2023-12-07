@@ -17,3 +17,6 @@ bin
 build
 .licensei.cache
 dist/
+*.deb
+*.buildinfo
+*.changes
