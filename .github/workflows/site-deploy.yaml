@@ -101,7 +101,7 @@ jobs:
       - name: Copy gpg public key to landing site
         shell: "bash"
         run: |
-          cp ./nasp-public.asc ./site/landing/dist/packages/nasp.gpg
+          cp ./nasp-public.asc ./site/landing/dist/packages/nasp.asc
       
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v2
