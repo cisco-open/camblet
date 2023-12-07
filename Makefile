@@ -81,3 +81,7 @@ help:
 .PHONY: goreleaser
 goreleaser: ## Build packages with goreleaser
 	goreleaser release --snapshot --clean
+
+.PHONY: deb
+deb: ## Build the meta package
+	equivs-build debian-control
