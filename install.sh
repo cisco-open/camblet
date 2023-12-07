@@ -46,12 +46,12 @@ add_nasp_repo_and_key() {
     if [ -x "$(command -v apt)" ]; then
         # Debian/Ubuntu
         sudo sh -c "echo 'deb $NASP_REPO_URL/packages/deb stable main' > /etc/apt/sources.list.d/nasp.list"
-        sudo wget -O /tmp/nasp.gpg "$NASP_REPO_URL/packages/nasp.gpg"
-        cat /tmp/nasp.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/nasp.gpg >/dev/null
+        sudo wget -O /tmp/nasp.asc "$NASP_REPO_URL/packages/nasp.asc"
+        cat /tmp/nasp.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/nasp.gpg >/dev/null
         sudo apt update
     elif [ -x "$(command -v dnf)" ]; then
         # CentOS/RHEL
-        sudo rpm --import "$NASP_REPO_URL/packages/nasp.gpg"
+        sudo rpm --import "$NASP_REPO_URL/packages/nasp.asc"
         sudo tee /etc/yum.repos.d/nasp.repo >/dev/null <<EOF
 [nasp-repo]
 name=NASP Repository
