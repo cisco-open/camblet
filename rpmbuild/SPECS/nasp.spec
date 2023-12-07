@@ -9,6 +9,8 @@ URL:            https://nasp.rocks
 Requires:       nasp-agent
 Requires:       nasp-kernel-module
 
+BuildArch:      noarch
+
 %description
 This is a meta package for NASP, which includes nasp-agent and nasp-kernel-module.
 
@@ -16,5 +18,5 @@ This is a meta package for NASP, which includes nasp-agent and nasp-kernel-modul
 # Empty section, as this is a meta package
 
 %changelog
-* Wed Dec 07 2023 Nandor Kracser <nandork@cisco.com> - 0.1-1
+* Thu Dec 07 2023 Nandor Kracser <nandork@cisco.com> - 0.1-1
 - Initial build
