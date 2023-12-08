@@ -34,4 +34,4 @@ checksum:
   name_template: "{{ .ProjectName }}_agent_{{ .Version }}_checksums.txt"
 release:
   extra_files:
-    - glob: ./nasp_0.1.0_all.deb
+    - glob: ./nasp_{{ .Version }}_all.deb
