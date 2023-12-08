@@ -28,6 +28,3 @@ nfpms:
         src: nasp.d/services/ci.yaml
       - dst: /etc/systemd/system/nasp.service
         src: nasp.service
-artifacts:
-    - name: nasp_${{  github.ref_name }}"_all.deb
-      glob: ./nasp_${{  github.ref_name }}"_all.deb
