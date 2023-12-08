@@ -1,5 +1,5 @@
 Name:           nasp
-Version:        0.1
+Version:        0.1.0
 Release:        1%{?dist}
 Summary:        NASP is a network acceleration and security platform
 
@@ -18,5 +18,5 @@ This is a meta package for NASP, which includes nasp-agent and nasp-kernel-modul
 # Empty section, as this is a meta package
 
 %changelog
-* Thu Dec 07 2023 Nandor Kracser <nandork@cisco.com> - 0.1-1
+* Thu Dec 07 2023 Nandor Kracser <nandork@cisco.com> - 0.1.0-1
 - Initial build
