@@ -1,14 +1,16 @@
 ---
 title: "Evolution of Zero Trust in workload communication with Nasp"
+image: "https://source.unsplash.com/eYpcLDXHVb0"
 author: "Janos Matyas"
+tags: [nasp, zero-trust, security, networking, lateral-movement]
+category: "Announcements"
+publishDate: "2023-12-18 15:00"
 layout: "@layouts/BlogLayout.astro"
-publishDate: "2022-11-05 15:36"
-tags: [nasp, zero-trust]
 ---
 
 ## The Zero Trust paradigm
 
-Zero Trust security, a term now prevalent among security-conscious organizations is often wrapped in the buzz of marketing hype. But beyond the hype what exactly is Zero Trust? Fundamentally, it's a paradigm shift in security, moving away from traditional 'trust but verify' models to a more robust 'never trust, always verify' stance. This strategy encompasses various methods, including Nasp's unique approach, all rooted in key benefits and shared objectives. 
+Zero Trust security, a term now prevalent among security-conscious organizations is often wrapped in the buzz of marketing hype. But beyond the hype what exactly is Zero Trust? Fundamentally, it's a paradigm shift in security, moving away from traditional 'trust but verify' models to a more robust 'never trust, always verify' stance. This strategy encompasses various methods, including Nasp's unique approach, all rooted in key benefits and shared objectives.
 Let’s first delve into the advantages of a successful Zero Trust implementation.
 
 - Enhanced Security Posture: Zero trust architectures are continuously authenticating and authorizing users, devices, and applications before granting access to resources.
@@ -61,6 +63,4 @@ Implementing the mTLS protocol is just one facet of the challenge. Equally cruci
 
 While the first two pillars (PKI management and mTLS) are strongly connected, access control is slightly different. It dictates which entities are allowed to communicate and under what specific conditions. In most zero trust solutions, access control is often the primary focus, and is considered a well-addressed issue in traditional segmentation based implementations. However, these conventional methods typically depend on network-based concepts. This is akin to drawing progressively smaller circles around an object to determine the actions permissible for 'something within that circle'. In contrast, an identity-based approach zeroes in on that precise object, clearly defining the actions permissible for 'that specific object with a distinct identity'. This not only feels more intuitive but also enables the creation of more refined and secure policies, significantly reducing the risks of impersonation.
 
-This post aims to offer a brief overview of the foundational ideas driving our project, without delving into intricate details. To discover more about Nasp, you can explore our [documentation](), stay updated with this blog, or directly experience Nasp by giving it a [try](). As a new open source project, Nasp thrives on community participation. Contributions, whether they're ideas, bug reports, code, or just a star on [Github](https://github.com/cisco-open/nasp) are highly valued and integral to its evolution.
-
- 
+This post aims to offer a brief overview of the foundational ideas driving our project, without delving into intricate details. To discover more about Nasp, you can explore our [documentation](/docs), stay updated with this blog, or directly experience Nasp by giving it a [try](/docs/start/how-to-install). As a new open source project, Nasp thrives on community participation. Contributions, whether they're ideas, bug reports, code, or just a star on [Github](https://github.com/cisco-open/nasp) are highly valued and integral to its evolution.
