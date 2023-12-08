@@ -1,5 +1,5 @@
 ---
-import { Image } from "@astrojs/image/components";
+import { Image } from "astro:assets";
 import Container from "@components/container.astro";
 import Sectionhead from "@components/sectionhead.astro";
 import Layout from "@layouts/Layout.astro";
@@ -36,7 +36,6 @@ console.log(posts[0].frontmatter.image);
                       alt="Thumbnail"
                       width={600}
                       format="avif"
-                      aspectRatio="16:9"
                       class="w-full rounded-md"
                     />
                   </div>
