@@ -28,3 +28,10 @@ nfpms:
         src: nasp.d/services/ci.yaml
       - dst: /etc/systemd/system/nasp.service
         src: nasp.service
+archives:
+  - name_template: "{{ .ProjectName }}_agent_{{ .Version }}_{{.Os}}_{{.Arch}}"
+checksum:
+  name_template: "{{ .ProjectName }}_agent_{{ .Version }}_checksums.txt"
+release:
+  extra_files:
+    - glob: ./nasp_{{ .Version }}_all.deb
