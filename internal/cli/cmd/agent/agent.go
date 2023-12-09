@@ -79,12 +79,12 @@ func (c *agentCommand) runCommander(ctx context.Context) error {
 	h.AddHandler("accept", commands.Accept())
 	h.AddHandler("connect", commands.Connect())
 
-	caSigner, err := tls.NewSignerCA(c.cli.Configuration().Agent.CAPemPath)
+	ca, err := tls.NewCertificateAuthority(tls.CertificateAuthorityWithPEMFile(c.cli.Configuration().Agent.CAPemPath))
 	if err != nil {
 		return err
 	}
 
-	csrSign, err := commands.CSRSign(caSigner, c.cli.Configuration().Agent.DefaultCertTTLDuration)
+	csrSign, err := commands.CSRSign(ca, c.cli.Configuration().Agent.DefaultCertTTLDuration)
 	if err != nil {
 		return err
 	}
