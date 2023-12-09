@@ -36,8 +36,8 @@ type csrSignCommand struct {
 }
 
 type X509CertificateRequestSigner interface {
-	SignCertificateRequest(req *x509.CertificateRequest, ttl time.Duration) (*tls.X509Certificate, error)
-	GetCaCertificate() *tls.X509Certificate
+	SignCertificateRequest(req *x509.CertificateRequest, ttl time.Duration) (*tls.X509Certificate, []*tls.X509Certificate, error)
+	GetTrustAnchor() *tls.X509Certificate
 }
 
 func CSRSign(certSigner X509CertificateRequestSigner, defaultCertTTL time.Duration) (CommandHandler, error) {
@@ -75,22 +75,22 @@ func (c *csrSignCommand) HandleCommand(cmd messenger.Command) (string, error) {
 		}
 	}
 
-	certificate, err := c.certSigner.SignCertificateRequest(containers[0].GetX509CertificateRequest().CertificateRequest, ttl)
+	certificate, chain, err := c.certSigner.SignCertificateRequest(containers[0].GetX509CertificateRequest().CertificateRequest, ttl)
 	if err != nil {
 		return "error", err
 	}
 
-	caCertificate := c.certSigner.GetCaCertificate()
-
 	var response struct {
 		Certificate  *tls.X509Certificate   `json:"certificate"`
+		Chain        []*tls.X509Certificate `json:"chain"`
 		TrustAnchors []*tls.X509Certificate `json:"trust_anchors"`
 	}
 
 	response.Certificate = certificate
-	response.TrustAnchors = append(response.TrustAnchors, caCertificate)
+	response.Chain = chain
+	response.TrustAnchors = []*tls.X509Certificate{c.certSigner.GetTrustAnchor()}
 
-	j, err := json.Marshal(response)
+	j, err := json.MarshalIndent(response, "", "  ")
 	if err != nil {
 		return "error", err
 	}
