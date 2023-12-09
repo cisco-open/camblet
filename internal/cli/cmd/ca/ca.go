@@ -38,7 +38,8 @@ func NewCommand(c cli.CLI) *cobra.Command {
 		DisableAutoGenTag: true,
 	}
 
-	cmd.AddCommand(NewSelfSignedCommand(c))
+	cmd.AddCommand(NewCreateRootCACommand(c))
+	cmd.AddCommand(NewCreateIntermediateCACommand(c))
 
 	return cmd
 }

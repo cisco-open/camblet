@@ -20,45 +20,66 @@
 package ca
 
 import (
+	"crypto/x509/pkix"
 	"fmt"
+	"time"
 
+	"emperror.dev/errors"
 	"github.com/spf13/cobra"
 
 	"github.com/cisco-open/nasp/internal/cli"
 	"github.com/cisco-open/nasp/pkg/tls"
 )
 
-type caSelfSignedCommand struct {
-	cli cli.CLI
+type createRootCACommand struct {
+	cli  cli.CLI
+	opts *createRootCAOptions
 }
 
-func NewSelfSignedCommand(c cli.CLI) *cobra.Command {
-	command := &caSelfSignedCommand{
-		cli: c,
+type createRootCAOptions struct {
+	ttl     time.Duration
+	keySize uint16
+}
+
+func NewCreateRootCACommand(c cli.CLI) *cobra.Command {
+	command := &createRootCACommand{
+		cli:  c,
+		opts: &createRootCAOptions{},
 	}
 
 	cmd := &cobra.Command{
-		Use:               "generate-self-signed",
-		Aliases:           []string{"gen"},
-		Short:             "Generate and dump self signed CA",
+		Use:               "create-root <common name>",
+		Aliases:           []string{"cr"},
+		Short:             "Generate self signed root CA certificate",
 		SilenceErrors:     true,
 		SilenceUsage:      true,
 		DisableAutoGenTag: true,
+		Args:              cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return command.run(cmd)
+			return command.run(cmd, args)
 		},
 	}
+
+	cmd.Flags().DurationVar(&command.opts.ttl, "ttl", 3650*24*time.Hour, "TTL of the root certificate")
+	cmd.Flags().Uint16Var(&command.opts.keySize, "key-size", 2048, "Key size of the root certificate")
 
 	return cmd
 }
 
-func (c *caSelfSignedCommand) run(cmd *cobra.Command) error {
-	caSigner, err := tls.NewSignerCA("")
+func (c *createRootCACommand) run(cmd *cobra.Command, args []string) error {
+	cert, pkey, err := tls.CreateSelfSignedCACertificate(tls.CertificateOptions{
+		Subject: pkix.Name{
+			CommonName: args[0],
+		},
+		TTL:     c.opts.ttl,
+		KeySize: int(c.opts.keySize),
+	})
 	if err != nil {
-		return err
+		return errors.WrapIf(err, "could not create self signed root CA certificate")
 	}
 
-	fmt.Printf("%s%s", caSigner.Certificate.GetPEM(), caSigner.PrivateKey.GetPEM())
+	// dump generated cert and private key
+	fmt.Printf("%s%s", cert.GetPEM(), pkey.GetPEM())
 
 	return nil
 }
