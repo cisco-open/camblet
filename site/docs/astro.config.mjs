@@ -47,6 +47,10 @@ export default defineConfig({
 			components: {
 				ThemeSelect: './src/components/ThemeSelect.astro',
 			},
+			expressiveCode: {
+				themes: ['dracula-soft'],
+				useStarlightDarkModeSwitch: false,
+			},
 		}),
 	],
 });

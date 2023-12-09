@@ -1,7 +1,27 @@
-h1,
-h2,
-h3 {
-    text-wrap: balance;
+@media only screen and (max-width: 1200px) {
+    h1 {
+        font-size: var(--sl-text-6xl) !important;
+    }
+}
+
+@media only screen and (max-width: 1000px) {
+    h1 {
+        margin-top: 0px;
+        margin-bottom: 0px;
+        font-size: var(--sl-text-5xl) !important;
+    }
+}
+
+@media only screen and (max-width: 400px) {
+    header span {
+        font-size: var(--sl-text-lg);
+    }
+}
+
+@media only screen and (max-width: 320px) {
+    header span {
+        font-size: var(--sl-text-xs);
+    }
 }
 
 .sidebar-content a[aria-current=true],
@@ -28,20 +48,16 @@ a:hover {
 .sidebar-content a,
 .right-sidebar-panel a,
 .right-sidebar-panel a:hover {
-    font-size: var(--sl-text-lg);
+    font-size: var(--sl-text-base);
     color: var(--sl-color-gray-2);
 }
 
 div.group-label span {
-    font-size: var(--sl-text-lg);
+    font-size: var(--sl-text-base);
 }
 
 .sidebar-pane {
     border-right: none;
-}
-
-.sidebar-pane ul.top-level {
-    margin-top: 1rem;
 }
 
 .sidebar-pane li {
@@ -49,7 +65,7 @@ div.group-label span {
 }
 
 .right-sidebar {
-    margin-top: 1rem;
+    margin-top: 8px;
     border-left: none;
 }
 
@@ -92,6 +108,15 @@ header.header {
     text-align: right;
 }
 
+.sidebar starlight-menu-button[aria-expanded=true] button {
+    background-color: inherit;
+}
+
+.sidebar starlight-menu-button button {
+    border: 0;
+    box-shadow: none;
+}
+
 body {
     font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
@@ -101,12 +126,8 @@ header.header a {
     font-weight: 800;
 }
 
-.social-icons {
-    gap: 0;
-}
-
-.social-icons::after {
-    border: none;
+header div.right-group {
+    display: none;
 }
 
 .hero {

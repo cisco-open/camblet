@@ -8,13 +8,13 @@ description: 'How to install Nasp'
 Download the public key and put it in
 `/etc/apt/keyrings/nasp-public.gpg`. You can achieve this with:
 
-```
+```sh
 wget -qO- {{ site.url }}/nasp-public.asc | sudo tee /etc/apt/keyrings/nasp-public.asc >/dev/null
 ```
 
 Next, create the source in `/etc/apt/sources.list.d/`
 
-```
+```sh
 echo "deb [arch=all signed-by=/etc/apt/keyrings/nasp-public.asc] {{ site.url }}/deb stable main" | sudo tee /etc/apt/sources.list.d/nasp-public.list >/dev/null
 ```
 
