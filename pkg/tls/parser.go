@@ -20,6 +20,7 @@
 package tls
 
 import (
+	"bytes"
 	"crypto"
 	"crypto/ecdsa"
 	"crypto/ed25519"
@@ -31,9 +32,11 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	"emperror.dev/errors"
+	zx509 "github.com/zmap/zcrypto/x509"
 )
 
 type SupportedPEMType string
@@ -47,18 +50,53 @@ const (
 	ECPrivateKeySupportedPEMType       SupportedPEMType = "EC PRIVATE KEY"
 )
 
+type X509CertificateType string
+
+const (
+	RootCAX509CertificateType         X509CertificateType = "ROOT CA"
+	IntermediateCAX509CertificateType X509CertificateType = "INTERMEDIATE CA"
+	LeafX509CertificateType           X509CertificateType = "LEAF CERTIFICATE"
+)
+
 type X509Certificate struct {
 	*CertificateCommon `json:",inline"`
-	IsCA               bool `json:"isCA,omitempty"`
+	Type               X509CertificateType `json:"type,omitempty"`
 
 	Certificate *x509.Certificate `json:"-"`
 }
 
 func (c X509Certificate) GetPEM() []byte {
 	return pem.EncodeToMemory(&pem.Block{
-		Type:  string(CertificateSupportedPEMType),
-		Bytes: c.Raw,
+		Type:    string(CertificateSupportedPEMType),
+		Headers: c.getPEMHeaders(),
+		Bytes:   c.Raw,
 	})
+}
+
+func (c X509Certificate) getPEMHeaders() map[string]string {
+	headers := map[string]string{
+		"Subject": c.Subject,
+		"Issuer":  c.Issuer,
+		"Type":    string(c.Type),
+	}
+
+	if len(c.DNSNames) > 0 {
+		headers["DNSNames"] = strings.Join(c.DNSNames, ",")
+	}
+
+	if len(c.URIs) > 0 {
+		headers["URIs"] = strings.Join(c.URIs, ",")
+	}
+
+	if len(c.EmailAddresses) > 0 {
+		headers["EmailAddresses"] = strings.Join(c.EmailAddresses, ",")
+	}
+
+	if len(c.IPAddresses) > 0 {
+		headers["IPAddresses"] = strings.Join(c.IPAddresses, ",")
+	}
+
+	return headers
 }
 
 type X509CertificateRequest struct {
@@ -299,7 +337,7 @@ func ParseX509CertificateFromDER(der []byte) (*X509Certificate, error) {
 func ConvertX509Certificate(x509cert *x509.Certificate) (*X509Certificate, error) {
 	cert := &X509Certificate{
 		Certificate: x509cert,
-		IsCA:        x509cert.IsCA,
+		Type:        getX509CertificateType(x509cert),
 		CertificateCommon: &CertificateCommon{
 			SerialNumber:  hex.EncodeToString(x509cert.SerialNumber.Bytes()),
 			NotBefore:     &x509cert.NotBefore,
@@ -509,4 +547,31 @@ func convertECDSPrivateKey(key ecdsa.PrivateKey) *PrivateKey {
 
 		Key: key,
 	}
+}
+
+func getX509CertificateType(x509cert *x509.Certificate) X509CertificateType {
+	selfSigned := func() bool {
+		s := bytes.Equal(x509cert.RawSubject, x509cert.RawIssuer)
+		if !s {
+			return false
+		}
+
+		if err := zx509.CheckSignatureFromKey(x509cert.PublicKey, zx509.SignatureAlgorithm(x509cert.SignatureAlgorithm), x509cert.RawTBSCertificate, x509cert.Signature); err != nil {
+			return false
+		}
+
+		return true
+	}()
+
+	if selfSigned {
+		if x509cert.IsCA {
+			return RootCAX509CertificateType
+		}
+	}
+
+	if x509cert.IsCA {
+		return IntermediateCAX509CertificateType
+	}
+
+	return LeafX509CertificateType
 }
