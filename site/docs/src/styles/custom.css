@@ -24,6 +24,14 @@
     }
 }
 
+tr td {
+    vertical-align: top;
+}
+
+tr td code {
+    overflow-wrap: normal;
+}
+
 .sidebar-content a[aria-current=true],
 .sidebar-content a[aria-current=page],
 .right-sidebar-panel a[aria-current=true],
