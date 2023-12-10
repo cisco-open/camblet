@@ -17,7 +17,7 @@
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package augment
+package agent
 
 import (
 	"fmt"
@@ -51,7 +51,7 @@ func NewAugmentCommand(c cli.CLI) *cobra.Command {
 			md, err := collector.GetMetadata(metadatax.ContextWithPID(cmd.Context(), int32(pid)))
 			if err != nil {
 				for _, e := range errors.GetErrors(err) {
-					c.Logger().Info("error during metadata collection", "error", e)
+					c.Logger().V(1).Info("error during metadata collection", "error", e)
 				}
 				err = nil
 			}
