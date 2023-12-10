@@ -62,8 +62,8 @@ func NewCreateIntermediateCACommand(c cli.CLI) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().DurationVar(&command.opts.ttl, "ttl", 3650*24*time.Hour, "TTL of the intermediate certificate")
-	cmd.Flags().Uint16Var(&command.opts.keySize, "key-size", 2048, "Key size of the intermediate certificate")
+	cmd.Flags().DurationVar(&command.opts.ttl, "ttl", tls.DefaultCACertificateTTL, "TTL of the intermediate certificate")
+	cmd.Flags().Uint16Var(&command.opts.keySize, "key-size", uint16(tls.DefaultCertificateKeySize), "Key size of the intermediate certificate")
 	cmd.Flags().StringVar(&command.opts.caPEMFile, "ca-pem-file", "", "Path for CA PEM")
 
 	return cmd

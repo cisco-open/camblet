@@ -60,8 +60,8 @@ func NewCreateRootCACommand(c cli.CLI) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().DurationVar(&command.opts.ttl, "ttl", 3650*24*time.Hour, "TTL of the root certificate")
-	cmd.Flags().Uint16Var(&command.opts.keySize, "key-size", 2048, "Key size of the root certificate")
+	cmd.Flags().DurationVar(&command.opts.ttl, "ttl", tls.DefaultCACertificateTTL, "TTL of the root certificate")
+	cmd.Flags().Uint16Var(&command.opts.keySize, "key-size", uint16(tls.DefaultCertificateKeySize), "Key size of the root certificate")
 
 	return cmd
 }

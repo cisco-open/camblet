@@ -52,6 +52,13 @@ func CreateCACertificate(opts CertificateOptions, parent *x509.Certificate, priv
 		return nil, nil, err
 	}
 
+	if opts.TTL == 0 {
+		opts.TTL = DefaultCACertificateTTL
+	}
+	if opts.KeySize == 0 {
+		opts.KeySize = DefaultCertificateKeySize
+	}
+
 	ca := &x509.Certificate{
 		SerialNumber:          serial,
 		Subject:               opts.Subject,
