@@ -27,6 +27,10 @@ export default defineConfig({
 					autogenerate: { directory: 'start' },
 				},
 				{
+					label: 'Concepts',
+					autogenerate: { directory: 'concepts' },
+				},
+				{
 					label: 'Support',
 					link: '/support/',
 					attrs: { style: 'font-weight: normal' },
