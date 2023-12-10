@@ -5,6 +5,7 @@ go 1.21.4
 require (
 	emperror.dev/errors v0.8.1
 	github.com/AlecAivazis/survey/v2 v2.3.7
+	github.com/dchest/validator v0.0.0-20191217151620-8e45250f2371
 	github.com/gezacorp/metadatax v0.0.0-20231204221404-cc7f265ea4ea
 	github.com/gezacorp/metadatax/collectors/azure v0.0.0-20231204181728-79757fd60d79
 	github.com/gezacorp/metadatax/collectors/docker v0.0.0-20231204221404-cc7f265ea4ea
@@ -25,6 +26,7 @@ require (
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.16.0
+	github.com/spiffe/go-spiffe/v2 v2.1.6
 	github.com/werbenhu/eventbus v1.0.8
 	github.com/zmap/zcrypto v0.0.0-20231106212110-94c8f62efae4
 	gopkg.in/fsnotify.v1 v1.4.7
