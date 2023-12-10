@@ -30,11 +30,11 @@ import (
 	"emperror.dev/errors"
 )
 
-const (
-	defaultCertTTLDuration = time.Hour * 24
-)
-
 var (
+	DefaultCACertificateTTL   = 3650 * 24 * time.Hour
+	DefaultCertificateKeySize = 2048
+	DefaultLeafCerticiateTTL  = 24 * time.Hour
+
 	ErrMissingSigningCertificate = errors.Sentinel("signing certificate is not specfied")
 	ErrMissingCAPrivateKey       = errors.Sentinel("missing CA private key")
 	ErrMissingCACertificate      = errors.Sentinel("missing CA certificate")
@@ -98,7 +98,7 @@ func (c *ca) SignCertificateRequest(req *x509.CertificateRequest, ttl time.Durat
 	pkey := c.privateKey.Key.(rsa.PrivateKey)
 
 	if ttl == 0 {
-		ttl = defaultCertTTLDuration
+		ttl = DefaultLeafCerticiateTTL
 	}
 
 	certByte, err := x509.CreateCertificate(rand.Reader, &x509.Certificate{
