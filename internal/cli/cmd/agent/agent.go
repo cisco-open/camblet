@@ -21,12 +21,13 @@ package agent
 
 import (
 	"context"
+	"crypto/x509/pkix"
 	"encoding/json"
 
+	"emperror.dev/errors"
 	"github.com/spf13/cobra"
 
 	"github.com/cisco-open/nasp/internal/cli"
-	"github.com/cisco-open/nasp/internal/cli/cmd/agent/augment"
 	"github.com/cisco-open/nasp/pkg/agent/commands"
 	"github.com/cisco-open/nasp/pkg/agent/messenger"
 	"github.com/cisco-open/nasp/pkg/config"
@@ -65,7 +66,8 @@ func NewCommand(c cli.CLI) *cobra.Command {
 
 	cli.BindCMDFlags(c.Viper(), cmd)
 
-	cmd.AddCommand(augment.NewAugmentCommand(c))
+	cmd.AddCommand(NewAugmentCommand(c))
+	cmd.AddCommand(NewGenerateRuleCommand(c))
 
 	return cmd
 }
@@ -79,7 +81,22 @@ func (c *agentCommand) runCommander(ctx context.Context) error {
 	h.AddHandler("accept", commands.Accept())
 	h.AddHandler("connect", commands.Connect())
 
-	ca, err := tls.NewCertificateAuthority(tls.CertificateAuthorityWithPEMFile(c.cli.Configuration().Agent.CAPemPath))
+	caOpts := []tls.CertificateAuthorityOption{}
+	if c.cli.Configuration().Agent.CAPemPath == "" {
+		if cert, pkey, err := tls.CreateSelfSignedCACertificate(tls.CertificateOptions{
+			Subject: pkix.Name{
+				CommonName: "Nasp root CA",
+			},
+		}); err != nil {
+			return errors.WrapIf(err, "could not create self signed root CA certificate")
+		} else {
+			caOpts = append(caOpts, tls.CertificateAuthorityWithPEM(append(cert.GetPEM(), pkey.GetPEM()...)))
+		}
+	} else {
+		tls.CertificateAuthorityWithPEMFile(c.cli.Configuration().Agent.CAPemPath)
+	}
+
+	ca, err := tls.NewCertificateAuthority(caOpts...)
 	if err != nil {
 		return err
 	}
