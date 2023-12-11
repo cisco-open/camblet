@@ -27,7 +27,7 @@ nfpms:
       - dst: /etc/nasp/services/sample.yaml
         src: nasp.d/services/sample.yaml
       - dst: /etc/systemd/system/nasp.service
-        src: nasp.service
+        src: deploy/nasp.service
 archives:
   - name_template: "{{ .ProjectName }}_agent_{{ .Version }}_{{.Os}}_{{.Arch}}"
 checksum:
