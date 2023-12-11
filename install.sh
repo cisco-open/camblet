@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
 log() {
     echo -e "\e[34m[$(date)]\e[0m $1"
@@ -19,7 +19,7 @@ error() {
 PACKAGES=("nasp")
 
 # URL of your NASP repository
-NASP_REPO_URL="https://nasp.rocks"
+NASP_REPO_URL="https://nasp.io"
 
 # Function to check if a package is installed
 is_package_installed() {
@@ -45,6 +45,7 @@ add_nasp_repo_and_key() {
     log "Adding NASP repository and key..."
     if [ -x "$(command -v apt)" ]; then
         # Debian/Ubuntu
+        sudo apt install -y wget gnupg
         sudo sh -c "echo 'deb $NASP_REPO_URL/packages/deb stable main' > /etc/apt/sources.list.d/nasp.list"
         sudo wget -O /tmp/nasp.asc "$NASP_REPO_URL/packages/nasp.asc"
         cat /tmp/nasp.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/nasp.gpg >/dev/null
@@ -80,11 +81,24 @@ is_kernel_module_available() {
 
 # Function to load the "nasp" kernel module
 load_nasp_module() {
+    local module_name="nasp"
+    local config_file="/etc/modules-load.d/modules.conf"
+    local parameters="ktls_available=0"
+
     log "Loading nasp kernel module..."
     if is_kernel_module_available "tls"; then
-        sudo modprobe nasp ktls_available=1
+        parameters="ktls_available=1"
+    fi
+
+    sudo modprobe nasp ${parameters}
+
+    # Check if the configuration file already exists
+    if [ -e "$config_file" ]; then
+        echo "Configuration file '$config_file' already exists. Appending parameters."
+        echo "$module_name" | sudo tee -a "$config_file"
     else
-        sudo modprobe nasp ktls_available=0
+        echo "Creating new configuration file '$config_file' with parameters."
+        echo "$module_name" | sudo tee "$config_file"
     fi
 }
 
