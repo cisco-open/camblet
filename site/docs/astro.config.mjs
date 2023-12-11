@@ -1,11 +1,17 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import partytown from '@astrojs/partytown';
 
 // https://astro.build/config
 export default defineConfig({
 	base: "/docs",
 	darkMode: false,
 	integrations: [
+		partytown({
+			config: {
+				forward: ["dataLayer.push"],
+			},
+		}),
 		starlight({
 			title: 'Nasp documentation',
 			logo: {
@@ -51,6 +57,23 @@ export default defineConfig({
 				themes: ['dracula-soft'],
 				useStarlightDarkModeSwitch: false,
 			},
+			head: [
+				{
+					tag: 'script',
+					attrs: {
+						type: 'text/partytown',
+						async: true,
+						src: 'https://www.googletagmanager.com/gtag/js?id=G-K315W0LM1X'
+					},
+				},
+				{
+					tag: 'script',
+					attrs: {
+						type: 'text/partytown'
+					},
+					content: 'window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag("js", new Date()); gtag("config", "G-K315W0LM1X");'
+				},
+			],
 		}),
 	],
 });

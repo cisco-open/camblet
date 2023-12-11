@@ -19,13 +19,26 @@ const { title } = Astro.props;
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
 
-    <!-- <link rel="preload" as="image" href={src} alt="Hero" /> -->
     <SEO
       title={`${title}${
         title && " | "
       }Nasp - Kernel Space Access Control for Zero Trust Networking`}
       description="Kernel Space Access Control for Zero Trust Networking"
     />
+    <!-- Google tag (gtag.js) -->
+    <script
+      type="text/partytown"
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-K315W0LM1X"></script>
+    <script type="text/partytown">
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "G-K315W0LM1X");
+    </script>
   </head>
   <body>
     <Navbar />
