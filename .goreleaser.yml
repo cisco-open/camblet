@@ -14,7 +14,7 @@ nfpms:
   -
     package_name: nasp-agent
     description: "NASP CLI and agent service"
-    maintainer: Nandor Kracser <nandork@cisco.com>
+    maintainer: Nasp maintainers <team@nasp.io>
     license: "MIT"
     formats:
       - deb
@@ -22,10 +22,10 @@ nfpms:
     contents:
       - dst: /etc/nasp/config.yaml
         src: config.yaml
-      - dst: /etc/nasp/rules/ci.yaml
-        src: nasp.d/rules/ci.yaml
-      - dst: /etc/nasp/services/ci.yaml
-        src: nasp.d/services/ci.yaml
+      - dst: /etc/nasp/rules/sample.yaml
+        src: nasp.d/rules/sample.yaml
+      - dst: /etc/nasp/services/sample.yaml
+        src: nasp.d/services/sample.yaml
       - dst: /etc/systemd/system/nasp.service
         src: nasp.service
 archives:
