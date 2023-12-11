@@ -45,7 +45,7 @@ add_nasp_repo_and_key() {
     log "Adding NASP repository and key..."
     if [ -x "$(command -v apt)" ]; then
         # Debian/Ubuntu
-        sudo apt install -y wget gnupg
+        sudo apt install -y wget gnupg linux-headers-$(uname -r) dkms
         sudo sh -c "echo 'deb $NASP_REPO_URL/packages/deb stable main' > /etc/apt/sources.list.d/nasp.list"
         sudo wget -O /tmp/nasp.asc "$NASP_REPO_URL/packages/nasp.asc"
         cat /tmp/nasp.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/nasp.gpg >/dev/null
