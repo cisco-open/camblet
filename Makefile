@@ -84,4 +84,4 @@ goreleaser: ## Build packages with goreleaser
 
 .PHONY: deb
 deb: ## Build the meta package
-	equivs-build debian-control
+	DEBUILD_DPKG_BUILDPACKAGE_OPTS=Zzgip equivs-build -f deploy/debian-control

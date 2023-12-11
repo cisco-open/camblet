@@ -1,0 +1,6 @@
+# Sample Service discovery configuration file.
+# See https://nasp.io/docs/concepts/service-registry-entry for more information.
+# - addresses:
+#   - localhost:8000
+#   labels:
+#     app:label: nginx
