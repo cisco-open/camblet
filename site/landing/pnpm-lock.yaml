@@ -14,6 +14,9 @@ dependencies:
   '@astrojs/mdx':
     specifier: ^0.19.6
     version: 0.19.7(astro@2.10.15)
+  '@astrojs/partytown':
+    specifier: ^2.0.2
+    version: 2.0.2
   '@astrojs/tailwind':
     specifier: ^3.0.0-beta.1
     version: 3.1.3(astro@2.10.15)(tailwindcss@3.2.1)
@@ -181,6 +184,13 @@ packages:
     transitivePeerDependencies:
       - astro
       - supports-color
+    dev: false
+
+  /@astrojs/partytown@2.0.2:
+    resolution: {integrity: sha512-7AnY0W8mXiog5S1gEGefCNcvJSjxn/mfhr+ou1QH7QwqxtnIsS7mQ+ci5wDRDDbM5ipnEdQGHIxz2DAP2DXnXQ==}
+    dependencies:
+      '@builder.io/partytown': 0.8.1
+      mrmime: 1.0.1
     dev: false
 
   /@astrojs/prism@2.1.2:
@@ -453,6 +463,12 @@ packages:
       '@babel/helper-string-parser': 7.23.4
       '@babel/helper-validator-identifier': 7.22.20
       to-fast-properties: 2.0.0
+    dev: false
+
+  /@builder.io/partytown@0.8.1:
+    resolution: {integrity: sha512-p4xhEtQCPe8YFJ8e7KT9RptnT+f4lvtbmXymbp1t0bLp+USkNMTxrRMNc3Dlr2w2fpxyX7uA0CyAeU3ju84O4A==}
+    engines: {node: '>=18.0.0'}
+    hasBin: true
     dev: false
 
   /@csstools/cascade-layer-name-parser@1.0.5(@csstools/css-parser-algorithms@2.3.2)(@csstools/css-tokenizer@2.2.1):
@@ -3677,6 +3693,11 @@ packages:
   /mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
     engines: {node: '>=4'}
+    dev: false
+
+  /mrmime@1.0.1:
+    resolution: {integrity: sha512-hzzEagAgDyoU1Q6yg5uI+AorQgdvMCur3FcKf7NhMKWsaYg+RnbTyHRa/9IlLF9rf455MOCtcqqrQQ83pPP7Uw==}
+    engines: {node: '>=10'}
     dev: false
 
   /ms@2.1.2:

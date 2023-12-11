@@ -14,6 +14,7 @@
     "@astrojs/alpinejs": "^0.1.2",
     "@astrojs/image": "^0.18.0",
     "@astrojs/mdx": "^0.19.6",
+    "@astrojs/partytown": "^2.0.2",
     "@astrojs/tailwind": "^3.0.0-beta.1",
     "@fontsource/inter": "^4.5.14",
     "@types/alpinejs": "^3.7.1",
