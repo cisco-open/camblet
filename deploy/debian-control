@@ -2,7 +2,7 @@ Section: misc
 Priority: optional
 Standards-Version: 3.9.2
 Package: nasp
-Version: 0.1.0
+Version: 0.2.0
 Maintainer: Nasp maintainers <team@nasp.io>
 Architecture: all
 Depends: nasp-agent, nasp-kernel-module
