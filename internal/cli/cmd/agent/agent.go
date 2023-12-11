@@ -93,7 +93,7 @@ func (c *agentCommand) runCommander(ctx context.Context) error {
 			caOpts = append(caOpts, tls.CertificateAuthorityWithPEM(append(cert.GetPEM(), pkey.GetPEM()...)))
 		}
 	} else {
-		tls.CertificateAuthorityWithPEMFile(c.cli.Configuration().Agent.CAPemPath)
+		caOpts = append(caOpts, tls.CertificateAuthorityWithPEMFile(c.cli.Configuration().Agent.CAPemPath))
 	}
 
 	ca, err := tls.NewCertificateAuthority(caOpts...)
