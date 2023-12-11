@@ -1,6 +1,6 @@
 ---
 title: "Evolution of Zero Trust in workload communication with Nasp"
-image: "blog/nasp-intro/image.png"
+image: "/blog/nasp-intro/image.png"
 author: "Janos Matyas"
 tags: [nasp, zero-trust, security, networking, lateral-movement]
 category: "Announcements"
