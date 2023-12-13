@@ -1,8 +1,8 @@
 ---
-title: Process augmentation
+title: Process metadata
 ---
 
-Each process is allocated a unique process identifier (PID), commonly known as a process ID. When a process initiates a network connection, the kernel module requests the agent to perform process augmentation. The agent collects as many properties as possible about the process based on its ID and the environment in which the process is running. The collected metadata can be used in [identity rules](/docs/concepts/identity-rule) as selectors.
+Each process is allocated a unique process identifier (PID), commonly known as a process ID. When a process initiates a network connection, the kernel module requests the agent to perform process metadata collection. The agent collects as many metadata as possible about the process based on its ID and the environment in which the process is running. The collected metadata can be used in [policies](/docs/concepts/policy) as selectors.
 
 ## Supported metadata collectors <a link="collectors"></a>
 

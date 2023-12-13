@@ -1,8 +1,8 @@
 ---
-title: Identity rule
+title: Policy
 ---
 
-Identity rules serve the purpose of describing the configuration parameters for individual workload identities. They offer a comprehensive approach by allowing the simultaneous specification of connection properties, SPIFFE ID, and policy enforcement settings.
+Policies serve the purpose of describing the parameters for individual workload identities. They offer a comprehensive approach by allowing the simultaneous specification of connection properties, SPIFFE ID, and policy enforcement settings.
 
 ```yaml
 selectors:
@@ -23,14 +23,14 @@ egress:
     workloadID: specific-workload-id
 ```
 
-## Rule
+## Policy
 
 | Field | Type | Required | Description |
 | ----- | ---- | -------- | ----------- |
 | `selectors` | []selector | Yes | Selectors comprise one or more sets of labels and their corresponding values. Their purpose is to precisely describe a specific workload. |
 | `properties` | [properties](#properties) | Yes | X509 certificate properties. |
-| `policy` | [policy](#policy) | No | Policy configuration. |
-| `egress` | []rule | No | Egress comprises a set of rules that define the configuration parameters for outgoing connections originating from a specific identity. |
+| `policy` | [policy](#policy-fields) | No | Policy configuration. |
+| `egress` | []policy | No | Egress comprises a set of policies that define the parameters for outgoing connections originating from a specific identity. |
 
 ### Properties
 
@@ -40,7 +40,7 @@ egress:
 | `dns` | []string | No | Domain names to include in the issued X.509 certificate. |
 | `ttl` | string | No | The Time-to-Live (TTL) specifies the duration for which the certificate remains valid. |
 
-### Policy
+### Policy fields
 
 | Field | Type | Required | Description |
 | ----- | ---- | -------- | ----------- |
