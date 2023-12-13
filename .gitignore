@@ -20,3 +20,4 @@ dist/
 *.deb
 *.buildinfo
 *.changes
+site
