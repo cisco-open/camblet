@@ -1,5 +1,5 @@
 ---
-title: Service registry entry
+title: Service registry
 ---
 
 A service registry entry provides information about a particular service in the Nasp domain. Each entry includes all the available addresses where the service can be reached, along with at least one label that describes the service. These labels can be employed as selectors in the identity rules within the egress configuration.
