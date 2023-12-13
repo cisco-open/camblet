@@ -88,4 +88,4 @@ deb: ## Build DEB the meta package
 
 .PHONY: rpm
 rpm: ## Build RPM the meta package
-	rpmbuild -ba --define '_rpmdir ./rpmbuild/' rpmbuild/SPECS/nasp.spec
+	rpmbuild -ba --define '_rpmdir ./deploy/rpmbuild/' deploy/rpmbuild/SPECS/nasp.spec

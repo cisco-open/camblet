@@ -1,10 +1,10 @@
 Name:           nasp
-Version:        0.1.0
+Version:        0.3.0
 Release:        1%{?dist}
 Summary:        NASP is a network acceleration and security platform
 
 License:        GPL-MIT Dual License
-URL:            https://nasp.rocks
+URL:            https://nasp.io
 
 Requires:       nasp-agent
 Requires:       nasp-kernel-module
