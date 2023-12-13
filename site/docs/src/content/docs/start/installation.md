@@ -11,7 +11,7 @@ The most simple way to install Nasp is to run the following command in your term
 This will setup the necessary repositories on your system and install the all Nasp components.
 
 ```sh
-curl -sL https://nasp.io/install.sh | sudo sh
+curl -L nasp.io/install.sh | DEBIAN_FRONTEND=noninteractive bash
 ```
 
 ### Check if Nasp is installed
@@ -93,8 +93,7 @@ Add the Nasp repository
 
 ```sh
 sudo sh -c "echo 'deb https://nasp.io/packages/deb stable main' > /etc/apt/sources.list.d/nasp.list"
-sudo wget -O /tmp/nasp.asc https://nasp.io/packages/nasp.asc
-cat /tmp/nasp.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/nasp.gpg >/dev/null
+sudo wget -O- https://nasp.io/packages/nasp.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/nasp.gpg >/dev/null
 sudo apt update
 ```
 
