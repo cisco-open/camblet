@@ -3,7 +3,10 @@ title: 'Installation'
 description: 'How to install Nasp'
 ---
 
-Currently the only supported operating system is Ubuntu 22.04 LTS and onwards (or Kernel 5.14 and up).
+Currently the supported operating systems are:
+
+- Ubuntu/Debian (Kernel version 5.14 and up).
+- CentOS/Fedora (Kernel version 5.14 and up).
 
 ## Automatic install
 
@@ -89,11 +92,17 @@ Install the dependencies first:
 sudo apt install -y wget gnupg linux-headers-$(uname -r) dkms
 ```
 
-Add the Nasp repository
+Import the Nasp repository key:
 
 ```sh
-sudo sh -c "echo 'deb https://nasp.io/packages/deb stable main' > /etc/apt/sources.list.d/nasp.list"
 sudo wget -O- https://nasp.io/packages/nasp.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/nasp.gpg >/dev/null
+```
+
+Add the Nasp repository:
+
+```sh
+sudo sh -c "echo 'deb [signed-by=/etc/apt/trusted.gpg.d/nasp.gpg] https://nasp.io/packages/deb stable main' > /etc/apt/sources.list.d/nasp.list"
+
 sudo apt update
 ```
 
@@ -102,6 +111,42 @@ Install the Nasp meta package (this will install the agent, kernel module and CL
 ```sh
 sudo apt install nasp
 ```
+
+### RedHat/CentOS/Fedora
+
+Install the dependencies first:
+
+```sh
+sudo dnf install --enablerepo epel -y dkms
+```
+
+Import the Nasp repository key:
+
+```sh
+sudo rpm --import https://nasp.io/packages/nasp.asc
+```
+
+Add the Nasp repository:
+
+```sh
+sudo tee /etc/yum.repos.d/nasp.repo >/dev/null <<EOF
+[nasp-repo]
+name=NASP Repository
+baseurl=https://nasp.io/packages/rpm
+enabled=1
+gpgcheck=1
+EOF
+
+sudo dnf makecache
+```
+
+Install the Nasp meta package (this will install the agent, kernel module and CLI):
+
+```sh
+sudo dnf install nasp
+```
+
+### Load the kernel module and start the service
 
 Load the Nasp kernel module:
 
