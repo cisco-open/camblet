@@ -23,6 +23,11 @@ jobs:
           sudo apt install -y equivs
           make deb
 
+      - name: Build meta package RPM release
+        run: |
+          sudo apt install -y rpm
+          make rpm
+
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
