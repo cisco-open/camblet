@@ -34,7 +34,7 @@ install_package() {
         sudo apt install -y "$1"
     elif [ -x "$(command -v dnf)" ]; then
         # CentOS/RHEL
-        sudo dnf install -y "$1"
+        sudo dnf install --enablerepo epel -y "$1"
     else
         error "Unsupported package manager. Please install packages manually."
     fi
