@@ -28,6 +28,10 @@ nfpms:
         src: nasp.d/services/sample.yaml
       - dst: /etc/systemd/system/nasp.service
         src: deploy/nasp.service
+      - dst: /usr/share/doc/nasp/LICENSE
+        src: LICENSE
+      - dst: /usr/share/doc/nasp/NOTICE
+        src: NOTICE
 archives:
   - name_template: "{{ .ProjectName }}_agent_{{ .Version }}_{{.Os}}_{{.Arch}}"
 checksum:
