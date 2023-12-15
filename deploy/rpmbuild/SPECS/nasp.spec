@@ -1,5 +1,5 @@
 Name:           nasp
-Version:        0.3.0
+Version:        0.4.0
 Release:        1%{?dist}
 Summary:        NASP is a network acceleration and security platform
 
