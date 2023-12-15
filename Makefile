@@ -83,5 +83,9 @@ goreleaser: ## Build packages with goreleaser
 	goreleaser release --snapshot --clean
 
 .PHONY: deb
-deb: ## Build the meta package
+deb: ## Build DEB the meta package
 	equivs-build deploy/debian-control
+
+.PHONY: rpm
+rpm: ## Build RPM the meta package
+	rpmbuild -ba --define '_rpmdir ./deploy/rpmbuild/' deploy/rpmbuild/SPECS/nasp.spec

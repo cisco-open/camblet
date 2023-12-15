@@ -20,4 +20,5 @@ dist/
 *.deb
 *.buildinfo
 *.changes
+*.rpm
 site
