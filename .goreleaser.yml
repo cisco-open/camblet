@@ -39,3 +39,4 @@ checksum:
 release:
   extra_files:
     - glob: ./nasp_{{ .Version }}_all.deb
+    - glob: deploy/rpmbuild/noarch/nasp-{{ .Version }}-1.noarch.rpm
