@@ -34,7 +34,7 @@ install_package() {
         sudo apt install -y "$1"
     elif [ -x "$(command -v dnf)" ]; then
         # CentOS/RHEL
-        sudo dnf install -y "$1"
+        sudo dnf install --enablerepo epel -y "$1"
     else
         error "Unsupported package manager. Please install packages manually."
     fi
@@ -46,7 +46,7 @@ add_nasp_repo_and_key() {
     if [ -x "$(command -v apt)" ]; then
         # Debian/Ubuntu
         sudo apt install -y wget gnupg linux-headers-$(uname -r) dkms
-        sudo sh -c "echo 'deb $NASP_REPO_URL/packages/deb stable main' > /etc/apt/sources.list.d/nasp.list"
+        sudo sh -c "echo 'deb [signed-by=/etc/apt/trusted.gpg.d/nasp.gpg] $NASP_REPO_URL/packages/deb stable main' > /etc/apt/sources.list.d/nasp.list"
         sudo wget -O /tmp/nasp.asc "$NASP_REPO_URL/packages/nasp.asc"
         cat /tmp/nasp.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/nasp.gpg >/dev/null
         sudo apt update
