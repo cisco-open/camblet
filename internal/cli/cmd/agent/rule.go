@@ -133,9 +133,12 @@ func (c *generateRuleCommand) run(cmd *cobra.Command, args []string) error {
 			TTL:        c.opts.ttl.String(),
 		},
 		Policy: rules.Policy{
-			MTLS:             util.BoolPointer(c.opts.disableMTLS),
 			AllowedSPIFFEIDs: c.opts.allowedSPIFFEIDs,
 		},
+	}
+
+	if c.opts.disableMTLS {
+		rule.Policy.MTLS = util.BoolPointer(false)
 	}
 
 	for _, label := range md.GetLabelsSlice() {
