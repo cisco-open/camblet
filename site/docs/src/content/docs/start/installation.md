@@ -112,9 +112,11 @@ Install the Nasp meta package (this will install the agent, kernel module and CL
 sudo apt install nasp
 ```
 
-### RedHat/CentOS/Fedora
+### RedHat/CentOS/Fedora and derivatives
 
 Install the dependencies first:
+
+_Without `--enablerepo epel` on Amazon Linux._
 
 ```sh
 sudo dnf install --enablerepo epel -y dkms
