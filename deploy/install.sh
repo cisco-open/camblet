@@ -34,7 +34,10 @@ install_package() {
         sudo apt install -y "$1"
     elif [ -x "$(command -v dnf)" ]; then
         # CentOS/RHEL
-        sudo dnf install --enablerepo epel -y "$1"
+        enable_epel="--enablerepo=epel"
+        # Disable EPEL on Amazon Linux
+        grep Amazon /etc/os-release &>/dev/null && enable_epel=""
+        sudo dnf install ${enable_epel} -y "$1"
     else
         error "Unsupported package manager. Please install packages manually."
     fi
