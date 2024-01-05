@@ -54,7 +54,7 @@ GOOS=linux make build
 ### Run the agent on the Lima guest
 
 ```bash
-sudo ./bin/nasp --rules-path $(pwd)/nasp.d/rules --sd-path $(pwd)/nasp.d/services
+sudo ./bin/nasp agent --rules-path $(pwd)/nasp.d/rules --sd-path $(pwd)/nasp.d/services
 ```
 
 ## Community
