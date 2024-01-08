@@ -28,12 +28,12 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/cisco-open/nasp/internal/cli"
+	"github.com/cisco-open/nasp/internal/policy"
+	"github.com/cisco-open/nasp/internal/service"
 	"github.com/cisco-open/nasp/pkg/agent/commands"
 	"github.com/cisco-open/nasp/pkg/agent/messenger"
 	"github.com/cisco-open/nasp/pkg/config"
 	"github.com/cisco-open/nasp/pkg/config/metadata/collectors"
-	"github.com/cisco-open/nasp/pkg/rules"
-	"github.com/cisco-open/nasp/pkg/sd"
 	"github.com/cisco-open/nasp/pkg/tls"
 )
 
@@ -143,9 +143,9 @@ func (c *agentCommand) run(cmd *cobra.Command) error {
 	// service discovery loader
 	eventBus.Subscribe(messenger.MessengerStartedTopic, func(topic string, _ bool) {
 		go func() {
-			l := sd.NewFilesLoader(c.cli.Viper().GetStringSlice("agent.sdPath"), logger)
-			if err := l.Run(cmd.Context(), func(entries sd.Entries) {
-				if j, err := json.Marshal(entries); err != nil {
+			l := service.NewFileLoader(c.cli.Viper().GetStringSlice("agent.sdPath"), service.FileLoadWithLogger(logger))
+			if err := l.Run(cmd.Context(), func(entries service.Services) {
+				if j, err := json.MarshalIndent(entries, "", "  "); err != nil {
 					c.cli.Logger().Error(err, "could not marshal module config")
 				} else {
 					eventBus.Publish(messenger.MessageOutgoingTopic, messenger.NewCommand(messenger.Command{
@@ -162,24 +162,20 @@ func (c *agentCommand) run(cmd *cobra.Command) error {
 	// rules loader
 	eventBus.Subscribe(messenger.MessengerStartedTopic, func(topic string, _ bool) {
 		go func() {
-			r := rules.NewRuleFilesLoader(
+			r := policy.NewFileLoader(
 				c.cli.Viper().GetStringSlice("agent.rulesPath"),
 				logger,
-				rules.RuleFilesLoaderWithTemplater(rules.NewRuleTemplater(rules.RuleTemplateValues{
+				policy.FileLoaderWithTemplateFunc(policy.NewPolicyTemplater(policy.PolicyTemplateValues{
 					TrustDomain: c.cli.Configuration().Agent.TrustDomain,
 				}, c.cli.Logger()).Execute,
 				))
-			if err := r.Run(cmd.Context(), func(r rules.Rules) {
+			if err := r.Run(cmd.Context(), func(r policy.Policies) {
 				logger.Info("rule count", "count", len(r))
 
-				if err := r.Organize(); err != nil {
-					logger.Error(err, "problem with the rules")
-
-					return
-				}
+				r.Organize()
 
 				type Policies struct {
-					Policies rules.Rules `json:"policies"`
+					Policies policy.Policies `json:"policies"`
 				}
 
 				y, _ := json.MarshalIndent(Policies{
