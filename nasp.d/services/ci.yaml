@@ -1,8 +1,13 @@
 - addresses:
-  - localhost:8000
+  - address: localhost
+    port: 8000
+  - address: localhost
+    port: 8080
   labels:
     app:label: nginx
 - addresses:
-  - localhost:8080
+  - address: localhost
+    port: 8080
+    tags: ["joska", "pista"]
   labels:
     app: python
