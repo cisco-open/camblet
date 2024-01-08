@@ -1,25 +1,6 @@
-approved = [
-  "mit",
-  "apache-2.0",
-  "bsd-3-clause",
-  "bsd-2-clause",
-  "mpl-2.0",
-  "unlicense",
-]
-
-ignored = [
-  "google.golang.org/protobuf", # bsd-3
-  "gopkg.in/fsnotify.v1",       # bsd-3
-
-  "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go",
-]
-
-[header]
-ignoreFiles = ["*.pb.go"]
-ignorePaths = ["playground", "samples"]
-template = """/*
+/*
  * The MIT License (MIT)
- * Copyright (c) :YEAR: Cisco and/or its affiliates. All rights reserved.
+ * Copyright (c) 2023 Cisco and/or its affiliates. All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -34,4 +15,32 @@ template = """/*
  * TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */"""
+ */
+
+package core
+
+import "google.golang.org/protobuf/encoding/protojson"
+
+func (r *Policy) MarshalJSON() ([]byte, error) {
+	return protojson.Marshal(r)
+}
+
+func (r *Policy) UnmarshalJSON(data []byte) error {
+	return protojson.Unmarshal(data, r)
+}
+
+func (r *Policy_Connection) MarshalJSON() ([]byte, error) {
+	return protojson.Marshal(r)
+}
+
+func (r *Policy_Connection) UnmarshalJSON(data []byte) error {
+	return protojson.Unmarshal(data, r)
+}
+
+func (r *Policy_Certificate) MarshalJSON() ([]byte, error) {
+	return protojson.Marshal(r)
+}
+
+func (r *Policy_Certificate) UnmarshalJSON(data []byte) error {
+	return protojson.Unmarshal(data, r)
+}
