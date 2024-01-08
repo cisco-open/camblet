@@ -20,7 +20,6 @@
 package agent
 
 import (
-	"bytes"
 	"os"
 	"strconv"
 	"strings"
@@ -30,13 +29,15 @@ import (
 	"github.com/dchest/validator"
 	"github.com/spf13/cobra"
 	"github.com/spiffe/go-spiffe/v2/spiffeid"
-	"gopkg.in/yaml.v3"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/types/known/durationpb"
+	"google.golang.org/protobuf/types/known/structpb"
+	"sigs.k8s.io/yaml"
 
+	"github.com/cisco-open/nasp/api/v1/core"
 	"github.com/cisco-open/nasp/internal/cli"
 	"github.com/cisco-open/nasp/pkg/config/metadata/collectors"
-	"github.com/cisco-open/nasp/pkg/rules"
 	"github.com/cisco-open/nasp/pkg/tls"
-	"github.com/cisco-open/nasp/pkg/util"
 	"github.com/gezacorp/metadatax"
 )
 
@@ -122,23 +123,27 @@ func (c *generateRuleCommand) run(cmd *cobra.Command, args []string) error {
 		for _, e := range errors.GetErrors(err) {
 			c.cli.Logger().V(1).Info("error during metadata collection", "error", e)
 		}
-		err = nil
 	}
 
-	rule := rules.Rule{
-		Selectors: []rules.Selectors{{}},
-		Properties: rules.Properties{
-			WorkloadID: args[1],
-			DNS:        c.opts.dnsNames,
-			TTL:        c.opts.ttl.String(),
+	rule := &core.Policy{
+		Selectors: []*structpb.Struct{
+			{
+				Fields: make(map[string]*structpb.Value),
+			},
 		},
-		Policy: rules.Policy{
+		Certificate: &core.Policy_Certificate{
+			WorkloadID: args[1],
+			DnsNames:   c.opts.dnsNames,
+			Ttl:        durationpb.New(c.opts.ttl),
+		},
+		Connection: &core.Policy_Connection{
+			Mtls:             core.Policy_Connection_STRICT,
 			AllowedSPIFFEIDs: c.opts.allowedSPIFFEIDs,
 		},
 	}
 
 	if c.opts.disableMTLS {
-		rule.Policy.MTLS = util.BoolPointer(false)
+		rule.Connection.Mtls = core.Policy_Connection_DISABLE
 	}
 
 	for _, label := range md.GetLabelsSlice() {
@@ -146,21 +151,24 @@ func (c *generateRuleCommand) run(cmd *cobra.Command, args []string) error {
 			continue
 		}
 
-		rule.Selectors[0][label.Name] = label.Value
+		rule.Selectors[0].Fields[label.Name] = structpb.NewStringValue(label.Value)
 	}
 
-	if len(rule.Selectors[0]) == 0 {
+	if len(rule.Selectors[0].Fields) == 0 {
 		return errors.New("could not find selectors")
 	}
 
-	buf := new(bytes.Buffer)
-	e := yaml.NewEncoder(buf)
-	e.SetIndent(2)
-	if err := e.Encode([]rules.Rule{rule}); err != nil {
-		return err
+	jsonBytes, err := protojson.Marshal(rule)
+	if err != nil {
+		return errors.WrapIf(err, "could not marshal json")
 	}
 
-	os.Stdout.Write(buf.Bytes())
+	yamlBytes, err := yaml.JSONToYAML([]byte("[" + string(jsonBytes) + "]"))
+	if err != nil {
+		return errors.WrapIf(err, "could not marshal yaml")
+	}
+
+	os.Stdout.Write(yamlBytes)
 
 	return err
 }
