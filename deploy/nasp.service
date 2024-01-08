@@ -3,7 +3,7 @@ Description=NASP Agent Service
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/nasp agent --config /etc/nasp/config.yaml --rules-path /etc/nasp/rules/ --sd-path /etc/nasp/services/
+ExecStart=/usr/bin/nasp agent --config /etc/nasp/config.yaml --policies-path /etc/nasp/policies --services-path /etc/nasp/services
 Restart=always
 User=root
 Group=root
