@@ -1,0 +1,52 @@
+syntax = "proto3";
+package nasp.api.v1.core;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/wrappers.proto";
+
+option go_package = "github.com/nasp/api/v1/core";
+
+message Policies {
+  repeated Policy policies = 1;
+}
+
+message Policy {
+  message Certificate {
+    string workloadID = 1 [
+      (buf.validate.field).required = true,
+      (buf.validate.field).string.pattern = "^(?:[a-zA-Z0-9]|(?:[a-zA-Z0-9][a-zA-Z0-9.\\-_]*[a-zA-Z0-9]))(?:\\/(?:[a-zA-Z0-9]|(?:[a-zA-Z0-9][a-zA-Z0-9.\\-_]*[a-zA-Z0-9])))*$"
+    ];
+    repeated string dnsNames = 2 [(buf.validate.field).repeated = {
+      unique: true,
+      max_items: 100,
+      items: {
+        string: {hostname: true}
+      }
+    }];
+    google.protobuf.Duration ttl = 3;
+  }
+
+  message Connection {
+    enum MutualTLSMode {
+      UNSET = 0;
+      DISABLE = 1;
+      STRICT = 2;
+    }
+
+    MutualTLSMode mtls = 1;
+    google.protobuf.BoolValue passthrough = 2;
+    repeated string allowedSPIFFEIDs = 3 [(buf.validate.field).repeated = {
+      unique: true,
+      items: {
+        string: {pattern: "^spiffe:\\/\\/(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?|\\{\\{[.][a-zA-Z_][a-zA-Z0-9_]*\\}\\})+(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*(?:\\/(?:[a-zA-Z0-9]|(?:[a-zA-Z0-9][a-zA-Z0-9.\\-_]*[a-zA-Z0-9])))*$"}
+      }
+    }];
+  }
+
+  repeated google.protobuf.Struct selectors = 1 [(buf.validate.field).required = true];
+  Certificate certificate = 2 [(buf.validate.field).required = true];
+  Connection connection = 3;
+  repeated Policy egress = 4;
+}
