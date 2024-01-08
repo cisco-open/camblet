@@ -9,9 +9,9 @@ BUILD_DATE ?= $(shell date +%FT%T%z)
 LDFLAGS += -X main.version=${VERSION} -X main.commitHash=${COMMIT_HASH} -X main.buildDate=${BUILD_DATE}
 
 # Dependency versions
-GOLANGCI_VERSION = 1.54.2
 GOLANG_VERSION = 1.21
-LICENSEI_VERSION = 0.9.0
+
+include common.mk
 
 export CGO_ENABLED ?= 0
 export GOOS = $(shell go env GOOS)
@@ -33,50 +33,6 @@ endif
 	@$(eval GENERATED_BINARY_NAME = ${BINARY_NAME})
 	@$(if $(strip ${BINARY_NAME_SUFFIX}),$(eval GENERATED_BINARY_NAME = ${BINARY_NAME}-$(subst $(eval) ,-,$(strip ${BINARY_NAME_SUFFIX}))),)
 	go build ${GOARGS} -tags "${GOTAGS}" -ldflags "${LDFLAGS}" -o ${BUILD_DIR}/${GENERATED_BINARY_NAME} ${BUILD_PACKAGE}
-
-
-bin/golangci-lint: bin/golangci-lint-${GOLANGCI_VERSION}
-	@ln -sf golangci-lint-${GOLANGCI_VERSION} bin/golangci-lint
-bin/golangci-lint-${GOLANGCI_VERSION}:
-	@mkdir -p bin
-	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/v${GOLANGCI_VERSION}/install.sh | bash -s -- -b ./bin/ v${GOLANGCI_VERSION}
-	@mv bin/golangci-lint $@
-
-.PHONY: lint
-lint: bin/golangci-lint ## Run linter
-# "unused" linter is a memory hog, but running it separately keeps it contained (probably because of caching)
-	bin/golangci-lint run --disable=unused -c .golangci.yml --timeout 2m
-	bin/golangci-lint run -c .golangci.yml --timeout 2m
-
-bin/licensei: bin/licensei-${LICENSEI_VERSION}
-	@ln -sf licensei-${LICENSEI_VERSION} bin/licensei
-bin/licensei-${LICENSEI_VERSION}:
-	@mkdir -p bin
-	curl -sfL https://raw.githubusercontent.com/goph/licensei/master/install.sh | bash -s v${LICENSEI_VERSION}
-	@mv bin/licensei $@
-
-.PHONY: license-check
-license-check: bin/licensei ## Run license check
-	bin/licensei check
-	bin/licensei header
-
-.PHONY: license-cache
-license-cache: bin/licensei ## Generate license cache
-	bin/licensei cache
-
-.PHONY: tidy
-tidy: ## Execute go mod tidy
-	go mod tidy
-	go mod download all
-
-.PHONY: list
-list: ## List all make targets
-	@${MAKE} -pRrn : -f $(MAKEFILE_LIST) 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | egrep -v -e '^[^[:alnum:]]' -e '^$@$$' | sort
-
-.PHONY: help
-.DEFAULT_GOAL := help
-help:
-	@grep -h -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 .PHONY: goreleaser
 goreleaser: ## Build packages with goreleaser
