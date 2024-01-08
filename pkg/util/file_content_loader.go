@@ -81,11 +81,11 @@ func (r *fileContentLoader) Run(ctx context.Context, h FileContentLoadedFunc) er
 			return nil
 		case <-watcher.Events:
 			if err := r.load(h); err != nil {
-				r.logger.Error(err, "error during rules reload")
+				r.logger.Error(err, "could not load")
 			}
 		case err := <-watcher.Errors:
 			if err != nil {
-				r.logger.Error(err, "error at watcher")
+				r.logger.Error(err, "could not watch")
 			}
 		}
 	}

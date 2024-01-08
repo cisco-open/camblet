@@ -50,10 +50,10 @@ type Policy struct {
 	Egress      Policies                 `json:"egress,omitempty"`
 }
 
-func (r Policies) Organize() {
-	sort.SliceStable(r, func(i, j int) bool {
-		for _, sel := range r[i].Selectors {
-			for _, sel2 := range r[j].Selectors {
+func (p Policies) Organize() {
+	sort.SliceStable(p, func(i, j int) bool {
+		for _, sel := range p[i].Selectors {
+			for _, sel2 := range p[j].Selectors {
 				if reflect.DeepEqual(sel, sel2) {
 					continue
 				}
@@ -67,11 +67,11 @@ func (r Policies) Organize() {
 		return false
 	})
 
-	for k, rule := range r {
-		rule := rule
+	for k, policy := range p {
+		policy := policy
 
-		rule.Position = k
-		rule.Egress.Organize()
+		policy.Position = k
+		policy.Egress.Organize()
 	}
 }
 

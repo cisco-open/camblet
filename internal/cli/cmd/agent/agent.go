@@ -58,8 +58,8 @@ func NewCommand(c cli.CLI) *cobra.Command {
 	}
 
 	cmd.Flags().String("kernel-module-device", "/dev/nasp", "Device for the Nasp kernel module")
-	cmd.Flags().StringSlice("rules-path", nil, "Rules path")
-	cmd.Flags().StringSlice("sd-path", nil, "Service discovery definition path")
+	cmd.Flags().StringSlice("policies-path", nil, "Path to file or directory for policy definitions")
+	cmd.Flags().StringSlice("services-path", nil, "Path to file or directory for service definitions")
 	cmd.Flags().String("trust-domain", config.DefaultTrustDomain, "Trust domain")
 	cmd.Flags().Duration("default-cert-ttl", config.DefaultCertTTLDuration, "Default certificate TTL")
 	cmd.Flags().String("ca-pem-path", "", "Path for CA pem")
@@ -67,7 +67,7 @@ func NewCommand(c cli.CLI) *cobra.Command {
 	cli.BindCMDFlags(c.Viper(), cmd)
 
 	cmd.AddCommand(NewAugmentCommand(c))
-	cmd.AddCommand(NewGenerateRuleCommand(c))
+	cmd.AddCommand(NewGeneratePolicyCommand(c))
 
 	return cmd
 }
@@ -140,10 +140,10 @@ func (c *agentCommand) run(cmd *cobra.Command) error {
 		}
 	})
 
-	// service discovery loader
+	// Static service definitions loader
 	eventBus.Subscribe(messenger.MessengerStartedTopic, func(topic string, _ bool) {
 		go func() {
-			l := service.NewFileLoader(c.cli.Viper().GetStringSlice("agent.sdPath"), service.FileLoadWithLogger(logger))
+			l := service.NewFileLoader(c.cli.Viper().GetStringSlice("agent.servicesPath"), service.FileLoadWithLogger(logger))
 			if err := l.Run(cmd.Context(), func(entries service.Services) {
 				if j, err := json.MarshalIndent(entries, "", "  "); err != nil {
 					c.cli.Logger().Error(err, "could not marshal module config")
@@ -159,18 +159,18 @@ func (c *agentCommand) run(cmd *cobra.Command) error {
 		}()
 	})
 
-	// rules loader
+	// Static policy definitions loader
 	eventBus.Subscribe(messenger.MessengerStartedTopic, func(topic string, _ bool) {
 		go func() {
 			r := policy.NewFileLoader(
-				c.cli.Viper().GetStringSlice("agent.rulesPath"),
+				c.cli.Viper().GetStringSlice("agent.policiesPath"),
 				logger,
 				policy.FileLoaderWithTemplateFunc(policy.NewPolicyTemplater(policy.PolicyTemplateValues{
 					TrustDomain: c.cli.Configuration().Agent.TrustDomain,
 				}, c.cli.Logger()).Execute,
 				))
 			if err := r.Run(cmd.Context(), func(r policy.Policies) {
-				logger.Info("rule count", "count", len(r))
+				logger.Info("policy count", "count", len(r))
 
 				r.Organize()
 
@@ -183,11 +183,11 @@ func (c *agentCommand) run(cmd *cobra.Command) error {
 				}, "", "  ")
 
 				msg := messenger.NewCommand(messenger.Command{
-					Command: "load_rules",
+					Command: "load_policies",
 					Code:    y,
 				})
 
-				logger.Info("sending rules to kernel")
+				logger.Info("sending policies to kernel")
 				eventBus.Publish(messenger.MessageOutgoingTopic, msg)
 			}); err != nil {
 				errChan <- err

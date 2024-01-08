@@ -1,9 +1,0 @@
-# Identity rules are used to identify workloads and specify their properties.
-# See https://nasp.io/docs/concepts/identity-rule for more information.
-# - selectors:
-#   - process:name: [nginx]
-#     destination:port: 8000
-#   properties:
-#     workloadID: sample/nginx
-#   policy:
-#     mtls: false
