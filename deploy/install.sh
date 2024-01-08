@@ -86,16 +86,19 @@ is_kernel_module_available() {
 load_nasp_module() {
     local module_name="nasp"
     local config_file="/etc/modules-load.d/modules.conf"
-    local parameters="ktls_available=0"
+    local parameters=("dyndbg==_")
 
     log "Loading nasp kernel module..."
     if is_kernel_module_available "tls"; then
-        parameters="ktls_available=1"
+        parameters+=("ktls_available=1")
+    else
+        log "TLS kernel module not available. Disabling ktls."
+        parameters+=("ktls_available=0")
     fi
 
-    sudo modprobe nasp ${parameters}
+    sudo modprobe nasp "${parameters[@]}"
 
-    # Check if the configuration file already exists
+    # Check if the module loading configuration file already exists
     if [ -e "$config_file" ]; then
         echo "Configuration file '$config_file' already exists. Appending parameters."
         echo "$module_name" | sudo tee -a "$config_file"
