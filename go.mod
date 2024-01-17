@@ -5,6 +5,7 @@ go 1.21.4
 require (
 	emperror.dev/errors v0.8.1
 	github.com/AlecAivazis/survey/v2 v2.3.7
+	github.com/cisco-open/nasp/api v0.0.0-00010101000000-000000000000
 	github.com/dchest/validator v0.0.0-20191217151620-8e45250f2371
 	github.com/gezacorp/metadatax v0.0.0-20231204221404-cc7f265ea4ea
 	github.com/gezacorp/metadatax/collectors/azure v0.0.0-20231204181728-79757fd60d79
@@ -29,13 +30,15 @@ require (
 	github.com/spiffe/go-spiffe/v2 v2.1.6
 	github.com/werbenhu/eventbus v1.0.8
 	github.com/zmap/zcrypto v0.0.0-20231106212110-94c8f62efae4
+	google.golang.org/protobuf v1.31.0
 	gopkg.in/fsnotify.v1 v1.4.7
-	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/klog/v2 v2.100.1
+	sigs.k8s.io/yaml v1.3.0
 )
 
 require (
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.31.0-20231115204500-e097f827e652.2 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.23.1 // indirect
@@ -92,18 +95,21 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.3 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.17.0 // indirect
-	golang.org/x/mod v0.10.0 // indirect
+	golang.org/x/mod v0.12.0 // indirect
 	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/sync v0.3.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/term v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	golang.org/x/tools v0.8.0 // indirect
+	golang.org/x/tools v0.13.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 	k8s.io/api v0.28.4 // indirect
 	k8s.io/apimachinery v0.28.4 // indirect
 	k8s.io/utils v0.0.0-20230406110748-d93618cff8a2 // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3 // indirect
 )
+
+replace github.com/cisco-open/nasp/api => ./api
