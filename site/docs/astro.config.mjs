@@ -13,13 +13,13 @@ export default defineConfig({
 			},
 		}),
 		starlight({
-			title: 'Nasp documentation',
+			title: 'Camblet documentation',
 			logo: {
 				dark: './src/assets/logo-white.svg',
 				light: './src/assets/logo.svg',
 			},
 			social: {
-				github: 'https://github.com/cisco-open/nasp',
+				github: 'https://github.com/cisco-open/camblet',
 			},
 			sidebar: [
 				{

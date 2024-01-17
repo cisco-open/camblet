@@ -11,7 +11,7 @@ selectors:
 properties:
   workloadID: curl
   dns:
-  - example.nasp.io
+  - example.camblet.io
   ttl: 8h
 policy:
   mtls: true

@@ -1,6 +1,6 @@
 ---
 title: 'Installation'
-description: 'How to install Nasp'
+description: 'How to install Camblet'
 ---
 
 Currently the supported operating systems are:
@@ -10,55 +10,55 @@ Currently the supported operating systems are:
 
 ## Automatic install
 
-The most simple way to install Nasp is to run the following command in your terminal.
-This will setup the necessary repositories on your system and install the all Nasp components.
+The most simple way to install Camblet is to run the following command in your terminal.
+This will setup the necessary repositories on your system and install the all Camblet components.
 
 ```sh
-curl -L nasp.io/install.sh | DEBIAN_FRONTEND=noninteractive bash
+curl -L camblet.io/install.sh | DEBIAN_FRONTEND=noninteractive bash
 ```
 
-### Check if Nasp is installed
+### Check if Camblet is installed
 
 Check the status of the systemd service of the agent:
 
 ```sh
-sudo systemctl status nasp.service
+sudo systemctl status camblet.service
 ```
 
 You should see something like this:
 
 ```sh
-● nasp.service - NASP Agent Service
-     Loaded: loaded (/etc/systemd/system/nasp.service; enabled; preset: enabled)
+● camblet.service - Camblet Agent Service
+     Loaded: loaded (/etc/systemd/system/camblet.service; enabled; preset: enabled)
      Active: active (running) since Mon 2023-12-11 11:02:54 UTC; 2h 34min ago
-   Main PID: 1158 (nasp)
+   Main PID: 1158 (camblet)
       Tasks: 11 (limit: 4611)
      Memory: 28.3M
         CPU: 1.155s
-     CGroup: /system.slice/nasp.service
-             └─1158 /usr/bin/nasp agent --config /etc/nasp/config.yaml --rules-path /etc/nasp/rules/ --sd-path /etc/nasp/services/
+     CGroup: /system.slice/camblet.service
+             └─1158 /usr/bin/camblet agent --config /etc/camblet/config.yaml --rules-path /etc/camblet/rules/ --sd-path /etc/camblet/services/
 ```
 
-To check the logs of the Nasp agent, run the following command:
-
-```sh
-sudo journalctl -u nasp.service
-```
-
-Check the status of the Nasp kernel-module:
+To check the logs of the Camblet agent, run the following command:
 
 ```sh
-modinfo nasp
+sudo journalctl -u camblet.service
+```
+
+Check the status of the Camblet kernel-module:
+
+```sh
+modinfo camblet
 ```
 ```
-filename:       /lib/modules/6.1.0-15-cloud-arm64/updates/dkms/nasp.ko
+filename:       /lib/modules/6.1.0-15-cloud-arm64/updates/dkms/camblet.ko
 version:        0.3.0
-description:    NASP - Kernel Space Access Control for Zero Trust Networking
+description:    Camblet - Kernel Space Access Control for Zero Trust Networking
 license:        Dual MIT/GPL
 author:         Cisco Systems
 srcversion:     B169E3295E8A8740274017F
 depends:        bearssl,libcrc32c
-name:           nasp
+name:           camblet
 vermagic:       6.1.0-15-cloud-arm64 SMP mod_unload modversions aarch64
 sig_id:         PKCS#7
 signer:         DKMS module signing key
@@ -82,7 +82,7 @@ parm:           ktls_available:Marks if kTLS is available on the system (bool)
 
 ## Manual install
 
-If you want to install Nasp manually, you can follow the steps below:
+If you want to install Camblet manually, you can follow the steps below:
 
 ### Debian/Ubuntu
 
@@ -92,24 +92,24 @@ Install the dependencies first:
 sudo apt install -y wget gnupg linux-headers-$(uname -r) dkms
 ```
 
-Import the Nasp repository key:
+Import the Camblet repository key:
 
 ```sh
-sudo wget -O- https://nasp.io/packages/nasp.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/nasp.gpg >/dev/null
+sudo wget -O- https://camblet.io/packages/camblet.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/camblet.gpg >/dev/null
 ```
 
-Add the Nasp repository:
+Add the Camblet repository:
 
 ```sh
-sudo sh -c "echo 'deb [signed-by=/etc/apt/trusted.gpg.d/nasp.gpg] https://nasp.io/packages/deb stable main' > /etc/apt/sources.list.d/nasp.list"
+sudo sh -c "echo 'deb [signed-by=/etc/apt/trusted.gpg.d/camblet.gpg] https://camblet.io/packages/deb stable main' > /etc/apt/sources.list.d/camblet.list"
 
 sudo apt update
 ```
 
-Install the Nasp meta package (this will install the agent, kernel module and CLI):
+Install the Camblet meta package (this will install the agent, kernel module and CLI):
 
 ```sh
-sudo apt install nasp
+sudo apt install camblet
 ```
 
 ### RedHat/CentOS/Fedora and derivatives
@@ -122,19 +122,19 @@ _Without `--enablerepo epel` on Amazon Linux._
 sudo dnf install --enablerepo epel -y dkms
 ```
 
-Import the Nasp repository key:
+Import the Camblet repository key:
 
 ```sh
-sudo rpm --import https://nasp.io/packages/nasp.asc
+sudo rpm --import https://camblet.io/packages/camblet.asc
 ```
 
-Add the Nasp repository:
+Add the Camblet repository:
 
 ```sh
-sudo tee /etc/yum.repos.d/nasp.repo >/dev/null <<EOF
-[nasp-repo]
-name=NASP Repository
-baseurl=https://nasp.io/packages/rpm
+sudo tee /etc/yum.repos.d/camblet.repo >/dev/null <<EOF
+[camblet-repo]
+name=Camblet Repository
+baseurl=https://camblet.io/packages/rpm
 enabled=1
 gpgcheck=1
 EOF
@@ -142,41 +142,41 @@ EOF
 sudo dnf makecache
 ```
 
-Install the Nasp meta package (this will install the agent, kernel module and CLI):
+Install the Camblet meta package (this will install the agent, kernel module and CLI):
 
 ```sh
-sudo dnf install nasp
+sudo dnf install camblet
 ```
 
 ### Load the kernel module and start the service
 
-Load the Nasp kernel module:
+Load the Camblet kernel module:
 
 ```sh
-sudo modprobe nasp
+sudo modprobe camblet
 ```
 
-Start the Nasp agent service:
+Start the Camblet agent service:
 
 ```sh
-sudo systemctl start nasp.service
+sudo systemctl start camblet.service
 ```
 
 ## Maintenance
 
-### Upgrade Nasp
+### Upgrade Camblet
 
-If you have already installed Nasp and want to upgrade to the latest version,
+If you have already installed Camblet and want to upgrade to the latest version,
 run the standard upgrade command of your package manager, for example on Debian/Ubuntu:
 
 ```sh
-sudo apt update && sudo apt upgrade nasp
+sudo apt update && sudo apt upgrade camblet
 ```
 
-### Uninstall Nasp
+### Uninstall Camblet
 
-To uninstall Nasp, run the following command:
+To uninstall Camblet, run the following command:
 
 ```sh
-sudo apt autoremove nasp
+sudo apt autoremove camblet
 ```
