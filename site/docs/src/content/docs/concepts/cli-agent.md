@@ -33,9 +33,9 @@ agent:
       enabled: false
       kubeletHost: "127.0.0.1"
       kubeletPort: 10250
-      kubeletCA: "/etc/nasp/kubernetes-ca.crt"
+      kubeletCA: "/etc/camblet/kubernetes-ca.crt"
       skipKubeletVerification: false
-      credentials: "/etc/nasp/kubelet-client.key, /etc/nasp/kubelet-client.crt"
+      credentials: "/etc/camblet/kubelet-client.key, /etc/camblet/kubelet-client.crt"
     docker:
       enabled: false
       socketPath: "unix:///var/run/docker.sock"
