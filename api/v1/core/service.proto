@@ -1,0 +1,33 @@
+syntax = "proto3";
+package nasp.api.v1.core;
+
+import "buf/validate/validate.proto";
+
+option go_package = "github.com/nasp/api/v1/core";
+
+message Service {
+  message Address {
+    string address = 1 [(buf.validate.field).string.address = true];
+    int32 port = 2 [
+      (buf.validate.field).int32.gte = 1,
+      (buf.validate.field).int32.lte = 65535
+    ];
+    repeated string tags = 3 [(buf.validate.field).repeated = {
+      unique: true,
+      items: {
+        string: {
+          min_len: 1,
+          pattern: "^[a-zA-Z0-9](?:[a-zA-Z0-9_-]*[a-zA-Z0-9])?$"
+        }
+      }
+    }];
+  }
+
+  repeated Address addresses = 1;
+  map<string, string> labels = 2 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).map.keys = {
+      string: {pattern: "^[a-zA-Z0-9](?:[a-zA-Z0-9_:-]*[a-zA-Z0-9])?$"}
+    }
+  ];
+}
