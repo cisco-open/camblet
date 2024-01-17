@@ -61,4 +61,4 @@ sudo ./bin/camblet agent --policies-path $(pwd)/camblet.d/policies --services-pa
 ## Community
 
 Join our community on [Slack](https://join.slack.com/t/outshift/shared_invite/zt-26xfl4muq-zcDSfsA_7eOWlyhjvBGqVQ), and then
-find us on the [Camblet](https://outshift.slack.com/channels/camblet) channel for more fun!
+find us on the [#camblet](https://outshift.slack.com/channels/camblet) channel for more fun!
