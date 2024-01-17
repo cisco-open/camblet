@@ -55,12 +55,12 @@ var defaultLabels = []string{
 	"docker:image:name",
 }
 
-type generateRuleCommand struct {
+type generatePolicyCommand struct {
 	cli  cli.CLI
-	opts *generateRuleOptions
+	opts *generatePolicyOptions
 }
 
-type generateRuleOptions struct {
+type generatePolicyOptions struct {
 	labels           []string
 	additionalLabels []string
 	dnsNames         []string
@@ -69,16 +69,16 @@ type generateRuleOptions struct {
 	disableMTLS      bool
 }
 
-func NewGenerateRuleCommand(c cli.CLI) *cobra.Command {
-	command := &generateRuleCommand{
+func NewGeneratePolicyCommand(c cli.CLI) *cobra.Command {
+	command := &generatePolicyCommand{
 		cli:  c,
-		opts: &generateRuleOptions{},
+		opts: &generatePolicyOptions{},
 	}
 
 	cmd := &cobra.Command{
-		Use:               "generate-identity-rule <pid> <workload ID>",
-		Aliases:           []string{"gr"},
-		Short:             "Generate identity rule for a given process",
+		Use:               "generate-policy <pid> <workload ID>",
+		Aliases:           []string{"gp"},
+		Short:             "Generate policy for a given process",
 		SilenceErrors:     true,
 		SilenceUsage:      true,
 		DisableAutoGenTag: true,
@@ -110,7 +110,7 @@ func NewGenerateRuleCommand(c cli.CLI) *cobra.Command {
 	return cmd
 }
 
-func (c *generateRuleCommand) run(cmd *cobra.Command, args []string) error {
+func (c *generatePolicyCommand) run(cmd *cobra.Command, args []string) error {
 	collector := collectors.GetMetadataCollector(c.cli.Configuration().Agent.MetadataCollectors, c.cli.Logger())
 
 	pid, err := strconv.Atoi(args[0])
@@ -125,7 +125,7 @@ func (c *generateRuleCommand) run(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	rule := &core.Policy{
+	policy := &core.Policy{
 		Selectors: []*structpb.Struct{
 			{
 				Fields: make(map[string]*structpb.Value),
@@ -143,7 +143,7 @@ func (c *generateRuleCommand) run(cmd *cobra.Command, args []string) error {
 	}
 
 	if c.opts.disableMTLS {
-		rule.Connection.Mtls = core.Policy_Connection_DISABLE
+		policy.Connection.Mtls = core.Policy_Connection_DISABLE
 	}
 
 	for _, label := range md.GetLabelsSlice() {
@@ -151,14 +151,14 @@ func (c *generateRuleCommand) run(cmd *cobra.Command, args []string) error {
 			continue
 		}
 
-		rule.Selectors[0].Fields[label.Name] = structpb.NewStringValue(label.Value)
+		policy.Selectors[0].Fields[label.Name] = structpb.NewStringValue(label.Value)
 	}
 
-	if len(rule.Selectors[0].Fields) == 0 {
+	if len(policy.Selectors[0].Fields) == 0 {
 		return errors.New("could not find selectors")
 	}
 
-	jsonBytes, err := protojson.Marshal(rule)
+	jsonBytes, err := protojson.Marshal(policy)
 	if err != nil {
 		return errors.WrapIf(err, "could not marshal json")
 	}
@@ -173,7 +173,7 @@ func (c *generateRuleCommand) run(cmd *cobra.Command, args []string) error {
 	return err
 }
 
-func (c *generateRuleCommand) matchLabel(label string) bool {
+func (c *generatePolicyCommand) matchLabel(label string) bool {
 	for _, l := range append(c.opts.labels, c.opts.additionalLabels...) {
 		if strings.HasSuffix(l, "*") && strings.HasPrefix(label, l[:len(l)-1]) {
 			return true
