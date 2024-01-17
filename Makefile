@@ -45,3 +45,7 @@ deb: ## Build DEB the meta package
 .PHONY: rpm
 rpm: ## Build RPM the meta package
 	rpmbuild -ba --define '_rpmdir ./deploy/rpmbuild/' deploy/rpmbuild/SPECS/nasp.spec
+
+.PHONY: run
+run: ## Run the binary
+	sudo build/nasp agent --policies-path ./nasp.d/policies/ --services-path ./nasp.d/services/
