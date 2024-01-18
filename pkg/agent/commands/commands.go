@@ -29,7 +29,7 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/werbenhu/eventbus"
 
-	"github.com/cisco-open/nasp/pkg/agent/messenger"
+	"github.com/cisco-open/camblet/pkg/agent/messenger"
 )
 
 type CommandHandler interface {

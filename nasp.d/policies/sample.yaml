@@ -1,5 +1,5 @@
 # Policies are used to identify workloads and specify their properties.
-# See https://nasp.io/docs/concepts/policy for more information.
+# See https://camblet.io/docs/concepts/policy for more information.
 # - selectors:
 #   - process:name: [nginx]
 #     destination:port: 8000

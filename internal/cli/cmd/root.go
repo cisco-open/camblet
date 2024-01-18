@@ -28,16 +28,16 @@ import (
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 
-	"github.com/cisco-open/nasp/internal/cli"
-	"github.com/cisco-open/nasp/internal/cli/cmd/agent"
-	"github.com/cisco-open/nasp/internal/cli/cmd/ca"
-	"github.com/cisco-open/nasp/pkg/config"
+	"github.com/cisco-open/camblet/internal/cli"
+	"github.com/cisco-open/camblet/internal/cli/cmd/agent"
+	"github.com/cisco-open/camblet/internal/cli/cmd/ca"
+	"github.com/cisco-open/camblet/pkg/config"
 )
 
 func NewRootCommand(c cli.CLI) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:               "nasp <command> <subcommand> [flags]",
-		Short:             "Nasp manages PKI for workloads running on Linux anywhere",
+		Use:               "camblet <command> <subcommand> [flags]",
+		Short:             "Camblet manages PKI for workloads running on Linux anywhere",
 		SilenceErrors:     false,
 		SilenceUsage:      false,
 		DisableAutoGenTag: true,

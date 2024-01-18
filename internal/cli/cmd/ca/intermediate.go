@@ -28,8 +28,8 @@ import (
 	"emperror.dev/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/cisco-open/nasp/internal/cli"
-	"github.com/cisco-open/nasp/pkg/tls"
+	"github.com/cisco-open/camblet/internal/cli"
+	"github.com/cisco-open/camblet/pkg/tls"
 )
 
 type createIntermediateCACommand struct {

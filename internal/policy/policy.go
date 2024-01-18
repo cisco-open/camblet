@@ -24,7 +24,7 @@ import (
 	"reflect"
 	"sort"
 
-	"github.com/cisco-open/nasp/api/v1/core"
+	"github.com/cisco-open/camblet/api/v1/core"
 )
 
 type RawPolicy = core.Policy

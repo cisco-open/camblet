@@ -3,7 +3,7 @@ package camblet.api.v1.core;
 
 import "buf/validate/validate.proto";
 
-option go_package = "github.com/camblet/api/v1/core";
+option go_package = "github.com/cisco-open/camblet/api/v1/core";
 
 message Service {
   message Address {

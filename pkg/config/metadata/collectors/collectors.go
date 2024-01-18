@@ -23,7 +23,7 @@ import (
 	"emperror.dev/errors"
 	"github.com/go-logr/logr"
 
-	"github.com/cisco-open/nasp/pkg/util"
+	"github.com/cisco-open/camblet/pkg/util"
 	"github.com/gezacorp/metadatax"
 )
 

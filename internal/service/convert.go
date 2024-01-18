@@ -27,7 +27,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/cisco-open/nasp/api/v1/core"
+	"github.com/cisco-open/camblet/api/v1/core"
 )
 
 func ConvertEntries(rawServices RawServices, withTags map[string]struct{}) Services {

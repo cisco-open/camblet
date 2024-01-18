@@ -1,4 +1,4 @@
-module github.com/cisco-open/nasp/api
+module github.com/cisco-open/camblet/api
 
 go 1.21.4
 

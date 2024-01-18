@@ -26,12 +26,12 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/cisco-open/nasp/internal/cli"
-	"github.com/cisco-open/nasp/internal/cli/cmd"
+	"github.com/cisco-open/camblet/internal/cli"
+	"github.com/cisco-open/camblet/internal/cli/cmd"
 )
 
 const (
-	name = "Nasp"
+	name = "Camblet"
 )
 
 func main() {
