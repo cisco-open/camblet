@@ -103,7 +103,7 @@ jobs:
       - name: Copy gpg public key to landing site
         shell: "bash"
         run: |
-          cp ./deploy/nasp-public.asc ./site/root/packages/nasp.asc
+          cp ./deploy/camblet-public.asc ./site/root/packages/camblet.asc
 
       - name: Copy install script to landing site
         shell: "bash"

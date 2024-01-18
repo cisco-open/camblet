@@ -88,8 +88,8 @@ main() {
     pushd "generated_repo/deb/dists/stable" >/dev/null
     echo "Making Release file"
     {
-      echo "Origin: Nasp"
-      echo "Label: Nasp"
+      echo "Origin: Camblet"
+      echo "Label: Camblet"
       echo "Suite: stable"
       echo "Codename: stable"
       echo "Version: 1.0"
