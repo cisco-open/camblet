@@ -2,9 +2,10 @@
 
 ## Introduction
 
-The [Camblet](https://github.com/cisco-open/camblet) system is a set of projects, which in tandem are capable of enhancing plain old TCP sockets in a frictionless way, so that application developers can focus on their business logic instead of dealing with the complexity of TLS, mTLS, and other security-related concerns. It is doing this seamlessly, no code changes or re-compilations or re-deployments are required. You only have to configure Camblet itself, and it will do the rest.
+[Camblet](https://github.com/cisco-open/camblet) is a set of projects, which in tandem are capable of enhancing plain old TCP sockets in a frictionless way, so that application developers can focus on their business logic instead of dealing with the complexity of TLS, mTLS, and other security-related concerns. It is doing this seamlessly, no code changes or re-compilations or re-deployments are required. You only have to configure Camblet itself, and it will do the rest.
 
 The features are the following:
+
 - providing zero-trust identity for UNIX TCP sockets through mTLS
 - access control, authorization and authentication (through [OPA](https://www.openpolicyagent.org))
 - providing frictionless TLS termination for those TCP sockets
