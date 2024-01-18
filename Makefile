@@ -1,8 +1,8 @@
 # Build variables
-PACKAGE = github.com/cisco-open/nasp
-BINARY_NAME ?= nasp
+PACKAGE = github.com/cisco-open/camblet
+BINARY_NAME ?= camblet
 BUILD_DIR ?= build
-BUILD_PACKAGE = ${PACKAGE}/cmd/nasp
+BUILD_PACKAGE = ${PACKAGE}/cmd/camblet
 VERSION ?= $(shell (git symbolic-ref -q --short HEAD || git describe --tags --exact-match) | tr "/" "-")
 COMMIT_HASH ?= $(shell git rev-parse --short HEAD 2>/dev/null)
 BUILD_DATE ?= $(shell date +%FT%T%z)
@@ -44,8 +44,8 @@ deb: ## Build DEB the meta package
 
 .PHONY: rpm
 rpm: ## Build RPM the meta package
-	rpmbuild -ba --define '_rpmdir ./deploy/rpmbuild/' deploy/rpmbuild/SPECS/nasp.spec
+	rpmbuild -ba --define '_rpmdir ./deploy/rpmbuild/' deploy/rpmbuild/SPECS/camblet.spec
 
 .PHONY: run
 run: ## Run the binary
-	sudo build/nasp agent --policies-path ./nasp.d/policies/ --services-path ./nasp.d/services/
+	sudo build/camblet agent --policies-path ./camblet.d/policies/ --services-path ./camblet.d/services/

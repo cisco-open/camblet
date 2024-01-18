@@ -1,18 +1,18 @@
-Name:           nasp
+Name:           camblet
 Version:        0.4.0
 Release:        1%{?dist}
-Summary:        NASP is a network acceleration and security platform
+Summary:        Camblet is a network acceleration and security platform
 
 License:        GPL-MIT Dual License
-URL:            https://nasp.io
+URL:            https://camblet.io
 
-Requires:       nasp-agent
-Requires:       nasp-kernel-module
+Requires:       camblet-agent
+Requires:       camblet-kernel-module
 
 BuildArch:      noarch
 
 %description
-This is a meta package for NASP, which includes nasp-agent and nasp-kernel-module.
+This is a meta package for Camblet, which includes camblet-agent and camblet-kernel-module.
 
 %files
 # Empty section, as this is a meta package

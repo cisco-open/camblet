@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        name: Checkout nasp
+        name: Checkout code
         with:
           fetch-depth: 0
 

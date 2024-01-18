@@ -1,9 +1,9 @@
 syntax = "proto3";
-package nasp.api.v1.core;
+package camblet.api.v1.core;
 
 import "buf/validate/validate.proto";
 
-option go_package = "github.com/nasp/api/v1/core";
+option go_package = "github.com/camblet/api/v1/core";
 
 message Service {
   message Address {
