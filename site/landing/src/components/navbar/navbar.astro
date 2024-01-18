@@ -6,7 +6,7 @@ import logo from "assets/logo.svg";
 const menuitems = [
   {
     title: "Blog",
-    path: "/blog",
+    path: "/site/blog",
   },
   {
     title: "Docs",
@@ -29,7 +29,7 @@ const menuitems = [
     x-data="{ open: false }"
     x-init="$watch('open', value => console.log(value))">
     <div class="flex w-full lg:w-auto items-center justify-between">
-      <a href="/" class="text-lg flex w-auto lg:mt-0">
+      <a href="/site" class="text-lg flex w-auto lg:mt-0">
         <Picture
           src={logo}
           alt="Logo"

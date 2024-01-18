@@ -85,7 +85,9 @@ jobs:
       - name: Copy docs site dist to landing site
         shell: "bash"
         run: |
-          cp -a ./site/docs/dist ./site/landing/dist/docs
+          mkdir ./site/root
+          cp -a ./site/landing/dist ./site/root/site
+          cp -a ./site/docs/dist ./site/root/docs
 
       - name: Download repo artifacts
         uses: actions/download-artifact@v3
@@ -94,24 +96,24 @@ jobs:
 
       - name: Untar the artifact
         run: |
-          mkdir -p dist/packages
-          tar -xvf ../../artifact.tar -C dist/packages
-        working-directory: ./site/landing
+          mkdir -p packages
+          tar -xvf ../../artifact.tar -C packages
+        working-directory: ./site/root
 
       - name: Copy gpg public key to landing site
         shell: "bash"
         run: |
-          cp ./deploy/nasp-public.asc ./site/landing/dist/packages/nasp.asc
+          cp ./deploy/nasp-public.asc ./site/root/packages/nasp.asc
 
       - name: Copy install script to landing site
         shell: "bash"
         run: |
-          cp ./deploy/install.sh ./site/landing/dist/install.sh
+          cp ./deploy/install.sh ./site/root/install.sh
       
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v2
         with:
-          path: "./site/landing/dist/"
+          path: "./site/root/"
 
   deploy:
     needs: build-install-deploy-astro-rpm-deb-artifacts
