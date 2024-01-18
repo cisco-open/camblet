@@ -1,2 +1,2 @@
-cisco-open/nasp
-cisco-open/nasp-kernel-module
+cisco-open/camblet
+cisco-open/camblet-kernel-module

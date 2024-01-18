@@ -11,15 +11,15 @@ error() {
     exit 1
 }
 
-# NASP installation script
-# This script installs the NASP packages, adds the NASP repository and key,
-# enables and starts the systemd unit, and loads the "nasp" kernel module.
+# Cambetl installation script
+# This script installs the Camblet packages, adds the Camblet repository and key,
+# enables and starts the systemd unit, and loads the "camblet" kernel module.
 
 # Define the packages you want to install
-PACKAGES=("nasp")
+PACKAGES=("camblet")
 
-# URL of your NASP repository
-NASP_REPO_URL="https://nasp.io"
+# URL of your Camblet repository
+CAMBLET_REPO_URL="https://camblet.io"
 
 # Function to check if a package is installed
 is_package_installed() {
@@ -43,29 +43,29 @@ install_package() {
     fi
 }
 
-# Function to add NASP repository and key
-add_nasp_repo_and_key() {
-    log "Adding NASP repository and key..."
+# Function to add Camblet repository and key
+add_camblet_repo_and_key() {
+    log "Adding Camblet repository and key..."
     if [ -x "$(command -v apt)" ]; then
         # Debian/Ubuntu
         sudo apt install -y wget gnupg linux-headers-$(uname -r) dkms
-        sudo sh -c "echo 'deb [signed-by=/etc/apt/trusted.gpg.d/nasp.gpg] $NASP_REPO_URL/packages/deb stable main' > /etc/apt/sources.list.d/nasp.list"
-        sudo wget -O /tmp/nasp.asc "$NASP_REPO_URL/packages/nasp.asc"
-        cat /tmp/nasp.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/nasp.gpg >/dev/null
+        sudo sh -c "echo 'deb [signed-by=/etc/apt/trusted.gpg.d/camblet.gpg] $Camblet_REPO_URL/packages/deb stable main' > /etc/apt/sources.list.d/camblet.list"
+        sudo wget -O /tmp/camblet.asc "$Camblet_REPO_URL/packages/camblet.asc"
+        cat /tmp/camblet.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/camblet.gpg >/dev/null
         sudo apt update
     elif [ -x "$(command -v dnf)" ]; then
         # CentOS/RHEL
-        sudo rpm --import "$NASP_REPO_URL/packages/nasp.asc"
-        sudo tee /etc/yum.repos.d/nasp.repo >/dev/null <<EOF
-[nasp-repo]
-name=NASP Repository
-baseurl=$NASP_REPO_URL/packages/rpm
+        sudo rpm --import "$Camblet_REPO_URL/packages/camblet.asc"
+        sudo tee /etc/yum.repos.d/camblet.repo >/dev/null <<EOF
+[camblet-repo]
+name=Camblet Repository
+baseurl=$Camblet_REPO_URL/packages/rpm
 enabled=1
 gpgcheck=1
 EOF
         sudo dnf makecache
     else
-        error "Unsupported package manager. Please add the NASP repository and key manually."
+        error "Unsupported package manager. Please add the Camblet repository and key manually."
     fi
 }
 
@@ -82,13 +82,13 @@ is_kernel_module_available() {
     find /lib/modules/$(uname -r) -type f -name '*.ko*' | grep -w "$1" &>/dev/null
 }
 
-# Function to load the "nasp" kernel module
-load_nasp_module() {
-    local module_name="nasp"
+# Function to load the "camblet" kernel module
+load_camblet_module() {
+    local module_name="camblet"
     local config_file="/etc/modules-load.d/modules.conf"
     local parameters=("dyndbg==_")
 
-    log "Loading nasp kernel module..."
+    log "Loading camblet kernel module..."
     if is_kernel_module_available "tls"; then
         parameters+=("ktls_available=1")
     else
@@ -96,7 +96,7 @@ load_nasp_module() {
         parameters+=("ktls_available=0")
     fi
 
-    sudo modprobe nasp "${parameters[@]}"
+    sudo modprobe camblet "${parameters[@]}"
 
     # Check if the module loading configuration file already exists
     if [ -e "$config_file" ]; then
@@ -110,8 +110,8 @@ load_nasp_module() {
 
 # Main script
 
-# Add NASP repository and key
-add_nasp_repo_and_key
+# Add Camblet repository and key
+add_camblet_repo_and_key
 
 # Install packages
 for pkg in "${PACKAGES[@]}"; do
@@ -124,11 +124,11 @@ for pkg in "${PACKAGES[@]}"; do
     fi
 done
 
-# Load nasp kernel module
-load_nasp_module
+# Load camblet kernel module
+load_camblet_module
 
 # Enable and start systemd unit
-enable_and_start_unit "nasp"
+enable_and_start_unit "camblet"
 
-log "Nasp installation, repository setup, systemd unit start, and kernel module load script finished."
-log "Please find and edit the configuration under /etc/nasp/."
+log "Camblet installation, repository setup, systemd unit start, and kernel module load script finished."
+log "Please find and edit the configuration under /etc/camblet/."

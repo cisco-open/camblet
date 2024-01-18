@@ -1,9 +1,9 @@
 [Unit]
-Description=NASP Agent Service
+Description=Camblet Agent Service
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/nasp agent --config /etc/nasp/config.yaml --policies-path /etc/nasp/policies --services-path /etc/nasp/services
+ExecStart=/usr/bin/camblet agent --config /etc/camblet/config.yaml --policies-path /etc/camblet/policies --services-path /etc/camblet/services
 Restart=always
 User=root
 Group=root

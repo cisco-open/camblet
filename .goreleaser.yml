@@ -1,7 +1,7 @@
 builds:
   -
-    binary: nasp
-    main: ./cmd/nasp
+    binary: camblet
+    main: ./cmd/camblet
     goos:
       - linux
     goarch:
@@ -12,25 +12,25 @@ builds:
     ldflags: -w -s
 nfpms:
   -
-    package_name: nasp-agent
-    description: "NASP CLI and agent service"
-    maintainer: Nasp maintainers <team@nasp.io>
+    package_name: camblet-agent
+    description: "Camblet CLI and agent service"
+    maintainer: Camblet maintainers <team@camblet.io>
     license: "MIT"
     formats:
       - deb
       - rpm
     contents:
-      - dst: /etc/nasp/config.yaml
+      - dst: /etc/camblet/config.yaml
         src: config.yaml
-      - dst: /etc/nasp/rules/sample.yaml
-        src: nasp.d/rules/sample.yaml
-      - dst: /etc/nasp/services/sample.yaml
-        src: nasp.d/services/sample.yaml
-      - dst: /etc/systemd/system/nasp.service
-        src: deploy/nasp.service
-      - dst: /usr/share/doc/nasp/LICENSE
+      - dst: /etc/camblet/rules/sample.yaml
+        src: camblet.d/rules/sample.yaml
+      - dst: /etc/camblet/services/sample.yaml
+        src: camblet.d/services/sample.yaml
+      - dst: /etc/systemd/system/nacambletsp.service
+        src: deploy/camblet.service
+      - dst: /usr/share/doc/camblet/LICENSE
         src: LICENSE
-      - dst: /usr/share/doc/nasp/NOTICE
+      - dst: /usr/share/doc/camblet/NOTICE
         src: NOTICE
 archives:
   - name_template: "{{ .ProjectName }}_agent_{{ .Version }}_{{.Os}}_{{.Arch}}"
@@ -38,5 +38,5 @@ checksum:
   name_template: "{{ .ProjectName }}_agent_{{ .Version }}_checksums.txt"
 release:
   extra_files:
-    - glob: ./nasp_{{ .Version }}_all.deb
-    - glob: deploy/rpmbuild/noarch/nasp-{{ .Version }}-1.noarch.rpm
+    - glob: ./camblet{{ .Version }}_all.deb
+    - glob: deploy/rpmbuild/noarch/camblet-{{ .Version }}-1.noarch.rpm
