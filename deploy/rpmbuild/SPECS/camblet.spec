@@ -1,5 +1,5 @@
 Name:           camblet
-Version:        0.4.0
+Version:        0.5.0
 Release:        1%{?dist}
 Summary:        Camblet is a network acceleration and security platform
 
@@ -7,12 +7,12 @@ License:        GPL-MIT Dual License
 URL:            https://camblet.io
 
 Requires:       camblet-agent
-Requires:       camblet-kernel-module
+Requires:       camblet-driver
 
 BuildArch:      noarch
 
 %description
-This is a meta package for Camblet, which includes camblet-agent and camblet-kernel-module.
+This is a meta package for Camblet, which includes camblet-agent and camblet-driver.
 
 %files
 # Empty section, as this is a meta package
