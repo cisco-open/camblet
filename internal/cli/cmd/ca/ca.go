@@ -22,7 +22,7 @@ package ca
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/cisco-open/nasp/internal/cli"
+	"github.com/cisco-open/camblet/internal/cli"
 )
 
 type caCommand struct {
@@ -32,7 +32,7 @@ type caCommand struct {
 func NewCommand(c cli.CLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:               "ca",
-		Short:             "Nasp CA configuration and management",
+		Short:             "Camblet CA configuration and management",
 		SilenceErrors:     true,
 		SilenceUsage:      true,
 		DisableAutoGenTag: true,

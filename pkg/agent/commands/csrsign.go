@@ -26,8 +26,8 @@ import (
 
 	"emperror.dev/errors"
 
-	"github.com/cisco-open/nasp/pkg/agent/messenger"
-	"github.com/cisco-open/nasp/pkg/tls"
+	"github.com/cisco-open/camblet/pkg/agent/messenger"
+	"github.com/cisco-open/camblet/pkg/tls"
 )
 
 type csrSignCommand struct {

@@ -1,5 +1,5 @@
 # Sample Service discovery configuration file.
-# See https://nasp.io/docs/concepts/service-registry-entry for more information.
+# See https://camblet.io/docs/concepts/service-registry-entry for more information.
 # - addresses:
 #   - address: localhost
 #     port: 8000

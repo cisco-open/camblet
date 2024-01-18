@@ -32,7 +32,7 @@ import (
 	"github.com/prometheus/procfs"
 	"github.com/shirou/gopsutil/v3/process"
 
-	"github.com/cisco-open/nasp/pkg/agent/messenger"
+	"github.com/cisco-open/camblet/pkg/agent/messenger"
 	"github.com/gezacorp/metadatax"
 	"github.com/gezacorp/metadatax/collectors/docker"
 )

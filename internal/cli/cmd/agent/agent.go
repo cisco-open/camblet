@@ -27,14 +27,14 @@ import (
 	"emperror.dev/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/cisco-open/nasp/internal/cli"
-	"github.com/cisco-open/nasp/internal/policy"
-	"github.com/cisco-open/nasp/internal/service"
-	"github.com/cisco-open/nasp/pkg/agent/commands"
-	"github.com/cisco-open/nasp/pkg/agent/messenger"
-	"github.com/cisco-open/nasp/pkg/config"
-	"github.com/cisco-open/nasp/pkg/config/metadata/collectors"
-	"github.com/cisco-open/nasp/pkg/tls"
+	"github.com/cisco-open/camblet/internal/cli"
+	"github.com/cisco-open/camblet/internal/policy"
+	"github.com/cisco-open/camblet/internal/service"
+	"github.com/cisco-open/camblet/pkg/agent/commands"
+	"github.com/cisco-open/camblet/pkg/agent/messenger"
+	"github.com/cisco-open/camblet/pkg/config"
+	"github.com/cisco-open/camblet/pkg/config/metadata/collectors"
+	"github.com/cisco-open/camblet/pkg/tls"
 )
 
 type agentCommand struct {
@@ -48,7 +48,7 @@ func NewCommand(c cli.CLI) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:               "agent",
-		Short:             "Nasp agent",
+		Short:             "Camblet agent",
 		SilenceErrors:     true,
 		SilenceUsage:      true,
 		DisableAutoGenTag: true,
@@ -57,7 +57,7 @@ func NewCommand(c cli.CLI) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().String("kernel-module-device", "/dev/nasp", "Device for the Nasp kernel module")
+	cmd.Flags().String("kernel-module-device", "/dev/camblet", "Device for the Camblet kernel module")
 	cmd.Flags().StringSlice("policies-path", nil, "Path to file or directory for policy definitions")
 	cmd.Flags().StringSlice("services-path", nil, "Path to file or directory for service definitions")
 	cmd.Flags().String("trust-domain", config.DefaultTrustDomain, "Trust domain")
@@ -85,7 +85,7 @@ func (c *agentCommand) runCommander(ctx context.Context) error {
 	if c.cli.Configuration().Agent.CAPemPath == "" {
 		if cert, pkey, err := tls.CreateSelfSignedCACertificate(tls.CertificateOptions{
 			Subject: pkix.Name{
-				CommonName: "Nasp root CA",
+				CommonName: "Camblet root CA",
 			},
 		}); err != nil {
 			return errors.WrapIf(err, "could not create self signed root CA certificate")

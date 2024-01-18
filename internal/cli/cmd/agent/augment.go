@@ -28,8 +28,8 @@ import (
 
 	"github.com/gezacorp/metadatax"
 
-	"github.com/cisco-open/nasp/internal/cli"
-	"github.com/cisco-open/nasp/pkg/config/metadata/collectors"
+	"github.com/cisco-open/camblet/internal/cli"
+	"github.com/cisco-open/camblet/pkg/config/metadata/collectors"
 )
 
 func NewAugmentCommand(c cli.CLI) *cobra.Command {

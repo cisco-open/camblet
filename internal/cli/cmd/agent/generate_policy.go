@@ -34,10 +34,10 @@ import (
 	"google.golang.org/protobuf/types/known/structpb"
 	"sigs.k8s.io/yaml"
 
-	"github.com/cisco-open/nasp/api/v1/core"
-	"github.com/cisco-open/nasp/internal/cli"
-	"github.com/cisco-open/nasp/pkg/config/metadata/collectors"
-	"github.com/cisco-open/nasp/pkg/tls"
+	"github.com/cisco-open/camblet/api/v1/core"
+	"github.com/cisco-open/camblet/internal/cli"
+	"github.com/cisco-open/camblet/pkg/config/metadata/collectors"
+	"github.com/cisco-open/camblet/pkg/tls"
 	"github.com/gezacorp/metadatax"
 )
 

@@ -27,7 +27,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"sigs.k8s.io/yaml"
 
-	"github.com/cisco-open/nasp/pkg/util"
+	"github.com/cisco-open/camblet/pkg/util"
 )
 
 type ProtoValidatorFunc func(*RawPolicy) error

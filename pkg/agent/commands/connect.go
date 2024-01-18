@@ -19,7 +19,7 @@
 
 package commands
 
-import "github.com/cisco-open/nasp/pkg/agent/messenger"
+import "github.com/cisco-open/camblet/pkg/agent/messenger"
 
 type connectCommand struct{}
 

@@ -27,8 +27,8 @@ import (
 
 	"emperror.dev/errors"
 
-	nasptls "github.com/cisco-open/nasp/pkg/tls"
-	"github.com/cisco-open/nasp/pkg/util"
+	"github.com/cisco-open/camblet/pkg/tls"
+	"github.com/cisco-open/camblet/pkg/util"
 	"github.com/gezacorp/metadatax"
 	"github.com/gezacorp/metadatax/collectors/kubernetes"
 	"github.com/gezacorp/metadatax/collectors/kubernetes/kubelet"
@@ -161,18 +161,18 @@ func (c KubernetesCollectorConfig) GetCredentials() (cred Credentials, err error
 
 	cred.CredentialType = X509CredentialType
 
-	items, err := nasptls.ParsePEMs([]byte(content))
+	items, err := tls.ParsePEMs([]byte(content))
 	if err != nil {
 		return cred, err
 	}
 
 	for _, item := range items {
 		switch item.Type {
-		case nasptls.PrivateKeyContainerType:
+		case tls.PrivateKeyContainerType:
 			if len(cred.KeyPEM) == 0 {
 				cred.KeyPEM = item.GetPrivateKey().GetPEM()
 			}
-		case nasptls.X509CertificateContainerType:
+		case tls.X509CertificateContainerType:
 			if len(cred.CertPEM) == 0 {
 				cred.CertPEM = item.GetX509Certificate().GetPEM()
 			}

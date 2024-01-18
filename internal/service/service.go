@@ -19,7 +19,7 @@
 
 package service
 
-import "github.com/cisco-open/nasp/api/v1/core"
+import "github.com/cisco-open/camblet/api/v1/core"
 
 type RawServices []*RawService
 type RawService = core.Service

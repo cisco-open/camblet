@@ -24,11 +24,11 @@ import (
 
 	"emperror.dev/errors"
 
-	"github.com/cisco-open/nasp/pkg/config/metadata/collectors"
+	"github.com/cisco-open/camblet/pkg/config/metadata/collectors"
 )
 
 const (
-	DefaultTrustDomain     = "nasp"
+	DefaultTrustDomain     = "camblet"
 	DefaultCertTTLDuration = time.Hour * 24
 )
 
