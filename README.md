@@ -11,7 +11,7 @@ The features are the following:
 - providing frictionless TLS termination for those TCP sockets
 - supporting every Linux-based machine (bare-metal, vanilla VM, Kubernetes, etc... you name it)
 
-This repository contains the source code of the `camblet` multi-purpose binary for controlling the [camblet-kernel-module](https://github.com/cisco-open/camblet-kernel-module), which is a kernel module that does the processing of the user traffic.
+This repository contains the source code of the `camblet` multi-purpose binary for controlling the [camblet-driver](https://github.com/cisco-open/camblet-driver), which is a kernel module that does the processing of the user traffic.
 
 ## Architecture
 
@@ -42,7 +42,7 @@ sudo camblet agent --policies-path $(pwd)/camblet.d/policies --services-path $(p
 
 ### Development environment
 
-Our primary development environment is [Lima](https://lima-vm.io) since it supports x86_64 and ARM as well. Follow the instructions for [camblet-kernel-module](https://github.com/cisco-open/camblet-kernel-module#coding) for setting up the development environment.
+Our primary development environment is [Lima](https://lima-vm.io) since it supports x86_64 and ARM as well. Follow the instructions for [camblet-driver](https://github.com/cisco-open/camblet-driver#coding) for setting up the development environment.
 
 ### Build
 

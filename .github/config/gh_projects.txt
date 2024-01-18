@@ -1,2 +1,2 @@
 cisco-open/camblet
-cisco-open/camblet-kernel-module
+cisco-open/camblet-driver
