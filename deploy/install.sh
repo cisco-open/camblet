@@ -49,17 +49,17 @@ add_camblet_repo_and_key() {
     if [ -x "$(command -v apt)" ]; then
         # Debian/Ubuntu
         sudo apt install -y wget gnupg linux-headers-$(uname -r) dkms
-        sudo sh -c "echo 'deb [signed-by=/etc/apt/trusted.gpg.d/camblet.gpg] $Camblet_REPO_URL/packages/deb stable main' > /etc/apt/sources.list.d/camblet.list"
-        sudo wget -O /tmp/camblet.asc "$Camblet_REPO_URL/packages/camblet.asc"
+        sudo sh -c "echo 'deb [signed-by=/etc/apt/trusted.gpg.d/camblet.gpg] $CAMBLET_REPO_URL/packages/deb stable main' > /etc/apt/sources.list.d/camblet.list"
+        sudo wget -O /tmp/camblet.asc "$CAMBLET_REPO_URL/packages/camblet.asc"
         cat /tmp/camblet.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/camblet.gpg >/dev/null
         sudo apt update
     elif [ -x "$(command -v dnf)" ]; then
         # CentOS/RHEL
-        sudo rpm --import "$Camblet_REPO_URL/packages/camblet.asc"
+        sudo rpm --import "$CAMBLET_REPO_URL/packages/camblet.asc"
         sudo tee /etc/yum.repos.d/camblet.repo >/dev/null <<EOF
 [camblet-repo]
 name=Camblet Repository
-baseurl=$Camblet_REPO_URL/packages/rpm
+baseurl=$CAMBLET_REPO_URL/packages/rpm
 enabled=1
 gpgcheck=1
 EOF
