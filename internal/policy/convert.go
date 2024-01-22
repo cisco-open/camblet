@@ -56,7 +56,7 @@ func convertSelectorsToRawSelectors(selectors *structpb.Struct) Selectors {
 }
 
 func getPolicyID(policy *RawPolicy) string {
-	y, err := json.Marshal(policy.Connection)
+	y, err := json.Marshal(policy.Certificate)
 	if err != nil {
 		return ""
 	}
