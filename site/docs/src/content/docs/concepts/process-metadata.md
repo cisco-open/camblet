@@ -55,23 +55,23 @@ Kubernetes collector gathers metadata from Kubelet which runs on the node beside
 #### Possible metadata of Kubernetes metadata collector
 
 ```yaml
-kubernetes:annotation:kubernetes.io/config.seen: 2023-11-23T16:37:13.953323037Z
-kubernetes:annotation:kubernetes.io/config.source: api
-kubernetes:container:image:id: docker.io/ranchermirrored-metrics-server@sha256:c2dfd72bafd6406ed306d9fbd07f55c496b004293d13d3de88a4567eacc36558
-kubernetes:container:name: metrics-server
-kubernetes:label:k8s-app: metrics-server
-kubernetes:label:pod-template-hash: 648b5df564
-kubernetes:node:name: lima-k3s
-kubernetes:pod:ephemeral-image:count: 0
-kubernetes:pod:image:count: 1
-kubernetes:pod:image:id: docker.io/ranchermirrored-metrics-server@sha256:c2dfd72bafd6406ed306d9fbd07f55c496b004293d13d3de88a4567eacc36558
-kubernetes:pod:image:name: rancher/mirrored-metrics-server:v0.6.3
-kubernetes:pod:init-image:count: 0
-kubernetes:pod:name: metrics-server-648b5df564-drsb2
-kubernetes:pod:namespace: kube-system
-kubernetes:pod:owner:kind: replicaset
-kubernetes:pod:owner:kind-with-version: apps/v1/replicaset
-kubernetes:pod:serviceaccount: metrics-serve
+k8s:annotation:kubernetes.io/config.seen: 2023-11-23T16:37:13.953323037Z
+k8s:annotation:kubernetes.io/config.source: api
+k8s:container:image:id: docker.io/ranchermirrored-metrics-server@sha256:c2dfd72bafd6406ed306d9fbd07f55c496b004293d13d3de88a4567eacc36558
+k8s:container:name: metrics-server
+k8s:label:k8s-app: metrics-server
+k8s:label:pod-template-hash: 648b5df564
+k8s:node:name: lima-k3s
+k8s:pod:ephemeral-image:count: 0
+k8s:pod:image:count: 1
+k8s:pod:image:id: docker.io/ranchermirrored-metrics-server@sha256:c2dfd72bafd6406ed306d9fbd07f55c496b004293d13d3de88a4567eacc36558
+k8s:pod:image:name: rancher/mirrored-metrics-server:v0.6.3
+k8s:pod:init-image:count: 0
+k8s:pod:name: metrics-server-648b5df564-drsb2
+k8s:pod:namespace: kube-system
+k8s:pod:owner:kind: replicaset
+k8s:pod:owner:kind-with-version: apps/v1/replicaset
+k8s:pod:serviceaccount: metrics-serve
 ```
 
 ### Docker
