@@ -85,9 +85,7 @@ jobs:
       - name: Copy docs site dist to landing site
         shell: "bash"
         run: |
-          mkdir ./site/root
-          cp -a ./site/landing/dist ./site/root/site
-          cp -a ./site/docs/dist ./site/root/docs
+          cp -a ./site/docs/dist ./site/landing/dist/docs
 
       - name: Download repo artifacts
         uses: actions/download-artifact@v3
@@ -96,24 +94,24 @@ jobs:
 
       - name: Untar the artifact
         run: |
-          mkdir -p packages
-          tar -xvf ../../artifact.tar -C packages
-        working-directory: ./site/root
+          mkdir -p dist/packages
+          tar -xvf ../../artifact.tar -C dist/packages
+        working-directory: ./site/landing
 
       - name: Copy gpg public key to landing site
         shell: "bash"
         run: |
-          cp ./deploy/camblet-public.asc ./site/root/packages/camblet.asc
+          cp ./deploy/camblet-public.asc ./site/landing/dist/packages/camblet.asc
 
       - name: Copy install script to landing site
         shell: "bash"
         run: |
-          cp ./deploy/install.sh ./site/root/install.sh
+          cp ./deploy/install.sh ./site/landing/dist/install.sh
       
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v2
         with:
-          path: "./site/root/"
+          path: "./site/landing/dist"
 
   deploy:
     needs: build-install-deploy-astro-rpm-deb-artifacts

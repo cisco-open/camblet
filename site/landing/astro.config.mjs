@@ -7,7 +7,7 @@ import partytown from '@astrojs/partytown';
 
 export default defineConfig({
   site: "http://localhost:8080/",
-  base: "/site",
+  base: "/",
   integrations: [
     alpinejs(),
     tailwind(),
