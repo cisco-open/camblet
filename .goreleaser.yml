@@ -19,6 +19,8 @@ nfpms:
     formats:
       - deb
       - rpm
+    dependencies:
+      - camblet-driver
     contents:
       - dst: /etc/camblet/config.yaml
         src: config.yaml
