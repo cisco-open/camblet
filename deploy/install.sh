@@ -37,6 +37,7 @@ install_package() {
         enable_epel="--enablerepo=epel"
         # Disable EPEL on Amazon Linux
         grep Amazon /etc/os-release &>/dev/null && enable_epel=""
+        sudo dnf install -y kernel-devel-$(uname -r)
         sudo dnf install ${enable_epel} -y "$1"
     else
         error "Unsupported package manager. Please install packages manually."
