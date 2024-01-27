@@ -21,6 +21,7 @@ package util
 
 import (
 	"context"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"sync"
@@ -44,12 +45,22 @@ type fileContentLoader struct {
 type FileContentLoadedFunc func(map[string][]byte)
 
 func NewFileContentLoader(paths []string, logger logr.Logger) FileContentLoader {
-	return &fileContentLoader{
-		paths:  paths,
-		logger: logger.WithValues("paths", paths),
-
-		mu: sync.Mutex{},
+	r := &fileContentLoader{
+		paths: []string{},
+		mu:    sync.Mutex{},
 	}
+
+	for _, path := range paths {
+		_, err := os.Lstat(path)
+		if errors.Is(err, fs.ErrNotExist) {
+			continue
+		}
+		r.paths = append(r.paths, path)
+	}
+
+	r.logger = logger.WithValues("paths", r.paths)
+
+	return r
 }
 
 func (r *fileContentLoader) Run(ctx context.Context, h FileContentLoadedFunc) error {
