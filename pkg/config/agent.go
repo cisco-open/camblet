@@ -32,6 +32,11 @@ const (
 	DefaultCertTTLDuration = time.Hour * 24
 )
 
+var (
+	DefaultPoliciesPaths = []string{"./camblet.d/policies", "/etc/camblet/policies"}
+	DefaultServicesPaths = []string{"./camblet.d/services", "/etc/camblet/services"}
+)
+
 type Agent struct {
 	LocalAddress           string            `json:"localAddress,omitempty"`
 	KernelModuleDevice     string            `json:"kernelModuleDevice,omitempty"`
@@ -40,6 +45,8 @@ type Agent struct {
 	DefaultCertTTL         string            `json:"defaultCertTTL,omitempty"`
 	DefaultCertTTLDuration time.Duration     `json:"-"`
 	CAPemPath              string            `json:"caPEMPath,omitempty"`
+	PoliciesPath           []string          `json:"policiesPath,omitempty"`
+	ServicesPath           []string          `json:"servicesPath,omitempty"`
 }
 
 func (c Agent) Validate() (Agent, error) {

@@ -58,8 +58,8 @@ func NewCommand(c cli.CLI) *cobra.Command {
 	}
 
 	cmd.Flags().String("kernel-module-device", "/dev/camblet", "Device for the Camblet kernel module")
-	cmd.Flags().StringSlice("policies-path", nil, "Path to file or directory for policy definitions")
-	cmd.Flags().StringSlice("services-path", nil, "Path to file or directory for service definitions")
+	cmd.Flags().StringSlice("policies-path", config.DefaultPoliciesPaths, "Path to file or directory for policy definitions")
+	cmd.Flags().StringSlice("services-path", config.DefaultServicesPaths, "Path to file or directory for service definitions")
 	cmd.Flags().String("trust-domain", config.DefaultTrustDomain, "Trust domain")
 	cmd.Flags().Duration("default-cert-ttl", config.DefaultCertTTLDuration, "Default certificate TTL")
 	cmd.Flags().String("ca-pem-path", "", "Path for CA pem")
@@ -143,8 +143,9 @@ func (c *agentCommand) run(cmd *cobra.Command) error {
 	// Static service definitions loader
 	eventBus.Subscribe(messenger.MessengerStartedTopic, func(topic string, _ bool) {
 		go func() {
-			l := service.NewFileLoader(c.cli.Viper().GetStringSlice("agent.servicesPath"), service.FileLoadWithLogger(logger))
+			l := service.NewFileLoader(c.cli.Configuration().Agent.ServicesPath, service.FileLoadWithLogger(logger))
 			if err := l.Run(cmd.Context(), func(entries service.Services) {
+				logger.Info("services count", "count", len(entries))
 				if j, err := json.MarshalIndent(entries, "", "  "); err != nil {
 					c.cli.Logger().Error(err, "could not marshal module config")
 				} else {
@@ -163,7 +164,7 @@ func (c *agentCommand) run(cmd *cobra.Command) error {
 	eventBus.Subscribe(messenger.MessengerStartedTopic, func(topic string, _ bool) {
 		go func() {
 			r := policy.NewFileLoader(
-				c.cli.Viper().GetStringSlice("agent.policiesPath"),
+				c.cli.Configuration().Agent.PoliciesPath,
 				logger,
 				policy.FileLoaderWithTemplateFunc(policy.NewPolicyTemplater(policy.PolicyTemplateValues{
 					TrustDomain: c.cli.Configuration().Agent.TrustDomain,

@@ -28,6 +28,10 @@ import (
 	"github.com/spf13/viper"
 )
 
+var (
+	DefaultConfigLocations = []string{".", "/.config", "/etc/camblet"}
+)
+
 func Configure(v *viper.Viper, flags *pflag.FlagSet) Config {
 	setupViper(v, flags)
 
@@ -55,8 +59,9 @@ func Configure(v *viper.Viper, flags *pflag.FlagSet) Config {
 
 // setupViper configures some defaults in the Viper instance
 func setupViper(v *viper.Viper, p *pflag.FlagSet) {
-	v.AddConfigPath(".")
-	v.AddConfigPath("./config")
+	for _, loc := range DefaultConfigLocations {
+		v.AddConfigPath(loc)
+	}
 
 	v.BindPFlags(p) // nolint:errcheck
 
