@@ -23,6 +23,7 @@ import (
 	"context"
 	"crypto/x509/pkix"
 	"encoding/json"
+	"os"
 
 	"emperror.dev/errors"
 	"github.com/spf13/cobra"
@@ -35,6 +36,10 @@ import (
 	"github.com/cisco-open/camblet/pkg/config"
 	"github.com/cisco-open/camblet/pkg/config/metadata/collectors"
 	"github.com/cisco-open/camblet/pkg/tls"
+)
+
+const (
+	defaultRootCACommonName = "Camblet root CA"
 )
 
 type agentCommand struct {
@@ -62,7 +67,7 @@ func NewCommand(c cli.CLI) *cobra.Command {
 	cmd.Flags().StringSlice("services-path", config.DefaultServicesPaths, "Path to file or directory for service definitions")
 	cmd.Flags().String("trust-domain", config.DefaultTrustDomain, "Trust domain")
 	cmd.Flags().Duration("default-cert-ttl", config.DefaultCertTTLDuration, "Default certificate TTL")
-	cmd.Flags().String("ca-pem-path", "", "Path for CA pem")
+	cmd.Flags().String("ca-pem-path", config.DefaultCAPEMPath, "Path for CA pem")
 
 	cli.BindCMDFlags(c.Viper(), cmd)
 
@@ -82,20 +87,12 @@ func (c *agentCommand) runCommander(ctx context.Context) error {
 	h.AddHandler("connect", commands.Connect())
 
 	caOpts := []tls.CertificateAuthorityOption{}
-	if c.cli.Configuration().Agent.CAPemPath == "" {
-		if cert, pkey, err := tls.CreateSelfSignedCACertificate(tls.CertificateOptions{
-			Subject: pkix.Name{
-				CommonName: "Camblet root CA",
-			},
-		}); err != nil {
-			return errors.WrapIf(err, "could not create self signed root CA certificate")
-		} else {
-			caOpts = append(caOpts, tls.CertificateAuthorityWithPEM(append(cert.GetPEM(), pkey.GetPEM()...)))
-		}
-	} else {
-		caOpts = append(caOpts, tls.CertificateAuthorityWithPEMFile(c.cli.Configuration().Agent.CAPemPath))
+	caPEMPath, err := c.ensureCACertificate()
+	if err != nil {
+		return errors.WithStackIf(err)
 	}
 
+	caOpts = append(caOpts, tls.CertificateAuthorityWithPEMFile(caPEMPath))
 	ca, err := tls.NewCertificateAuthority(caOpts...)
 	if err != nil {
 		return err
@@ -105,6 +102,8 @@ func (c *agentCommand) runCommander(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	c.cli.Logger().Info("CA signer initialized", "caPEMPath", caPEMPath)
+
 	h.AddHandler("csr_sign", csrSign)
 
 	collector := collectors.GetMetadataCollector(c.cli.Configuration().Agent.MetadataCollectors, c.cli.Logger())
@@ -115,6 +114,35 @@ func (c *agentCommand) runCommander(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func (c *agentCommand) ensureCACertificate() (string, error) {
+	path := c.cli.Configuration().Agent.CAPemPath
+
+	if _, err := os.Stat(path); path != "" && err == nil {
+		return path, nil
+	}
+
+	cert, pkey, err := tls.CreateSelfSignedCACertificate(tls.CertificateOptions{
+		Subject: pkix.Name{
+			CommonName: defaultRootCACommonName,
+		},
+	})
+	if err != nil {
+		return "", errors.WrapIf(err, "could not generate self signed root CA certificate")
+	}
+
+	if file, err := os.Create(path); err != nil {
+		return "", errors.WrapIf(err, "could not write generated self signed root CA certificate")
+	} else {
+		defer file.Close()
+		if _, err := file.Write(append(cert.GetPEM(), pkey.GetPEM()...)); err != nil {
+			return "", errors.WrapIf(err, "could not write generated self signed root CA certificate")
+		}
+		c.cli.Logger().Info("self signed root CA certificate is created and saved", "path", path)
+	}
+
+	return path, nil
 }
 
 func (c *agentCommand) run(cmd *cobra.Command) error {
