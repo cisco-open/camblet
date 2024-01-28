@@ -30,6 +30,7 @@ import (
 const (
 	DefaultTrustDomain     = "camblet"
 	DefaultCertTTLDuration = time.Hour * 24
+	DefaultCAPEMPath       = "/etc/camblet/ca.pem"
 )
 
 var (

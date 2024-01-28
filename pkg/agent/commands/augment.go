@@ -99,9 +99,6 @@ func (c *augmentCommand) HandleCommand(cmd messenger.Command) (string, error) {
 
 	js := string(j)
 	c.cache.Set(cmd.Context.UniqueString(), js, ttlcache.DefaultTTL)
-	if cmd.Context.PID == 25085 {
-		fmt.Printf("%d %s\n", cmd.Context.PID, js)
-	}
 	logger.V(2).Info("augmentation response cached")
 
 	return js, nil
