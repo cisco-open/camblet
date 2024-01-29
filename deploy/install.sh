@@ -49,6 +49,7 @@ add_camblet_repo_and_key() {
     log "Adding Camblet repository and key..."
     if [ -x "$(command -v apt)" ]; then
         # Debian/Ubuntu
+        sudo apt update
         sudo apt install -y wget gnupg linux-headers-$(uname -r) dkms
         sudo sh -c "echo 'deb [signed-by=/etc/apt/trusted.gpg.d/camblet.gpg] $CAMBLET_REPO_URL/packages/deb stable main' > /etc/apt/sources.list.d/camblet.list"
         sudo wget -O /tmp/camblet.asc "$CAMBLET_REPO_URL/packages/camblet.asc"
