@@ -35,6 +35,7 @@ import (
 	"github.com/cisco-open/camblet/internal/service"
 	"github.com/cisco-open/camblet/pkg/agent/commands"
 	"github.com/cisco-open/camblet/pkg/agent/messenger"
+	"github.com/cisco-open/camblet/pkg/agent/server"
 	"github.com/cisco-open/camblet/pkg/config"
 	"github.com/cisco-open/camblet/pkg/config/metadata/collectors"
 	"github.com/cisco-open/camblet/pkg/tls"
@@ -68,6 +69,7 @@ func NewCommand(c cli.CLI) *cobra.Command {
 	cmd.Flags().StringSlice("policies-path", config.DefaultPoliciesPaths, "Path to file or directory for policy definitions")
 	cmd.Flags().StringSlice("services-path", config.DefaultServicesPaths, "Path to file or directory for service definitions")
 	cmd.Flags().String("trust-domain", config.DefaultTrustDomain, "Trust domain")
+	cmd.Flags().String("local-address", config.DefaultLocalAddress, "Local address for the gRPC api")
 	cmd.Flags().Duration("default-cert-ttl", config.DefaultCertTTLDuration, "Default certificate TTL")
 	cmd.Flags().String("ca-pem-path", config.DefaultCAPEMPath, "Path for CA pem")
 
@@ -75,6 +77,7 @@ func NewCommand(c cli.CLI) *cobra.Command {
 
 	cmd.AddCommand(NewAugmentCommand(c))
 	cmd.AddCommand(NewGeneratePolicyCommand(c))
+	cmd.AddCommand(NewTraceCommand(c))
 
 	return cmd
 }
@@ -87,6 +90,7 @@ func (c *agentCommand) runCommander(ctx context.Context) error {
 
 	h.AddHandler("accept", commands.Accept())
 	h.AddHandler("connect", commands.Connect())
+	h.AddHandler("log", commands.Log(c.cli.EventBus(), c.cli.Logger()))
 
 	caOpts := []tls.CertificateAuthorityOption{}
 	caPEMPath, err := c.ensureCACertificate()
@@ -175,6 +179,17 @@ func (c *agentCommand) run(cmd *cobra.Command) error {
 		}
 	})
 
+	eventBus.Subscribe(messenger.TraceRequest, func(topic string, msg messenger.TraceRequestMessage) {
+		if cj, err := json.Marshal(msg); err != nil {
+			c.cli.Logger().Error(err, "could not marshal pid command")
+		} else {
+			eventBus.Publish(messenger.MessageOutgoingTopic, messenger.NewCommand(messenger.Command{
+				Command: "manage_trace_requests",
+				Data:    string(cj),
+			}))
+		}
+	})
+
 	// Static service definitions loader
 	eventBus.Subscribe(messenger.MessengerStartedTopic, func(topic string, _ bool) {
 		go func() {
@@ -243,6 +258,10 @@ func (c *agentCommand) run(cmd *cobra.Command) error {
 
 	go func() {
 		errChan <- messenger.New(eventBus, logger).Run(cmd.Context(), c.cli.Configuration().Agent.KernelModuleDevice)
+	}()
+
+	go func() {
+		errChan <- server.New(c.cli.Configuration().Agent, c.cli.EventBus(), c.cli.Logger()).ListenAndServe(cmd.Context())
 	}()
 
 	select {
