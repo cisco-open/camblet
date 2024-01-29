@@ -5,7 +5,7 @@ description: 'Your first zero trust networking environment'
 
 This guide will walk you through a basic Camblet scenario.
 It will deploy Camblet into the kernel to assign strong identities to processes and transparently establish mTLS connections.
-To spice things up, all of this will happen inside a Kubernetes cluster.
+At first, simple python http server with cURL will be used for demostration later, to spice things up, all of this will happen inside a Kubernetes cluster.
 
 ## Prepare the environment
 
@@ -134,18 +134,22 @@ signature:      59:6F:34:6D:4F:E0:9C:D6:FA:11:52:11:21:60:5E:A5:5D:40:80:A4:
 parm:           ktls_available:Marks if kTLS is available on the system (bool)
 ```
 
-## Create a sample scenario
-
 Congratulations! You now have a fully functional Camblet installed on your Ubuntu system.
 
 Camblet consist of two building blocks:
 - Kernel module: Handles transparent TLS and enforces policies.
 - Agent: Issues certificates and collects metadata for processes.
 
-### Configure agent to access K8s metadata
+- Simple [scenario](#create-a-sample-scenario)
+- Kubernetes [scenario](#create-a-sample-kubernetes-scenario)
+
+## Create a sample scenario
+
+### Configure agent
 
 The agent configuration resides in /etc/camblet/config.yaml. 
 By default, it looks like this:
+
 ```sh
 agent:
   trustDomain: acme.corp
@@ -204,7 +208,176 @@ sysfsdmi:product:version:virt-8.1
 ```
 The agent printed out all the metadata which are currently available.
 
-Now let's configure the agent to access Kubernetes metadata. 
+### Install processes
+
+In this scenario there will be a simple python http server which will work as an echo server.
+On client side cURL will be used.
+All commands must be run inside the virtual machine. To return to Lima:
+```sh
+limactl shell quickstart
+```
+
+Let's run python http server:
+```sh
+python3 -m http.server
+Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
+```
+
+### Create policy for the server
+
+We want to generate a policy for the python server that identifies the process using selectors. 
+We can also set the type of the mTLS and some parameters for the certificate including TTL and workload ID.
+
+The policy can be written by hand, but the Camblet CLI can do the hard work for you. We are going to use the CLI, but for that, we must determine the PID of the python server. To do that, use the following command:
+
+```sh
+ps aux | grep python3
+
+```
+
+You will see something similar:
+
+```sh
+root        1398  0.0  0.4  32940 17732 ?        Ss   04:43   0:00 /usr/bin/python3 /usr/bin/networkd-dispatcher --run-startup-triggers
+root        1459  0.0  0.4 109928 20008 ?        Ssl  04:43   0:00 /usr/bin/python3 /usr/share/unattended-upgrades/unattended-upgrade-shutdown --wait-for-signal
+bmolnar    51572  0.0  0.4  26756 16492 pts/0    S+   13:24   0:00 python3 -m http.server
+bmolnar    51929  0.0  0.0   6416  1864 pts/1    S+   13:31   0:00 grep --color=auto python3
+```
+
+The one we are looking for is on line 3, running with the name "/server". 
+We need the second column because that one is the PID. 
+In this case, it is 51572. 
+Next, run the Camblet CLI to generate a policy and save it into the default policy directory as python.yaml.
+
+```sh
+sudo camblet --config /etc/camblet/config.yaml agent generate-policy 51572 python3 | sudo tee /etc/camblet/policies/python.yaml
+- certificate:
+    ttl: 86400s
+    workloadID: python3
+  connection:
+    mtls: STRICT
+  selectors:
+  - process:binary:path: /usr/bin/python3.10
+    process:gid: "1000"
+    process:name: python3
+    process:uid: "501"
+```
+
+Camblet will use these selectors to identify the python server. The connection part configures the mTLS. Since it is strict, only clients with certificates can communicate with it. To verify that, let's try it with cURL.
+
+### Try Camblet out
+
+Try to connect to python server on localhost:8000:
+
+```
+curl localhost:8000
+```
+
+As we waited, we received the following:
+
+```sh
+curl localhost:8000
+curl: (52) Empty reply from server
+```
+
+### Create policy for the client
+
+To create a new policy for cURL to communicate with the server, we need the PID of cURL. Since cURL is not running continuously like the server, we have to use a "dummy" command to force it to run as long as we can gather the PID. To do that, we need two terminals. This must be done before cURL times out; otherwise, the PID changes.
+
+Terminal 1:
+
+```sh
+curl 1.2.3.4
+```
+
+In the meantime, terminal 2:
+
+```sh
+ps aux | grep curl
+bmolnar    52899  0.0  0.2  23184  8748 pts/1    S+   13:47   0:00 curl 1.2.3.4
+bmolnar    52908  0.0  0.0   6416  1856 pts/2    S+   13:47   0:00 grep --color=auto curl
+```
+
+Like earlier, we need the data from the second column and look for "curl 1.2.3.4". In our case, the number we are looking for is 52899.
+Let's generate configuration for cURL in terminal 2:
+
+```sh
+sudo camblet --config /etc/camblet/config.yaml agent generate-policy 52899 curl | sudo tee /etc/camblet/policies/curl-simple.yaml
+- certificate:
+    ttl: 86400s
+    workloadID: curl
+  connection:
+    mtls: STRICT
+  selectors:
+  - process:binary:path: /usr/bin/curl
+    process:gid: "1000"
+    process:name: curl
+    process:uid: "501"
+```
+
+Using this policy, cURL will require mTLS. Let's try to communicate with the python server once again.
+
+### Try Camblet out
+
+```sh
+curl localhost:8000
+curl: (52) Empty reply from server
+```
+
+It still doesn't work. One last piece of the puzzle is missing. In this early phase of the project, the Camblet driver, which handles the TLS behind the scenes, does not know that the python server we are trying to communicate with has strict mTLS settings. The Camblet driver cannot use mTLS communication for all outbound/egress connections because that would restrict the process to the internet. Using mTLS for every egress connection would mean that cURL cannot access GitHub either. Instead, we have something called a service discovery file. A sample looks like this:
+
+```sh
+# Sample Service discovery configuration file.
+# See https://camblet.io/docs/concepts/service-registry-entry for more information.
+- addresses:
+  - address: localhost
+    port: 8000
+  labels:
+    app:label: nginx
+```
+
+Let's ignore the labels part for now; it is meant for more advanced configuration. The addresses part tells Camblet which outgoing connections require mTLS. Let's create our own services.yaml where we place the python server's service IP and port number.
+
+```sh
+echo -e "- addresses:\n  - address: 127.0.0.1\n    port: 8000\n  labels:\n    app:label: python" | sudo tee /etc/camblet/services/local.yaml
+```
+
+With this in place, let's check if it fixed the error.
+
+```sh
+curl localhost:8000
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Directory listing for /</title>
+</head>
+<body>
+<h1>Directory listing for /</h1>
+<hr>
+<ul>
+<li><a href=".bash_history">.bash_history</a></li>
+<li><a href=".bash_logout">.bash_logout</a></li>
+<li><a href=".bashrc">.bashrc</a></li>
+<li><a href=".cache/">.cache/</a></li>
+<li><a href=".profile">.profile</a></li>
+<li><a href=".ssh/">.ssh/</a></li>
+<li><a href=".viminfo">.viminfo</a></li>
+<li><a href=".zshrc">.zshrc</a></li>
+</ul>
+<hr>
+</body>
+</html>
+```
+It finally works.
+
+## Create a sample Kubernetes scenario
+
+### Configure agent to access K8s metadata
+
+The agent configuration resides in /etc/camblet/config.yaml. 
+
+Configure the agent to access Kubernetes metadata. 
 This data comes from the kubelet, so the proper certificates and keys must be provided to the agent.
 Copy the keys and certificates used by k3s to the Camblet directory:
 
@@ -307,7 +480,7 @@ sysfsdmi:product:version:virt-8.1
 Now Kubernetes related labels can also be used to identify processes.
 
 
-### Install sample processes
+### Install sample Kubernetes processes
 
 For this purpose, this guide will use a simple echo server running as a Kubernetes deployment and a simple client cURL which will run as a pod. These operations must be run on the host OS. To exit from Lima, simply type exit and hit enter.
 
@@ -397,7 +570,7 @@ alpine                  1/1     Running   0          36s
 
 It is time to assign strong identities to processes and transparently establish mTLS connections.
 
-### Creating policies for the server and the client
+### Create policy for the server
 
 All commands must be run inside the virtual machine. To return to Lima:
 ```sh
@@ -413,10 +586,9 @@ The policy can be written by hand, but the Camblet CLI can do the hard work for 
 ps aux | grep server
 ```
 
-You will see something similar::
+You will see something similar:
 
 ```sh
-ps aux | grep server
 root        1462  4.4 11.6 5399200 466840 ?      Ssl  16:32   0:20 /usr/local/bin/k3s server
 1000        3451  0.4  1.1 757792 47164 ?        Ssl  16:32   0:02 /metrics-server --cert-dir=/tmp --secure-port=10250 --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname --kubelet-use-node-status-port --metric-resolution=15s --tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305
 65532       3587  0.0  1.2 783100 51840 ?        Ssl  16:32   0:00 /server
@@ -476,6 +648,8 @@ As we waited, we received the following:
 curl: (56) Recv failure: Connection reset by peer
 ```
 
+### Create policy for the client
+
 To create a new policy for cURL to communicate with the server, we need the PID of cURL. Since cURL is not running continuously like the server, we have to use a "dummy" command to force it to run as long as we can gather the PID. To do that, we need two terminals: one running inside the Alpine container and another one running inside Lima. This must be done before cURL times out; otherwise, the PID changes.
 
 Inside the container:
@@ -532,7 +706,7 @@ It still doesn't work. One last piece of the puzzle is missing. In this early ph
     app:label: nginx
 ```
 
-Let's ignore the labels part for now; it is meant for more advanced configuration. The addresses part tells Camblet which outgoing connections require mTLS. Let's create our own services.yaml where we place the echo server's service IP. Get the IP of the service by running the following command on your local machine:
+Let's ignore the labels part for now; it is meant for more advanced configuration. The addresses part tells Camblet which outgoing connections require mTLS. Let's create our own services.yaml where we place the echo server's service IP and port number. Get the IP and port of the service by running the following command on your local machine:
 
 ```sh
 kubectl get services
