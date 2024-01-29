@@ -97,6 +97,10 @@ func (h *handler) handleCommand(topic string, msg messenger.Message) {
 		err = errors.New("invalid command")
 	}
 
+	if cmd.IsMessage {
+		return
+	}
+
 	answerObj := messenger.Answer{
 		ID:      cmd.ID,
 		Command: "answer",

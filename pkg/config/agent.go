@@ -36,6 +36,7 @@ const (
 var (
 	DefaultPoliciesPaths = []string{"./camblet.d/policies", "/etc/camblet/policies"}
 	DefaultServicesPaths = []string{"./camblet.d/services", "/etc/camblet/services"}
+	DefaultLocalAddress  = ":50600"
 )
 
 type Agent struct {
@@ -59,6 +60,10 @@ func (c Agent) Validate() (Agent, error) {
 
 	if c.DefaultCertTTL == "" {
 		c.DefaultCertTTL = DefaultCertTTLDuration.String()
+	}
+
+	if c.LocalAddress == "" {
+		c.LocalAddress = DefaultLocalAddress
 	}
 
 	if d, err := time.ParseDuration(c.DefaultCertTTL); err != nil {

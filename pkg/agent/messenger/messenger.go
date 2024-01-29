@@ -40,6 +40,8 @@ const (
 	MessageIncomingTopic  string = "message.incoming"
 	MessageOutgoingTopic  string = "message.outgoing"
 	MessengerStartedTopic string = "messenger.started"
+	TraceResponse         string = "trace.response"
+	TraceRequest          string = "trace.request"
 )
 
 func New(eventBus *eventbus.EventBus, logger logr.Logger) *messenger {

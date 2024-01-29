@@ -19,7 +19,11 @@
 
 package messenger
 
-import "encoding/json"
+import (
+	"encoding/json"
+
+	trace_v1_api "github.com/cisco-open/camblet/api/v1/agent/trace"
+)
 
 type MessageType string
 
@@ -41,4 +45,17 @@ func (m *Message) SetData(v any) error {
 
 func (m Message) Unmarshal(v any) error {
 	return json.Unmarshal(m.Data, v)
+}
+
+type TraceRequestAction string
+
+const (
+	AddTraceRequestAction      TraceRequestAction = "add"
+	RemoveTraceRequestAction   TraceRequestAction = "remove"
+	ClearAllTraceRequestAction TraceRequestAction = "clear_all"
+)
+
+type TraceRequestMessage struct {
+	*trace_v1_api.TraceRequest `json:",inline"`
+	Action                     TraceRequestAction `json:"action"`
 }

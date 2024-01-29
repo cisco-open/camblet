@@ -88,4 +88,5 @@ type Command struct {
 	Code       []byte         `json:"code,omitempty"`
 	Entrypoint string         `json:"entrypoint,omitempty"`
 	Data       string         `json:"data,omitempty"`
+	IsMessage  bool           `json:"is_message,omitempty"`
 }
