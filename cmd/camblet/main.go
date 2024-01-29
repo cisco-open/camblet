@@ -47,6 +47,7 @@ func main() {
 		Version:    version,
 		CommitHash: commitHash,
 		BuildDate:  buildDate,
+		ConfigDir:  configDir,
 	})
 
 	ctx := cli.ContextWithCLI(context.Background(), c)

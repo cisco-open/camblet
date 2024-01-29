@@ -1,5 +1,4 @@
 agent:
-  caPEMPath: /tmp/ca.pem
   trustDomain: acme.corp
   defaultCertTTL: 2h
   metadataCollectors:

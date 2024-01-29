@@ -29,11 +29,11 @@ import (
 )
 
 var (
-	DefaultConfigLocations = []string{".", "/.config", "/etc/camblet"}
+	DefaultConfigLocations = []string{".", "/.config"}
 )
 
-func Configure(v *viper.Viper, flags *pflag.FlagSet) Config {
-	setupViper(v, flags)
+func Configure(v *viper.Viper, flags *pflag.FlagSet, configDir string) Config {
+	setupViper(v, flags, configDir)
 
 	err := v.ReadInConfig()
 	if _, ok := err.(viper.ConfigFileNotFoundError); err != nil && !ok {
@@ -58,9 +58,13 @@ func Configure(v *viper.Viper, flags *pflag.FlagSet) Config {
 }
 
 // setupViper configures some defaults in the Viper instance
-func setupViper(v *viper.Viper, p *pflag.FlagSet) {
+func setupViper(v *viper.Viper, p *pflag.FlagSet, configDir string) {
 	for _, loc := range DefaultConfigLocations {
 		v.AddConfigPath(loc)
+	}
+
+	if configDir != "." {
+		v.AddConfigPath(configDir)
 	}
 
 	v.BindPFlags(p) // nolint:errcheck

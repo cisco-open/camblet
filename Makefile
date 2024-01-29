@@ -3,10 +3,11 @@ PACKAGE = github.com/cisco-open/camblet
 BINARY_NAME ?= camblet
 BUILD_DIR ?= build
 BUILD_PACKAGE = ${PACKAGE}/cmd/camblet
+CONFIG_DIR ?= /etc/camblet
 VERSION ?= $(shell (git symbolic-ref -q --short HEAD || git describe --tags --exact-match) | tr "/" "-")
 COMMIT_HASH ?= $(shell git rev-parse --short HEAD 2>/dev/null)
 BUILD_DATE ?= $(shell date +%FT%T%z)
-LDFLAGS += -X main.version=${VERSION} -X main.commitHash=${COMMIT_HASH} -X main.buildDate=${BUILD_DATE}
+LDFLAGS += -X main.version=${VERSION} -X main.commitHash=${COMMIT_HASH} -X main.buildDate=${BUILD_DATE} -X main.configDir=${CONFIG_DIR}
 
 # Dependency versions
 GOLANG_VERSION = 1.21
