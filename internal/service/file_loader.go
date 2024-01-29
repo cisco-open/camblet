@@ -87,7 +87,7 @@ func (l *fileLoader) Run(ctx context.Context, h HandlerFunc) error {
 		services := make(Services, 0)
 
 		for file, content := range contents {
-			if e, err := l.unmarshal(content); err != nil {
+			if e, err := l.unmarshal(content, file); err != nil {
 				l.logger.Error(err, "error during parsing service discovery file ", "path", file)
 				continue
 			} else {
@@ -99,7 +99,7 @@ func (l *fileLoader) Run(ctx context.Context, h HandlerFunc) error {
 	})
 }
 
-func (l *fileLoader) unmarshal(content []byte) (Services, error) {
+func (l *fileLoader) unmarshal(content []byte, file string) (Services, error) {
 	var raw []any
 	if err := yaml.Unmarshal(content, &raw); err != nil {
 		return nil, err
@@ -109,19 +109,19 @@ func (l *fileLoader) unmarshal(content []byte) (Services, error) {
 	for _, item := range raw {
 		entryJSON, err := json.Marshal(item)
 		if err != nil {
-			l.logger.Error(err, "could not marshal service discovery entry to json")
+			l.logger.Error(err, "could not marshal service discovery entry to json", "file", file)
 			continue
 		}
 
 		var service RawService
 		if err := protojson.Unmarshal(entryJSON, &service); err != nil {
-			l.logger.Error(err, "could not unmarshal json service discovery entry to proto")
+			l.logger.Error(err, "could not unmarshal json service discovery entry to proto", "file", file)
 			continue
 		}
 
 		if l.validatorFunc != nil {
 			if err := l.validatorFunc(&service); err != nil {
-				l.logger.Error(err, "invalid service discovery entry")
+				l.logger.Error(err, "invalid service discovery entry", "file", file)
 				continue
 			}
 		}
