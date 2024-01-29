@@ -78,7 +78,7 @@ func NewRootCommand(c cli.CLI) *cobra.Command {
 			v.SetConfigFile(c)
 		}
 
-		c.SetConfiguration(config.Configure(v, flags))
+		c.SetConfiguration(config.Configure(v, flags, c.BuildInfo().ConfigDir))
 
 		if v.GetBool("dump-viper-settings") {
 			if y, err := yaml.Marshal(v.AllSettings()); err != nil {

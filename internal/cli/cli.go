@@ -38,7 +38,7 @@ import (
 
 type CLI interface {
 	Name() string
-	BuildInfo() BuildInfo
+	BuildInfo() *BuildInfo
 	Color() bool
 	Interactive() bool
 
@@ -60,6 +60,7 @@ type BuildInfo struct {
 	Version    string
 	CommitHash string
 	BuildDate  string
+	ConfigDir  string
 }
 
 func (i BuildInfo) String() string {
@@ -113,8 +114,8 @@ func (c *cli) Name() string {
 	return c.name
 }
 
-func (c *cli) BuildInfo() BuildInfo {
-	return c.buildInfo
+func (c *cli) BuildInfo() *BuildInfo {
+	return &c.buildInfo
 }
 
 func (c *cli) SetConfiguration(configuration config.Config) {

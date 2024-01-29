@@ -30,13 +30,10 @@ import (
 const (
 	DefaultTrustDomain     = "camblet"
 	DefaultCertTTLDuration = time.Hour * 24
-	DefaultCAPEMPath       = "/etc/camblet/ca.pem"
 )
 
 var (
-	DefaultPoliciesPaths = []string{"./camblet.d/policies", "/etc/camblet/policies"}
-	DefaultServicesPaths = []string{"./camblet.d/services", "/etc/camblet/services"}
-	DefaultLocalAddress  = ":50600"
+	DefaultLocalAddress = ":50600"
 )
 
 type Agent struct {

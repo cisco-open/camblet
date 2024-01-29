@@ -66,12 +66,12 @@ func NewCommand(c cli.CLI) *cobra.Command {
 	}
 
 	cmd.Flags().String("kernel-module-device", "/dev/camblet", "Device for the Camblet kernel module")
-	cmd.Flags().StringSlice("policies-path", config.DefaultPoliciesPaths, "Path to file or directory for policy definitions")
-	cmd.Flags().StringSlice("services-path", config.DefaultServicesPaths, "Path to file or directory for service definitions")
+	cmd.Flags().StringSlice("policies-path", []string{c.BuildInfo().ConfigDir + "/policies"}, "Path to file or directory for policy definitions")
+	cmd.Flags().StringSlice("services-path", []string{c.BuildInfo().ConfigDir + "/services"}, "Path to file or directory for service definitions")
 	cmd.Flags().String("trust-domain", config.DefaultTrustDomain, "Trust domain")
 	cmd.Flags().String("local-address", config.DefaultLocalAddress, "Local address for the gRPC api")
 	cmd.Flags().Duration("default-cert-ttl", config.DefaultCertTTLDuration, "Default certificate TTL")
-	cmd.Flags().String("ca-pem-path", config.DefaultCAPEMPath, "Path for CA pem")
+	cmd.Flags().String("ca-pem-path", c.BuildInfo().ConfigDir+"/ca.pem", "Path for CA pem")
 
 	cli.BindCMDFlags(c.Viper(), cmd)
 
