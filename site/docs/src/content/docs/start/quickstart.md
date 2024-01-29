@@ -440,4 +440,129 @@ The one we are looking for is in line 3 which runs with the name /server. We nee
     process:uid: "65532"
 ```
 
+Camblet will use these selectors to identify the echo server. As you can see there are multiple k8s related entry were present. It means that the same echo server running purely on the machine will be identified as a different process. The connection part configures the mTLS. Since it is strict, only clients with certificate can communicate with it. To verify that let's try it with cURL from the alpine container.
 
+From your local machine(outside of the lima vm) run the following commands:
+
+```sh
+kubectl exec -it alpine sh
+```
+
+Inside the alpine container first we have to install cURL:
+
+```sh
+apk update
+apk add curl
+```
+
+Next we can try to connect to the echo server on echo:80
+
+```
+curl echo:80
+```
+
+As we waited we got back the following:
+
+```sh
+/ # curl echo:80
+curl: (56) Recv failure: Connection reset by peer
+```
+
+Let's create a new policy for the cURL to be able to communicate with the server. To do that we need the pid of the curl. It is not running continously like the server we have to use a "dummy" command to force it to run as long as we can gather the pid. To do that we need two terminals, one running inside the alpine container and an another one running inside lima. This must be done before the cURL times out otherwise the pid changes.
+
+Inside the container:
+
+```sh
+curl 1.2.3.4
+```
+
+In the meantime on the lima:
+
+```sh
+ps aux | grep curl
+root       37848  0.0  0.1   9468  4508 pts/0    S+   09:22   0:00 curl 1.2.3.4
+bmolnar    37879  0.0  0.0   6416  1860 pts/0    S+   09:22   0:00 grep --color=auto curl
+```
+
+Like earlier we need the seconds collumn data and look for curl 1.2.3.4. In our case the number we are looking for is 37848.
+Let's generate configuration for cURL:
+
+```sh
+sudo camblet --config /etc/camblet/config.yaml agent generate-policy 37848 curl | sudo tee /etc/camblet/policies/curl.yaml
+- certificate:
+    ttl: 86400s
+    workloadID: curl
+  connection:
+    mtls: STRICT
+  selectors:
+  - k8s:container:name: alpine
+    k8s:pod:name: alpine
+    k8s:pod:namespace: default
+    k8s:pod:serviceaccount: default
+    process:binary:path: /usr/bin/curl
+    process:gid: "0"
+    process:name: curl
+    process:uid: "0"
+```
+
+Using this policy cURL running inside the alpine container will require mTLS. Let's try to communicate with the echo server once again.
+
+```sh
+curl echo:80
+curl: (56) Recv failure: Connection reset by peer
+```
+
+It still does not work. One last piece of the puzzle is missing. In this early phase of the project the Camblet driver which handles the TLS behind the scene does not know that the echo server where we are trying to communicate has strict mTLS setting. Camblet driver cannot use mTLS communication for all outbound/egress connections because that would restrict the process to the internet. Using mTLS for every egress connection would mean that the cURL cannot access github either. Instead of that we have something called service discovery file. A sample looks like this:
+
+```sh
+# Sample Service discovery configuration file.
+# See https://camblet.io/docs/concepts/service-registry-entry for more information.
+- addresses:
+  - address: localhost
+    port: 8000
+  labels:
+    app:label: nginx
+```
+
+Let's ignore the labels part for a while, it is meant for more advanced configuration. The addresses part tells Camblet which outgoing connection requires mTLS. Let's create our own services.yaml where we are placing the echo server's service ip. Get the ip of the service by running the following command on your local machine:
+
+```sh
+kubectl get services
+NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   10.43.0.1    <none>        443/TCP   2d19h
+echo         ClusterIP   10.43.14.8   <none>        80/TCP    2d17h
+```
+
+The intersting part is the echo service cluster ip and the ports, this should be places into a service discovery file.
+
+```sh
+echo -e "- addresses:\n  - address: 10.43.14.8\n    port: 80\n  labels:\n    app:label: echo-server" | sudo tee /etc/camblet/services/services.yaml
+```
+
+With this in place let's check if it fixed the error. To do that exec once again into the alpine container using, then use cURL for connection.
+
+```sh
+kubectl exec -it alpine sh
+curl echo:80
+Hostname: echo-54c896dd86-x9tdj
+
+Pod Information:
+	-no pod information available-
+
+Request Information:
+	client_address=10.42.0.23:55956
+	method=GET
+	real path=/
+	query=
+	request_version=1.1
+	request_scheme=http
+	request_url=http://echo/
+
+Request Headers:
+	accept=*/*
+	user-agent=curl/8.5.0
+
+Request Body:
+```
+
+It finally works.
