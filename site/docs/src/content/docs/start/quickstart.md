@@ -15,7 +15,6 @@ Currently, the supported operating systems are:
 - CentOS/Fedora (Kernel version 5.14 and up).
 
 In case you are using Mac a virtual machine is required.
-If you are using macOS, a virtual machine is required. 
 If you are already on Linux, please proceed to the [Automatic Install](#automatic-install) section.
 This guide utilizes [Lima](https://lima-vm.io). 
 
