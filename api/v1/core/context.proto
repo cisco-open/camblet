@@ -1,0 +1,13 @@
+syntax = "proto3";
+package camblet.api.v1.core;
+
+option go_package = "github.com/cisco-open/camblet/api/v1/core";
+
+message CommandContext {
+  uint32 pid = 1;
+  uint32 uid = 2;
+  uint32 gid = 3;
+  string command_name = 4;
+  string command_path = 5;
+  string cgroup_path = 6;
+}

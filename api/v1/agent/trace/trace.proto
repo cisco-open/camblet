@@ -1,0 +1,30 @@
+syntax = "proto3";
+package camblet.api.v1.agent.trace;
+
+import "buf/validate/validate.proto";
+import "v1/core/context.proto";
+
+option go_package = "github.com/cisco-open/camblet/api/v1/agent/trace";
+
+service Traces {
+  rpc Trace(TraceRequest) returns (stream TraceResponse);
+}
+
+message TraceRequest {
+  option (buf.validate.message).cel = {
+    id: "pid_or_uid_or_command_name_must_be_set",
+    expression:
+      "!has(this.pid) && !has(this.uid) && !has(this.command_name)"
+      "? 'pid, uid or command_name must be set'"
+      ": ''"
+  };
+  uint32 pid = 1;
+  optional uint32 uid = 2;
+  string command_name = 3;
+}
+
+message TraceResponse {
+  core.CommandContext context = 1;
+  string message = 2;
+  map<string, string> values = 3;
+}
