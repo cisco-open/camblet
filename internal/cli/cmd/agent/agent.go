@@ -26,8 +26,10 @@ import (
 	"os"
 
 	"emperror.dev/errors"
+	"github.com/bufbuild/protovalidate-go"
 	"github.com/spf13/cobra"
 
+	"github.com/cisco-open/camblet/api/v1/core"
 	"github.com/cisco-open/camblet/internal/cli"
 	"github.com/cisco-open/camblet/internal/policy"
 	"github.com/cisco-open/camblet/internal/service"
@@ -155,6 +157,11 @@ func (c *agentCommand) run(cmd *cobra.Command) error {
 
 	errChan := make(chan error)
 
+	proto_validator, err := protovalidate.New()
+	if err != nil {
+		return err
+	}
+
 	// kernel config
 	eventBus.Subscribe(messenger.MessengerStartedTopic, func(topic string, _ bool) {
 		logger.Info("sending config to kernel")
@@ -171,7 +178,13 @@ func (c *agentCommand) run(cmd *cobra.Command) error {
 	// Static service definitions loader
 	eventBus.Subscribe(messenger.MessengerStartedTopic, func(topic string, _ bool) {
 		go func() {
-			l := service.NewFileLoader(c.cli.Configuration().Agent.ServicesPath, service.FileLoadWithLogger(logger))
+			l := service.NewFileLoader(
+				c.cli.Configuration().Agent.ServicesPath,
+				service.FileLoadWithLogger(logger),
+				service.FileLoaderWithProtoValidatorFunc(func(svc *core.Service) error {
+					return proto_validator.Validate(svc)
+				}),
+			)
 			if err := l.Run(cmd.Context(), func(entries service.Services) {
 				logger.Info("services count", "count", len(entries))
 				if j, err := json.MarshalIndent(entries, "", "  "); err != nil {
@@ -197,7 +210,11 @@ func (c *agentCommand) run(cmd *cobra.Command) error {
 				policy.FileLoaderWithTemplateFunc(policy.NewPolicyTemplater(policy.PolicyTemplateValues{
 					TrustDomain: c.cli.Configuration().Agent.TrustDomain,
 				}, c.cli.Logger()).Execute,
-				))
+				),
+				policy.FileLoaderWithProtoValidatorFunc(func(p *policy.RawPolicy) error {
+					return proto_validator.Validate(p)
+				}),
+			)
 			if err := r.Run(cmd.Context(), func(r policy.Policies) {
 				logger.Info("policy count", "count", len(r))
 
