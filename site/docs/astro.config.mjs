@@ -31,6 +31,11 @@ export default defineConfig({
 					autogenerate: { directory: 'concepts' },
 				},
 				{
+					label: 'Talks',
+					link: '/talks/',
+					attrs: { style: 'font-weight: normal' },
+				},
+				{
 					label: 'Support',
 					link: '/support/',
 					attrs: { style: 'font-weight: normal' },
