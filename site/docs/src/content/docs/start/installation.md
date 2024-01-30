@@ -14,7 +14,7 @@ The most simple way to install Camblet is to run the following command in your t
 This will setup the necessary repositories on your system and install the all Camblet components.
 
 ```sh
-curl -L camblet.io/install.sh | DEBIAN_FRONTEND=noninteractive bash
+curl -L camblet.io/install.sh
 ```
 
 ### Check if Camblet is installed
