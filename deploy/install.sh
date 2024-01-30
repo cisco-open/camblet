@@ -2,6 +2,10 @@
 
 set -euo pipefail
 
+if [ -x "$(command -v apt)" ]; then
+    export DEBIAN_FRONTEND=noninteractive
+fi
+
 log() {
     echo -e "\e[34m[$(date)]\e[0m $1"
 }
@@ -31,7 +35,7 @@ install_package() {
     if [ -x "$(command -v apt)" ]; then
         # Debian/Ubuntu
         sudo apt update
-        sudo apt install -y "$1"
+        sudo -E apt install -y "$1"
     elif [ -x "$(command -v dnf)" ]; then
         # CentOS/RHEL
         enable_epel="--enablerepo=epel"
@@ -50,7 +54,7 @@ add_camblet_repo_and_key() {
     if [ -x "$(command -v apt)" ]; then
         # Debian/Ubuntu
         sudo apt update
-        sudo apt install -y wget gnupg linux-headers-$(uname -r) dkms
+        sudo -E apt install -y wget gnupg linux-headers-$(uname -r) dkms
         sudo sh -c "echo 'deb [signed-by=/etc/apt/trusted.gpg.d/camblet.gpg] $CAMBLET_REPO_URL/packages/deb stable main' > /etc/apt/sources.list.d/camblet.list"
         sudo wget -O /tmp/camblet.asc "$CAMBLET_REPO_URL/packages/camblet.asc"
         cat /tmp/camblet.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/camblet.gpg >/dev/null
