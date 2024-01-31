@@ -68,7 +68,7 @@ This will set up the necessary repositories on your system and install all Cambl
 **Note: This guide assumes you are using Ubuntu.
 
 ```sh
-curl -L camblet.io/install.sh | DEBIAN_FRONTEND=noninteractive bash
+curl -L camblet.io/install.sh | bash
 ```
 
 ### Check if Camblet is installed
