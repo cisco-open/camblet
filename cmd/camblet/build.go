@@ -19,13 +19,11 @@
 
 package main
 
-import "os"
-
 // Provisioned by ldflags
 // nolint: gochecknoglobals
 var (
 	version    = "dev"
 	commitHash = "n/a"
 	buildDate  = "unknown"
-	configDir  = func() string { pwd, _ := os.Getwd(); return pwd }() + "/camblet.d"
+	configDir  = "./camblet.d"
 )
