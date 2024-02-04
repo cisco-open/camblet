@@ -3,6 +3,8 @@ title: 'Quick Start'
 description: 'Your first zero trust networking environment'
 ---
 
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
 This guide will walk you through a basic Camblet scenario.
 It will deploy Camblet into the kernel to assign strong identities to processes and transparently establish mTLS connections.
 At first, simple python http server with cURL will be used for demostration later, to spice things up, all of this will happen inside a Kubernetes cluster.
@@ -20,9 +22,20 @@ This guide utilizes [Lima](https://lima-vm.io).
 
 To install Lima, use the following command:
 
-```sh
-brew install lima
-```
+<Tabs>
+    <TabItem label="macos">
+    ```sh
+    brew install lima
+    ```
+    </TabItem>
+    <TabItem label="linux">
+    ```sh
+    VERSION=$(curl -fsSL https://api.github.com/repos/lima-vm/lima/releases/latest | jq -r .tag_name)
+    curl -fsSL "https://github.com/lima-vm/lima/releases/download/${VERSION}/lima-${VERSION:1}-$(uname -s)-$(uname -m).tar.gz" | sudo tar Cxzvm /usr/local
+    ```
+    </TabItem>
+</Tabs>
+
 
 If you do not already have kubectl installed, you can install it with:
 
