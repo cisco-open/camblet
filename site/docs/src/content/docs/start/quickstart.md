@@ -16,25 +16,29 @@ Currently, the supported operating systems are:
 
 In case you are using Mac a virtual machine is required.
 If you are already on Linux, please proceed to the [Automatic Install](#automatic-install) section.
-This guide utilizes [Lima](https://lima-vm.io). 
+This guide utilizes [Lima](https://lima-vm.io).
 
 To install Lima, use the following command:
+
 ```sh
 brew install lima
 ```
 
 If you do not already have kubectl installed, you can install it with:
+
 ```sh
 brew install kubernetes-cli
 ```
 
 Now create a virtual machine:
+
 ```sh
 limactl start --name=quickstart template://k3s
 ```
 
 This will create a small k3s cluster. Please set up the kubeconfig for cluster access.
 A similar message will be printed out at the end of the installation:
+
 ```sh
 To run `kubectl` on the host (assumes kubectl is installed), run the following commands:
 ------
@@ -44,11 +48,13 @@ kubectl ...
 ```
 
 Check the status of the cluster:
+
 ```sh
 kubectl get pods
 ```
 
 You should see something like this:
+
 ```sh
 No resources found in default namespace.
 ```
@@ -56,13 +62,14 @@ No resources found in default namespace.
 Now proceed with installing Camblet.
 Since Camblet runs as a Linux kernel module, the following commands must be issued inside the created VM.
 To access the machine, use:
+
 ```sh
 limactl shell quickstart
 ```
 
 ## Automatic install
 
-The simplest way to install Camblet is to run the following command in your terminal. 
+The simplest way to install Camblet is to run the following command in your terminal.
 This will set up the necessary repositories on your system and install all Camblet components.
 
 **Note: This guide assumes you are using Ubuntu.
@@ -103,8 +110,7 @@ Check the status of the Camblet kernel-module:
 
 ```sh
 modinfo camblet
-```
-```
+
 filename:       /lib/modules/6.1.0-15-cloud-arm64/updates/dkms/camblet.ko
 version:        0.3.0
 description:    Camblet - Kernel Space Access Control for Zero Trust Networking
@@ -137,6 +143,7 @@ parm:           ktls_available:Marks if kTLS is available on the system (bool)
 Congratulations! You now have a fully functional Camblet installed on your Ubuntu system.
 
 Camblet consist of two building blocks:
+
 - Kernel module: Handles transparent TLS and enforces policies.
 - Agent: Issues certificates and collects metadata for processes.
 
@@ -147,7 +154,7 @@ Camblet consist of two building blocks:
 
 ### Configure agent
 
-The agent configuration resides in /etc/camblet/config.yaml. 
+The agent configuration resides in /etc/camblet/config.yaml.
 By default, it looks like this:
 
 ```sh
@@ -174,8 +181,8 @@ agent:
       enabled: false
 ```
 
-Let's take a closer look. In this file, the agent can be configured to use a trust domain of your choice, along with the certificate time-to-live (certTTL). 
-Inside the metadataCollectors block, we can find various metadata sources. 
+Let's take a closer look. In this file, the agent can be configured to use a trust domain of your choice, along with the certificate time-to-live (certTTL).
+Inside the metadataCollectors block, we can find various metadata sources.
 As you can see, by default, the procfs, linuxos, and sysfsdmi are enabled.
 This means Camblet can utilize metadata from these sources to identify processes and enforce policies.
 Let's inspect this metadata by augmenting the process ID of a web server, like Traefik.
@@ -206,6 +213,7 @@ sysfsdmi:chassis:version:virt-8.1
 sysfsdmi:product:name:QEMU Virtual Machine
 sysfsdmi:product:version:virt-8.1
 ```
+
 The agent printed out all the metadata which are currently available.
 
 ### Install processes
@@ -213,19 +221,21 @@ The agent printed out all the metadata which are currently available.
 In this scenario there will be a simple python http server which will work as an echo server.
 On client side cURL will be used.
 All commands must be run inside the virtual machine. To return to Lima:
+
 ```sh
 limactl shell quickstart
 ```
 
 Let's run python http server:
+
 ```sh
 python3 -m http.server
 Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
 ```
 
-### Create policy for the server
+### Create policy for the python server
 
-We want to generate a policy for the python server that identifies the process using selectors. 
+We want to generate a policy for the python server that identifies the process using selectors.
 We can also set the type of the mTLS and some parameters for the certificate including TTL and workload ID.
 
 The policy can be written by hand, but the Camblet CLI can do the hard work for you. We are going to use the CLI, but for that, we must determine the PID of the python server. To do that, use the following command:
@@ -244,9 +254,9 @@ bmolnar    51572  0.0  0.4  26756 16492 pts/0    S+   13:24   0:00 python3 -m ht
 bmolnar    51929  0.0  0.0   6416  1864 pts/1    S+   13:31   0:00 grep --color=auto python3
 ```
 
-The one we are looking for is on line 3, running with the name "/server". 
-We need the second column because that one is the PID. 
-In this case, it is 51572. 
+The one we are looking for is on line 3, running with the name "/server".
+We need the second column because that one is the PID.
+In this case, it is 51572.
 Next, run the Camblet CLI to generate a policy and save it into the default policy directory as python.yaml.
 
 ```sh
@@ -265,11 +275,11 @@ sudo camblet --config /etc/camblet/config.yaml agent generate-policy 51572 pytho
 
 Camblet will use these selectors to identify the python server. The connection part configures the mTLS. Since it is strict, only clients with certificates can communicate with it. To verify that, let's try it with cURL.
 
-### Try Camblet out
+### Try sample scenario
 
 Try to connect to python server on localhost:8000:
 
-```
+```sh
 curl localhost:8000
 ```
 
@@ -280,7 +290,7 @@ curl localhost:8000
 curl: (52) Empty reply from server
 ```
 
-### Create policy for the client
+### Create policy for the curl command
 
 To create a new policy for cURL to communicate with the server, we need the PID of cURL. Since cURL is not running continuously like the server, we have to use a "dummy" command to force it to run as long as we can gather the PID. To do that, we need two terminals. This must be done before cURL times out; otherwise, the PID changes.
 
@@ -317,9 +327,7 @@ sudo camblet --config /etc/camblet/config.yaml agent generate-policy 52899 curl 
 
 Using this policy, cURL will require mTLS. Let's try to communicate with the python server once again.
 
-### Try Camblet out
-
-```sh
+```bash
 curl localhost:8000
 curl: (52) Empty reply from server
 ```
@@ -369,15 +377,16 @@ curl localhost:8000
 </body>
 </html>
 ```
+
 It finally works.
 
 ## Create a sample Kubernetes scenario
 
 ### Configure agent to access K8s metadata
 
-The agent configuration resides in /etc/camblet/config.yaml. 
+The agent configuration resides in /etc/camblet/config.yaml.
 
-Configure the agent to access Kubernetes metadata. 
+Configure the agent to access Kubernetes metadata.
 This data comes from the kubelet, so the proper certificates and keys must be provided to the agent.
 Copy the keys and certificates used by k3s to the Camblet directory:
 
@@ -479,7 +488,6 @@ sysfsdmi:product:version:virt-8.1
 
 Now Kubernetes related labels can also be used to identify processes.
 
-
 ### Install sample Kubernetes processes
 
 For this purpose, this guide will use a simple echo server running as a Kubernetes deployment and a simple client cURL which will run as a pod. These operations must be run on the host OS. To exit from Lima, simply type exit and hit enter.
@@ -544,6 +552,7 @@ echo-54c896dd86-x9tdj   1/1     Running   0          20s
 ```
 
 Let's create a simple Alpine pod which will host our cURL client:
+
 ```sh
 kubectl create -f - <<EOF
 apiVersion: v1
@@ -561,6 +570,7 @@ EOF
 ```
 
 If successful, you should see something similar:
+
 ```sh
 kubectl get pods
 NAME                    READY   STATUS    RESTARTS   AGE
@@ -570,9 +580,10 @@ alpine                  1/1     Running   0          36s
 
 It is time to assign strong identities to processes and transparently establish mTLS connections.
 
-### Create policy for the server
+### Create policy for the echo server
 
 All commands must be run inside the virtual machine. To return to Lima:
+
 ```sh
 limactl shell quickstart
 ```
@@ -595,9 +606,9 @@ root        1462  4.4 11.6 5399200 466840 ?      Ssl  16:32   0:20 /usr/local/bi
 bmolnar     4448  0.0  0.0   6416  1860 pts/0    S+   16:39   0:00 grep --color=auto server
 ```
 
-The one we are looking for is on line 3, running with the name "/server". 
-We need the second column because that one is the PID. 
-In this case, it is 3587. 
+The one we are looking for is on line 3, running with the name "/server".
+We need the second column because that one is the PID.
+In this case, it is 3587.
 Next, run the Camblet CLI to generate a policy and save it into the default policy directory as echo-server.yaml.
 
 ```sh
@@ -620,7 +631,7 @@ Next, run the Camblet CLI to generate a policy and save it into the default poli
 
 Camblet will use these selectors to identify the echo server. As you can see, there are multiple Kubernetes-related entries present. It means that the same echo server running purely on the machine will be identified as a different process. The connection part configures the mTLS. Since it is strict, only clients with certificates can communicate with it. To verify that, let's try it with cURL from the Alpine container
 
-### Try Camblet out
+### Try Kubernetes scenario
 
 From your local machine (outside of the Lima VM), run the following commands:
 
@@ -637,7 +648,7 @@ apk add curl
 
 Next, we can try to connect to the echo server on echo:80:
 
-```
+```sh
 curl echo:80
 ```
 
@@ -647,8 +658,6 @@ As we waited, we received the following:
 / # curl echo:80
 curl: (56) Recv failure: Connection reset by peer
 ```
-
-### Create policy for the client
 
 To create a new policy for cURL to communicate with the server, we need the PID of cURL. Since cURL is not running continuously like the server, we have to use a "dummy" command to force it to run as long as we can gather the PID. To do that, we need two terminals: one running inside the Alpine container and another one running inside Lima. This must be done before cURL times out; otherwise, the PID changes.
 
@@ -729,20 +738,20 @@ curl echo:80
 Hostname: echo-54c896dd86-x9tdj
 
 Pod Information:
-	-no pod information available-
+  -no pod information available-
 
 Request Information:
-	client_address=10.42.0.23:55956
-	method=GET
-	real path=/
-	query=
-	request_version=1.1
-	request_scheme=http
-	request_url=http://echo/
+  client_address=10.42.0.23:55956
+  method=GET
+  real path=/
+  query=
+  request_version=1.1
+  request_scheme=http
+  request_url=http://echo/
 
 Request Headers:
-	accept=*/*
-	user-agent=curl/8.5.0
+  accept=*/*
+  user-agent=curl/8.5.0
 
 Request Body:
 ```
