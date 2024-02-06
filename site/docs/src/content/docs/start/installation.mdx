@@ -3,10 +3,39 @@ title: 'Installation'
 description: 'How to install Camblet'
 ---
 
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+## Prepare the environment
+
 Currently the supported operating systems are:
 
 - Ubuntu/Debian (Kernel version 5.14 and up).
 - CentOS/Fedora (Kernel version 5.14 and up).
+
+In case you are using Mac a virtual machine is required.
+If you are already on Linux, please proceed to the [Automatic Install](#automatic-install) section.
+This guide utilizes [Lima](https://lima-vm.io).
+
+To install Lima, use the following command:
+
+<Tabs>
+    <TabItem label="macos">
+    ```sh
+    brew install lima
+    ```
+
+    Now create a virtual machine:
+
+    ```sh
+    limactl start --name=quickstart template://ubuntu
+    ```
+    To access the machine, use:
+
+    ```sh
+    limactl shell quickstart
+    ```
+    </TabItem>
+</Tabs>
 
 ## Automatic install
 
