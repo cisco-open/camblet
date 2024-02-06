@@ -1,0 +1,235 @@
+---
+title: 'Try Camblet out in simple environment'
+description: 'Your first zero trust networking environment'
+---
+
+This guide will walk you through a basic Camblet scenario.
+It will deploy Camblet into the kernel to assign strong identities to processes and transparently establish mTLS connections.
+Simple nginx server with cURL will be used for demostration.
+
+Camblet consist of two building blocks:
+
+- Kernel module: Handles transparent TLS and enforces policies.
+- Agent: Issues certificates and collects metadata for processes.
+
+## Create a sample scenario
+
+### Configure agent
+
+The agent configuration resides in /etc/camblet/config.yaml.
+By default, it looks like this:
+
+```sh
+agent:
+  trustDomain: acme.corp
+  defaultCertTTL: 2h
+  metadataCollectors:
+    procfs:
+      enabled: true
+      extractEnvs: false
+    linuxos:
+      enabled: true
+    sysfsdmi:
+      enabled: true
+    azure:
+      enabled: false
+    ec2:
+      enabled: false
+    gcp:
+      enabled: false
+    kubernetes:
+      enabled: false
+    docker:
+      enabled: false
+```
+
+Let's take a closer look. In this file, the agent can be configured to use a trust domain of your choice, along with the certificate time-to-live (certTTL).
+Inside the metadataCollectors block, we can find various metadata sources.
+As you can see, by default, the procfs, linuxos, and sysfsdmi are enabled.
+This means Camblet can utilize metadata from these sources to identify processes and enforce policies.
+Let's inspect this metadata by augmenting the process ID of a web server, like Traefik.
+
+```sh
+camblet --config /etc/camblet/config.yaml agent augment $(pidof traefik)
+linuxos:kernel:release:linux-5.15.0-91-generic
+linuxos:kernel:version:#101-Ubuntu SMP Tue Nov 14 13:29:11 UTC 2023
+linuxos:name:ubuntu
+linuxos:version:Ubuntu 22.04.3 LTS
+process:cmdline:traefik traefik --global.checknewversion --global.sendanonymoususage --entrypoints.metrics.address=:9100/tcp --entrypoints.traefik.address=:9000/tcp --entrypoints.web.address=:8000/tcp --entrypoints.websecure.address=:8443/tcp --api.dashboard=true --ping=true --metrics.prometheus=true --metrics.prometheus.entrypoint=metrics --providers.kubernetescrd --providers.kubernetesingress --providers.kubernetesingress.ingressendpoint.publishedservice=kube-system/traefik --entrypoints.websecure.http.tls=true
+process:gid:65532
+process:gid:additional:65532
+process:gid:effective:65532
+process:gid:real:65532
+process:name:traefik
+process:pid:2992
+process:uid:65532
+process:uid:effective:65532
+process:uid:real:65532
+sysfsdmi:bios:date:03/01/2023
+sysfsdmi:bios:release:0.0
+sysfsdmi:bios:vendor:EDK II
+sysfsdmi:bios:version:edk2-stable202302-for-qemu
+sysfsdmi:chassis:type:1
+sysfsdmi:chassis:vendor:QEMU
+sysfsdmi:chassis:version:virt-8.1
+sysfsdmi:product:name:QEMU Virtual Machine
+sysfsdmi:product:version:virt-8.1
+```
+
+The agent printed out all the metadata which are currently available.
+
+### Install processes
+
+In this scenario there will be a nginx server which will work as an echo server.
+On client side cURL will be used.
+All commands must be run inside the virtual machine. To return to Lima:
+
+```sh
+limactl shell quickstart
+```
+
+Install nginx server:
+
+```sh
+sudo apt install nginx -y
+```
+
+### Create policy for the nginx server
+
+We want to generate a policy for the nginx server that identifies the process using selectors.
+We can also set the type of the mTLS and some parameters for the certificate including TTL and workload ID.
+
+The policy can be written by hand, but the Camblet CLI can do the hard work for you. We are going to use the CLI, but for that, we must determine the PID of the nginx server. To do that, use the following command:
+
+```sh
+pidof nginx
+```
+
+You will see something similar:
+
+```sh
+5241 5240 5239 5238 5236
+```
+
+Since nginx using multiple threads we could choose any of them.
+In this case, we will use 5241.
+Next, run the Camblet CLI to generate a policy and save it into the default policy directory as nginx.yaml.
+
+```sh
+sudo camblet --config /etc/camblet/config.yaml agent generate-policy 5241 nginx | sudo tee /etc/camblet/policies/nginx.yaml
+- certificate:
+    ttl: 86400s
+    workloadID: nginx
+  connection:
+    mtls: STRICT
+  selectors:
+  - process:binary:path: /usr/sbin/nginx
+    process:gid: "33"
+    process:name: nginx
+    process:uid: "33"
+```
+
+Camblet will use these selectors to identify the nginx server. The connection part configures the mTLS. Since it is strict, only clients with certificates can communicate with it. To verify that, let's try it with cURL.
+
+### Try sample scenario
+
+Try to connect to nginx on localhost:80:
+
+```sh
+curl localhost:80
+```
+
+As we waited, we received the following:
+
+```sh
+curl localhost:80
+curl: (52) Empty reply from server
+```
+
+### Create policy for the curl command
+
+To create a new policy for cURL to communicate with the server, we need the PID of cURL. 
+Since cURL is not running continuously like the server, we have to use a "dummy" command to force it to run as long as we can gather the PID. 
+This must be done before cURL times out; otherwise, the PID changes.
+
+```sh
+curl 1.2.3.4 &
+[1] 5966
+```
+
+Let's generate configuration for cURL:
+
+```sh
+sudo camblet --config /etc/camblet/config.yaml agent generate-policy 5966 curl | sudo tee /etc/camblet/policies/curl-simple.yaml
+- certificate:
+    ttl: 86400s
+    workloadID: curl
+  connection:
+    mtls: STRICT
+  selectors:
+  - process:binary:path: /usr/bin/curl
+    process:gid: "1000"
+    process:name: curl
+    process:uid: "501"
+```
+
+Using this policy, cURL will require mTLS. Let's try to communicate with the nginx once again.
+
+```bash
+curl localhost:80
+curl: (52) Empty reply from server
+```
+
+It still doesn't work. One last piece of the puzzle is missing. In this early phase of the project, the Camblet driver, which handles the TLS behind the scenes, does not know that the nginx server we are trying to communicate with has strict mTLS settings. The Camblet driver cannot use mTLS communication for all outbound/egress connections because that would restrict the process to the internet. Using mTLS for every egress connection would mean that cURL cannot access GitHub either. Instead, we have something called a service discovery file. A sample looks like this:
+
+```sh
+# Sample Service discovery configuration file.
+# See https://camblet.io/docs/concepts/service-registry-entry for more information.
+- addresses:
+  - address: localhost
+    port: 80
+  labels:
+    app:label: nginx
+```
+
+Let's ignore the labels part for now; it is meant for more advanced configuration. The addresses part tells Camblet which outgoing connections require mTLS. Let's create our own services.yaml where we place the nginx server's service IP and port number.
+
+```sh
+sudo tee /etc/camblet/services/local.yaml >/dev/null <<EOF
+- addresses:
+  - address: 127.0.0.1
+    port: 80
+  labels:
+    app:label: nginx
+EOF
+```
+
+With this in place, let's check if it fixed the error.
+
+```sh
+curl localhost:80
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Directory listing for /</title>
+</head>
+<body>
+<h1>Directory listing for /</h1>
+<hr>
+<ul>
+<li><a href=".bash_history">.bash_history</a></li>
+<li><a href=".bash_logout">.bash_logout</a></li>
+<li><a href=".bashrc">.bashrc</a></li>
+<li><a href=".cache/">.cache/</a></li>
+<li><a href=".profile">.profile</a></li>
+<li><a href=".ssh/">.ssh/</a></li>
+<li><a href=".viminfo">.viminfo</a></li>
+<li><a href=".zshrc">.zshrc</a></li>
+</ul>
+<hr>
+</body>
+</html>
+```
+
+It finally works.
