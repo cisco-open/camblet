@@ -23,19 +23,26 @@ To install Lima, use the following command:
     ```sh
     brew install lima
     ```
-
-    Now create a virtual machine:
-
-    ```sh
-    limactl start --name=quickstart template://ubuntu
-    ```
-    To access the machine, use:
-
-    ```sh
-    limactl shell quickstart
-    ```
     </TabItem>
+    <TabItem label="linux">
+     ```sh
+     VERSION=$(curl -fsSL https://api.github.com/repos/lima-vm/lima/releases/latest | jq -r .tag_name)
+     curl -fsSL "https://github.com/lima-vm/lima/releases/download/${VERSION}/lima-${VERSION:1}-$(uname -s)-$(uname -m).tar.gz" | sudo tar Cxzvm /usr/local
+     ```
+     </TabItem>
 </Tabs>
+
+Now create a virtual machine:
+
+```sh
+limactl start --name=quickstart template://ubuntu
+```
+
+To access the machine, use:
+
+```sh
+limactl shell quickstart
+```
 
 ## Automatic install
 
