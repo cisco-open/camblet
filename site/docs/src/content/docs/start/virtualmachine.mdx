@@ -1,5 +1,5 @@
 ---
-title: 'Simple Linux environment'
+title: 'VM environment'
 description: 'Your first zero trust networking environment'
 ---
 
@@ -16,7 +16,8 @@ Camblet consist of two building blocks:
 
 ### Configure agent
 
-The agent configuration resides in /etc/camblet/config.yaml.
+The agent configuration resides in `/etc/camblet/config.yaml`.
+
 By default, it looks like this:
 
 ```sh
@@ -131,7 +132,7 @@ sudo camblet --config /etc/camblet/config.yaml agent generate-policy 5241 nginx 
 
 Camblet will use these selectors to identify the nginx server. The connection part configures the mTLS. Since it is strict, only clients with certificates can communicate with it. To verify that, let's try it with cURL.
 
-### Try sample scenario
+### Try to connect to nginx without a certificate
 
 Try to connect to nginx on localhost:80:
 
@@ -149,8 +150,9 @@ curl: (52) Empty reply from server
 ### Create policy for the curl command
 
 To create a new policy for cURL to communicate with the server, we need the PID of cURL. 
-Since cURL is not running continuously like the server, we have to use a "dummy" command to force it to run as long as we can gather the PID. 
-This must be done before cURL times out; otherwise, the PID changes.
+Since cURL is not running continuously like the server, we have to use a "dummy" command to force it to run as long as we generate the policy. 
+
+`This must be done before cURL times out; otherwise, the PID changes.`
 
 ```sh
 curl 1.2.3.4 &
@@ -173,6 +175,8 @@ sudo camblet --config /etc/camblet/config.yaml agent generate-policy 5966 curl |
     process:uid: "501"
 ```
 
+### Try to connect to nginx with a certificate
+
 Using this policy, cURL will require mTLS. Let's try to communicate with the nginx once again.
 
 ```bash
@@ -189,10 +193,12 @@ It still doesn't work. One last piece of the puzzle is missing. In this early ph
   - address: localhost
     port: 80
   labels:
-    app:label: nginx
+    app:label: app
 ```
 
-Let's ignore the labels part for now; it is meant for more advanced configuration. The addresses part tells Camblet which outgoing connections require mTLS. Let's create our own services.yaml where we place the nginx server's service IP and port number.
+Let's ignore the labels part for now; it is meant for more advanced configuration. 
+The addresses part tells Camblet which outgoing connections require mTLS. 
+Let's create our own `services.yaml` where we place the nginx server's service IP and port number.
 
 ```sh
 sudo tee /etc/camblet/services/local.yaml >/dev/null <<EOF
@@ -205,6 +211,8 @@ EOF
 ```
 
 With this in place, let's check if it fixed the error.
+
+### Try to connect to nginx with certificate and configured Camblet
 
 ```sh
 curl localhost:80

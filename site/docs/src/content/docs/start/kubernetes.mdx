@@ -3,17 +3,31 @@ title: 'Kubernetes environment'
 description: 'Your first zero trust Kubernetes environment'
 ---
 
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
 This guide will walk you through a basic Camblet scenario.
 It will deploy Camblet into the kernel to assign strong identities to processes and transparently establish mTLS connections.
-We are going to launch a simple Kubernetes environment with a simple echo server.
+We are going to use a simple Kubernetes environment with a simple echo server.
 
 ## Prepare the environment:
 
 If you do not already have kubectl installed, you can install it with:
 
-```sh
-brew install kubernetes-cli
-```
+<Tabs>
+    <TabItem label="macos">
+    ```sh
+    brew install kubernetes-cli
+    ```
+    </TabItem>
+    <TabItem label="linux">
+    ```sh
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/$(uname -m)/kubectl"
+    sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+    ```
+    </TabItem>
+</Tabs>
+
+Set the kubeconfig properly to be able to communicate with the Kubernetes cluster
 
 ```sh
 To run `kubectl` on the host (assumes kubectl is installed), run the following commands:
@@ -235,7 +249,9 @@ It is time to assign strong identities to processes and transparently establish 
 
 ### Create policy for the echo server
 
-All commands must be run inside the virtual machine. To return to Lima:
+All commands must be run inside the virtual machine. 
+
+To return to Lima:
 
 ```sh
 limactl shell quickstart
@@ -284,7 +300,7 @@ Next, run the Camblet CLI to generate a policy and save it into the default poli
 
 Camblet will use these selectors to identify the echo server. As you can see, there are multiple Kubernetes-related entries present. It means that the same echo server running purely on the machine will be identified as a different process. The connection part configures the mTLS. Since it is strict, only clients with certificates can communicate with it. To verify that, let's try it with cURL from the Alpine container
 
-### Try Kubernetes scenario
+### Try to connect to the echo server without certificate
 
 From your local machine (outside of the Lima VM), run the following commands:
 
@@ -328,7 +344,7 @@ root       37848  0.0  0.1   9468  4508 pts/0    S+   09:22   0:00 curl 1.2.3.4
 bmolnar    37879  0.0  0.0   6416  1860 pts/0    S+   09:22   0:00 grep --color=auto curl
 ```
 
-Like earlier, we need the data from the second column and look for "curl 1.2.3.4". In our case, the number we are looking for is 37848.
+Like earlier, we need the data from the second column and look for `curl 1.2.3.4`. In our case, the number we are looking for is `37848`.
 Let's generate configuration for cURL:
 
 ```sh
@@ -351,12 +367,16 @@ sudo camblet --config /etc/camblet/config.yaml agent generate-policy 37848 curl 
 
 Using this policy, cURL running inside the Alpine container will require mTLS. Let's try to communicate with the echo server once again.
 
+### Try to connect to the echo server with certificate
+
 ```sh
 curl echo:80
 curl: (56) Recv failure: Connection reset by peer
 ```
 
-It still doesn't work. One last piece of the puzzle is missing. In this early phase of the project, the Camblet driver, which handles the TLS behind the scenes, does not know that the echo server we are trying to communicate with has strict mTLS settings. The Camblet driver cannot use mTLS communication for all outbound/egress connections because that would restrict the process to the internet. Using mTLS for every egress connection would mean that cURL cannot access GitHub either. Instead, we have something called a service discovery file. A sample looks like this:
+It still doesn't work. One last piece of the puzzle is missing. 
+In this early phase of the project, the Camblet driver, which handles the TLS behind the scenes, does not know that the echo server we are trying to communicate with has strict mTLS settings. The Camblet driver cannot use mTLS communication for all outbound/egress connections because that would restrict the process to the internet. Using mTLS for every egress connection would mean that cURL cannot access GitHub either. 
+Instead, we have something called a service discovery file. A sample looks like this:
 
 ```sh
 # Sample Service discovery configuration file.
@@ -368,7 +388,10 @@ It still doesn't work. One last piece of the puzzle is missing. In this early ph
     app:label: nginx
 ```
 
-Let's ignore the labels part for now; it is meant for more advanced configuration. The addresses part tells Camblet which outgoing connections require mTLS. Let's create our own services.yaml where we place the echo server's service IP and port number. Get the IP and port of the service by running the following command on your local machine:
+Let's ignore the labels part for now; it is meant for more advanced configuration. 
+The addresses part tells Camblet which outgoing connections require mTLS. 
+Let's create our own services.yaml where we place the echo server's service IP and port number. 
+Get the IP and port of the service by running the following command on your local machine:
 
 ```sh
 kubectl get services
@@ -389,7 +412,10 @@ sudo tee /etc/camblet/services/services.yaml >/dev/null  <<EOF
 EOF
 ```
 
-With this in place, let's check if it fixed the error. To do that, execute once again into the Alpine container using, then use cURL for connection.
+With this in place, let's check if it fixed the error. 
+To do that, execute once again into the Alpine container using, then use cURL for connection.
+
+### Try to connect to the echo server with certificate and configured Camblet
 
 ```sh
 kubectl exec -it alpine sh
