@@ -1,26 +1,45 @@
 ---
-title: 'VM environment'
+title: 'Try on VM'
 description: 'Your first zero trust networking environment'
+sidebar:
+  order: 2
 ---
 
 This guide will walk you through a basic Camblet scenario.
 It will deploy Camblet into the kernel to assign strong identities to processes and transparently establish mTLS connections.
-Simple nginx server with cURL will be used for demostration.
+Simple NGINX server with cURL will be used for demostration.
+
+### Prerequisites
+
+> This guide assumes the existance of a Lima instance called `quickstart` with Camblet installed.
+> It can be created following the [installation guide](/docs/start/installation).
+
+In this scenario there will be a nginx server which will work as an echo server.
+On client side cURL will be used.
+All commands must be run inside the virtual machine. To return to Lima:
+
+```sh
+limactl shell quickstart
+```
+
+Install nginx server:
+
+```sh
+sudo apt install nginx -y
+```
+
+### Configure agent
 
 Camblet consist of two building blocks:
 
 - Kernel module: Handles transparent TLS and enforces policies.
 - Agent: Issues certificates and collects metadata for processes.
 
-## Create a sample scenario
-
-### Configure agent
-
 The agent configuration resides in `/etc/camblet/config.yaml`.
 
 By default, it looks like this:
 
-```sh
+```yaml
 agent:
   trustDomain: acme.corp
   defaultCertTTL: 2h
@@ -44,80 +63,68 @@ agent:
       enabled: false
 ```
 
-Let's take a closer look. In this file, the agent can be configured to use a trust domain of your choice, along with the certificate time-to-live (certTTL).
-Inside the metadataCollectors block, we can find various metadata sources.
-As you can see, by default, the procfs, linuxos, and sysfsdmi are enabled.
-This means Camblet can utilize metadata from these sources to identify processes and enforce policies.
-Let's inspect this metadata by augmenting the process ID of a web server, like Traefik.
+In this file, the agent can be configured to use a trust domain of your choice, along with the certificate time-to-live (certTTL).
+Camblet support various [metadata sources](/docs/concepts/process-metadata), those can be configured under the `metadataCollectors` block.
+Camblet can utilize metadata from these sources to identify processes and enforce policies. The [procfs](/docs/concepts/process-metadata#proc-fs), [linuxos](/docs/concepts/process-metadata#linux-os), and [sysfsdmi](/docs/concepts/process-metadata#sys-fs-dmi) are enabled by default.
+
+Let's gather metadata for the NGINX web server that was just installed.
 
 ```sh
-camblet --config /etc/camblet/config.yaml agent augment $(pidof traefik)
-linuxos:kernel:release:linux-5.15.0-91-generic
-linuxos:kernel:version:#101-Ubuntu SMP Tue Nov 14 13:29:11 UTC 2023
+$ camblet agent augment $(pidof nginx)
+
+# Sample output
+
+linuxos:kernel:release:linux-6.5.0-14-generic
+linuxos:kernel:version:#14-Ubuntu SMP PREEMPT_DYNAMIC Tue Nov 14 14:59:49 UTC 2023
 linuxos:name:ubuntu
-linuxos:version:Ubuntu 22.04.3 LTS
-process:cmdline:traefik traefik --global.checknewversion --global.sendanonymoususage --entrypoints.metrics.address=:9100/tcp --entrypoints.traefik.address=:9000/tcp --entrypoints.web.address=:8000/tcp --entrypoints.websecure.address=:8443/tcp --api.dashboard=true --ping=true --metrics.prometheus=true --metrics.prometheus.entrypoint=metrics --providers.kubernetescrd --providers.kubernetesingress --providers.kubernetesingress.ingressendpoint.publishedservice=kube-system/traefik --entrypoints.websecure.http.tls=true
-process:gid:65532
-process:gid:additional:65532
-process:gid:effective:65532
-process:gid:real:65532
-process:name:traefik
-process:pid:2992
-process:uid:65532
-process:uid:effective:65532
-process:uid:real:65532
+linuxos:version:Ubuntu 23.10
+process:cmdline:nginx: worker process
+process:gid:33
+process:gid:additional:33
+process:gid:effective:33
+process:gid:real:33
+process:name:nginx
+process:pid:3731
+process:uid:33
+process:uid:effective:33
+process:uid:real:33
 sysfsdmi:bios:date:03/01/2023
 sysfsdmi:bios:release:0.0
 sysfsdmi:bios:vendor:EDK II
 sysfsdmi:bios:version:edk2-stable202302-for-qemu
 sysfsdmi:chassis:type:1
 sysfsdmi:chassis:vendor:QEMU
-sysfsdmi:chassis:version:virt-8.1
-sysfsdmi:product:name:QEMU Virtual Machine
-sysfsdmi:product:version:virt-8.1
+sysfsdmi:chassis:version:pc-q35-8.2
+sysfsdmi:product:name:Standard PC (Q35 + ICH9, 2009)
+sysfsdmi:product:version:pc-q35-8.2
 ```
 
-The agent printed out all the metadata which are currently available.
+The command prints out every available metadata for the specified process. These metadata can be used in [policies](/docs/concepts/policy) to describe identities and related parameters.
 
-### Install processes
+### Create policy for NGINX
 
-In this scenario there will be a nginx server which will work as an echo server.
-On client side cURL will be used.
-All commands must be run inside the virtual machine. To return to Lima:
+The policy can be written by hand, but the Camblet CLI can do the work for you with the `generate-policy` command. There are two mandatory
+parameters, the PID of the process and the workload ID.
+
+First, determine the process ID of NGINX by using the following command:
 
 ```sh
-limactl shell quickstart
+$ pidof -s nginx
+
+# Sample output
+
+5241
 ```
 
-Install nginx server:
-
-```sh
-sudo apt install nginx -y
-```
-
-### Create policy for the nginx server
-
-We want to generate a policy for the nginx server that identifies the process using selectors.
-We can also set the type of the mTLS and some parameters for the certificate including TTL and workload ID.
-
-The policy can be written by hand, but the Camblet CLI can do the hard work for you. We are going to use the CLI, but for that, we must determine the PID of the nginx server. To do that, use the following command:
-
-```sh
-pidof nginx
-```
-
-You will see something similar:
-
-```sh
-5241 5240 5239 5238 5236
-```
-
-Since nginx using multiple threads we could choose any of them.
-In this case, we will use 5241.
 Next, run the Camblet CLI to generate a policy and save it into the default policy directory as nginx.yaml.
 
 ```sh
-sudo camblet --config /etc/camblet/config.yaml agent generate-policy 5241 nginx | sudo tee /etc/camblet/policies/nginx.yaml
+sudo camblet agent generate-policy 5241 nginx | sudo tee /etc/camblet/policies/nginx.yaml
+```
+
+**Generated policy**
+
+```yaml
 - certificate:
     ttl: 86400s
     workloadID: nginx
@@ -130,39 +137,34 @@ sudo camblet --config /etc/camblet/config.yaml agent generate-policy 5241 nginx 
     process:uid: "33"
 ```
 
-Camblet will use these selectors to identify the nginx server. The connection part configures the mTLS. Since it is strict, only clients with certificates can communicate with it. To verify that, let's try it with cURL.
+> The saved policy file is automatically read by the running Camblet agent and gets updated within the kernel.
 
-### Try to connect to nginx without a certificate
+Camblet will use the `selectors` to identify the NGINX server. The `connection` part configures the TLS settings where `STRICT` mTLS value means only clients with trusted certificates can communicate with it.
 
-Try to connect to nginx on localhost:80:
+To verify that, let's try connecting to NGINX with cURL.
 
 ```sh
-curl localhost:80
+$ curl localhost
+
+curl: (56) Recv failure: Connection reset by peer
 ```
 
-As we waited, we received the following:
+### Create policy for cURL
+
+To create a new policy for cURL to communicate with the server, we need the PID of cURL. Since cURL is not running continuously like the server, a "dummy" command is needed to force it to run until generate the policy.
 
 ```sh
-curl localhost:80
-curl: (52) Empty reply from server
-```
+$ curl 1.2.3.4 &
 
-### Create policy for the curl command
-
-To create a new policy for cURL to communicate with the server, we need the PID of cURL. 
-Since cURL is not running continuously like the server, we have to use a "dummy" command to force it to run as long as we generate the policy. 
-
-`This must be done before cURL times out; otherwise, the PID changes.`
-
-```sh
-curl 1.2.3.4 &
 [1] 5966
 ```
 
-Let's generate configuration for cURL:
+Let's generate configuration for cURL
+
+`This must be done before cURL times out and the process terminates.`
 
 ```sh
-sudo camblet --config /etc/camblet/config.yaml agent generate-policy 5966 curl | sudo tee /etc/camblet/policies/curl-simple.yaml
+sudo camblet agent generate-policy 5966 curl | sudo tee /etc/camblet/policies/curl-simple.yaml
 - certificate:
     ttl: 86400s
     workloadID: curl
@@ -177,18 +179,21 @@ sudo camblet --config /etc/camblet/config.yaml agent generate-policy 5966 curl |
 
 ### Try to connect to nginx with a certificate
 
-Using this policy, cURL will require mTLS. Let's try to communicate with the nginx once again.
+Using this policy, cURL gets an identity and will use mTLS. Let's try to communicate with the nginx once again.
 
 ```bash
-curl localhost:80
-curl: (52) Empty reply from server
+$ curl localhost:80
+
+curl: (56) Recv failure: Connection reset by peer
 ```
 
-It still doesn't work. One last piece of the puzzle is missing. In this early phase of the project, the Camblet driver, which handles the TLS behind the scenes, does not know that the nginx server we are trying to communicate with has strict mTLS settings. The Camblet driver cannot use mTLS communication for all outbound/egress connections because that would restrict the process to the internet. Using mTLS for every egress connection would mean that cURL cannot access GitHub either. Instead, we have something called a service discovery file. A sample looks like this:
+It still doesn't work, one last piece of the puzzle is missing. Camblet must ascertain the target destination for the application of policies.
+Enforcing policies on every egress connection implies that cURL won't be able to reach destinations beyond the Camblet-managed environment.
+Services has to be registered into the [service registry](/docs/concepts/service-registry) through service definitions.
+
+**Sample Service discovery configuration file**
 
 ```sh
-# Sample Service discovery configuration file.
-# See https://camblet.io/docs/concepts/service-registry-entry for more information.
 - addresses:
   - address: localhost
     port: 80
@@ -196,8 +201,9 @@ It still doesn't work. One last piece of the puzzle is missing. In this early ph
     app:label: app
 ```
 
-Let's ignore the labels part for now; it is meant for more advanced configuration. 
-The addresses part tells Camblet which outgoing connections require mTLS. 
+Let's ignore the labels part for now; it is meant for more advanced configuration.
+The `addresses` section specifies the registered destination addresses to which the policies should be applied.
+
 Let's create our own `services.yaml` where we place the nginx server's service IP and port number.
 
 ```sh
@@ -210,32 +216,34 @@ sudo tee /etc/camblet/services/local.yaml >/dev/null <<EOF
 EOF
 ```
 
-With this in place, let's check if it fixed the error.
-
 ### Try to connect to nginx with certificate and configured Camblet
 
+With the service registry entry for NGINX in place, let's check if its indeed fixed the error.
+
 ```sh
-curl localhost:80
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+$ curl localhost
+
+<!DOCTYPE html>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<title>Directory listing for /</title>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
 </head>
 <body>
-<h1>Directory listing for /</h1>
-<hr>
-<ul>
-<li><a href=".bash_history">.bash_history</a></li>
-<li><a href=".bash_logout">.bash_logout</a></li>
-<li><a href=".bashrc">.bashrc</a></li>
-<li><a href=".cache/">.cache/</a></li>
-<li><a href=".profile">.profile</a></li>
-<li><a href=".ssh/">.ssh/</a></li>
-<li><a href=".viminfo">.viminfo</a></li>
-<li><a href=".zshrc">.zshrc</a></li>
-</ul>
-<hr>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
 </body>
 </html>
 ```
