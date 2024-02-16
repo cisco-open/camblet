@@ -14,7 +14,7 @@ Simple NGINX server with cURL will be used for demostration.
 > This guide assumes the existance of a Lima instance called `quickstart` with Camblet installed.
 > It can be created following the [installation guide](/docs/start/installation).
 
-In this scenario there will be a nginx server which will work as an echo server.
+In this scenario there will be a NGINX server which will work as an echo server.
 On client side cURL will be used.
 All commands must be run inside the virtual machine. To return to Lima:
 
@@ -22,7 +22,7 @@ All commands must be run inside the virtual machine. To return to Lima:
 limactl shell quickstart
 ```
 
-Install nginx server:
+Install NGINX server:
 
 ```sh
 sudo apt install nginx -y
@@ -151,7 +151,7 @@ curl: (56) Recv failure: Connection reset by peer
 
 ### Create policy for cURL
 
-To create a new policy for cURL to communicate with the server, we need the PID of cURL. Since cURL is not running continuously like the server, a "dummy" command is needed to force it to run until generate the policy.
+To create a new policy for cURL to communicate with the server, we need the PID of cURL. Since cURL is not running continuously like the server, a "dummy" command is needed to force it to run until the policy is generated.
 
 ```sh
 $ curl 1.2.3.4 &
@@ -177,9 +177,9 @@ sudo camblet agent generate-policy 5966 curl | sudo tee /etc/camblet/policies/cu
     process:uid: "501"
 ```
 
-### Try to connect to nginx with a certificate
+### Try to connect to NGINX with a certificate
 
-Using this policy, cURL gets an identity and will use mTLS. Let's try to communicate with the nginx once again.
+Using this policy, cURL gets an identity and will use mTLS. Let's try to communicate with the NGINX once again.
 
 ```bash
 $ curl localhost:80
@@ -193,7 +193,7 @@ Services has to be registered into the [service registry](/docs/concepts/service
 
 **Sample Service discovery configuration file**
 
-```sh
+```yaml
 - addresses:
   - address: localhost
     port: 80
@@ -216,7 +216,7 @@ sudo tee /etc/camblet/services/local.yaml >/dev/null <<EOF
 EOF
 ```
 
-### Try to connect to nginx with certificate and configured Camblet
+### Try to connect to NGINX with a certificate and configured Camblet
 
 With the service registry entry for NGINX in place, let's check if its indeed fixed the error.
 
