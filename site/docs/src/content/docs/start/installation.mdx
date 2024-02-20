@@ -36,9 +36,18 @@ To install Lima, use the following command:
 
 Now create a virtual machine:
 
-```sh
-limactl start --name=quickstart template://ubuntu
-```
+<Tabs>
+    <TabItem label="ubuntu">
+    ```sh
+    limactl start --name=quickstart template://ubuntu
+    ```
+    </TabItem>
+    <TabItem label="k3s">
+    ```sh
+    limactl start --name=quickstart template://k3s
+    ```
+     </TabItem>
+</Tabs>
 
 To access the machine, use:
 
@@ -52,7 +61,7 @@ The most simple way to install Camblet is to run the following command in your t
 This will setup the necessary repositories on your system and install the all Camblet components.
 
 ```sh
-curl -L camblet.io/install.sh
+curl -s https://camblet.io/install.sh | bash 
 ```
 
 ### Check if Camblet is installed

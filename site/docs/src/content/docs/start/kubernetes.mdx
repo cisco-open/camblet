@@ -5,53 +5,22 @@ description: 'Your first zero trust Kubernetes environment'
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-This guide will walk you through a basic Camblet scenario.
-It will deploy Camblet into the kernel to assign strong identities to processes and transparently establish mTLS connections.
-We are going to use a simple Kubernetes environment with a simple echo server.
+This guide will walk you through how Camblet can be used with Kubernetes.
+We are going to use a one node Kubernetes environment with a simple curl client pod and an echo server deployment.
 
-## Prepare the environment:
+### Prerequisites
 
-If you do not already have kubectl installed, you can install it with:
+> This guide assumes the existance of a Lima instance with K3s called `quickstart` with Camblet installed.
+> It can be created following the [installation guide](/docs/start/installation).
+> The Lima instance must be created with the K3s template for this guide to work!
 
-<Tabs>
-    <TabItem label="macos">
-    ```sh
-    brew install kubernetes-cli
-    ```
-    </TabItem>
-    <TabItem label="linux">
-    ```sh
-    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/$(uname -m)/kubectl"
-    sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-    ```
-    </TabItem>
-</Tabs>
-
-Set the kubeconfig properly to be able to communicate with the Kubernetes cluster
+### Enter into the Lima VM
 
 ```sh
-To run `kubectl` on the host (assumes kubectl is installed), run the following commands:
-------
-export KUBECONFIG="/Users/<username>/.lima/<limavmname>/copied-from-guest/kubeconfig.yaml"
-kubectl ...
-------
+limactl shell quickstart
 ```
 
-Check the status of the cluster:
-
-```sh
-kubectl get pods
-```
-
-You should see something like this:
-
-```sh
-No resources found in default namespace.
-```
-
-### Configure agent to access K8s metadata
-
-The agent configuration resides in /etc/camblet/config.yaml.
+### Configure Camblet agent
 
 Configure the agent to access Kubernetes metadata.
 This data comes from the kubelet, so the proper certificates and keys must be provided to the agent.
@@ -66,7 +35,17 @@ sudo chmod 644 /etc/camblet/kubelet-client.crt
 sudo chmod 644 /etc/camblet/kubelet-ca.crt
 ```
 
-Modify the configuration to enable Kubernetes.
+The agent configuration resides in /etc/camblet/config.yaml, modify it the enable the Kubernetes metadata collector.
+
+Add the following to the config under `agent.metadataCollectors`:
+
+```yaml
+kubernetes:
+  enabled: true
+  kubeletCA: /etc/camblet/kubelet-ca.crt
+  credentials: /etc/camblet/kubelet-client.crt,/etc/camblet/kubelet-client.key
+```
+
 The config should resemble the following:
 
 ```sh
@@ -95,16 +74,17 @@ agent:
       enabled: false
 ```
 
-Restart the agent using the following command:
+The Camblet agent must be restarted after the configuration change.
 
 ```sh
 sudo systemctl restart camblet.service
 ```
 
-Let's check the metadata collected by the agent:
+Let's check if the agent is indeed able to collect metadata from Kubernetes for a process that runs within a pod.
+K3s comes with Traefik installed so the following command can be used as a test.
 
 ```sh
-camblet --config /etc/camblet/config.yaml agent augment $(pidof traefik)
+$ camblet agent augment $(pidof traefik)
 k8s:annotation:kubernetes.io/config.seen:2024-01-26T14:56:05.047670838Z
 k8s:annotation:kubernetes.io/config.source:api
 k8s:annotation:prometheus.io/path:/metrics
@@ -128,36 +108,14 @@ k8s:pod:namespace:kube-system
 k8s:pod:owner:kind:replicaset
 k8s:pod:owner:kind-with-version:apps/v1/replicaset
 k8s:pod:serviceaccount:traefik
-linuxos:kernel:release:linux-5.15.0-91-generic
-linuxos:kernel:version:#101-Ubuntu SMP Tue Nov 14 13:29:11 UTC 2023
-linuxos:name:ubuntu
-linuxos:version:Ubuntu 22.04.3 LTS
-process:cmdline:traefik traefik --global.checknewversion --global.sendanonymoususage --entrypoints.metrics.address=:9100/tcp --entrypoints.traefik.address=:9000/tcp --entrypoints.web.address=:80/tcp --entrypoints.websecure.address=:8443/tcp --api.dashboard=true --ping=true --metrics.prometheus=true --metrics.prometheus.entrypoint=metrics --providers.kubernetescrd --providers.kubernetesingress --providers.kubernetesingress.ingressendpoint.publishedservice=kube-system/traefik --entrypoints.websecure.http.tls=true
-process:gid:65532
-process:gid:additional:65532
-process:gid:effective:65532
-process:gid:real:65532
-process:name:traefik
-process:pid:2992
-process:uid:65532
-process:uid:effective:65532
-process:uid:real:65532
-sysfsdmi:bios:date:03/01/2023
-sysfsdmi:bios:release:0.0
-sysfsdmi:bios:vendor:EDK II
-sysfsdmi:bios:version:edk2-stable202302-for-qemu
-sysfsdmi:chassis:type:1
-sysfsdmi:chassis:vendor:QEMU
-sysfsdmi:chassis:version:virt-8.1
-sysfsdmi:product:name:QEMU Virtual Machine
-sysfsdmi:product:version:virt-8.1
+...
 ```
 
-Now Kubernetes related labels can also be used to identify processes.
+Upon successful Camblet re-configuration, Kubernetes-associated labels can be utilized for process identification as well.
 
-### Install sample Kubernetes processes
+### Deploy workloads to Kubernetes
 
-For this purpose, this guide will use a simple echo server running as a Kubernetes deployment and a simple client cURL which will run as a pod. These operations must be run on the host OS. To exit from Lima, simply type exit and hit enter.
+An echo server running as a Kubernetes deployment and a simple Alpine pod with cURL are going to be used to showcase how Camblet integrates with Kubernetes.
 
 First, install the echo server using kubectl:
 
@@ -187,10 +145,10 @@ spec:
         - containerPort: 8080
         resources:
           limits:
-            cpu: 100m
+            cpu: 1000m
             memory: 128Mi
           requests:
-            cpu: 20m
+            cpu: 500m
             memory: 64Mi
 ---
 apiVersion: v1
@@ -210,15 +168,13 @@ EOF
 
 ```
 
-If successful, you should see something similar:
+Let's wait for the echo pod to be up and running.
 
 ```sh
-kubectl get pods
-NAME                    READY   STATUS    RESTARTS   AGE
-echo-54c896dd86-x9tdj   1/1     Running   0          20s
+kubectl wait --for=condition=ready pod -l k8s-app=echo
 ```
 
-Let's create a simple Alpine pod which will host our cURL client:
+Now create a simple Alpine pod which will host our cURL client.
 
 ```sh
 kubectl create -f - <<EOF
@@ -236,60 +192,33 @@ spec:
 EOF
 ```
 
-If successful, you should see something similar:
+Let's wait for the alpine pod to come up.
 
 ```sh
-kubectl get pods
-NAME                    READY   STATUS    RESTARTS   AGE
-echo-54c896dd86-x9tdj   1/1     Running   0          3m52s
-alpine                  1/1     Running   0          36s
+kubectl wait --for=condition=ready pod alpine
 ```
-
-It is time to assign strong identities to processes and transparently establish mTLS connections.
 
 ### Create policy for the echo server
 
-All commands must be run inside the virtual machine. 
+It is time to assign strong identities to the workloads and transparently establish mTLS connections.
 
-To return to Lima:
+The [policy](/docs/concepts/policy) can be written by hand, but the Camblet CLI can do the work for you with the `generate-policy` command. There are two mandatory parameters, the PID of the process and the workload ID.
 
 ```sh
-limactl shell quickstart
+camblet agent generate-policy $(pidof server) echo-server | sudo tee /etc/camblet/policies/echo-server.yaml
 ```
 
-We want to generate a policy for the echo server that identifies the process using selectors. 
-We can also set the type of the mTLS and some parameters for the certificate including TTL and workload ID.
+The output should be similar:
 
-The policy can be written by hand, but the Camblet CLI can do the hard work for you. We are going to use the CLI, but for that, we must determine the PID of the echo server. To do that, use the following command:
-
-```sh
-ps aux | grep server
-```
-
-You will see something similar:
-
-```sh
-root        1462  4.4 11.6 5399200 466840 ?      Ssl  16:32   0:20 /usr/local/bin/k3s server
-1000        3451  0.4  1.1 757792 47164 ?        Ssl  16:32   0:02 /metrics-server --cert-dir=/tmp --secure-port=10250 --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname --kubelet-use-node-status-port --metric-resolution=15s --tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305
-65532       3587  0.0  1.2 783100 51840 ?        Ssl  16:32   0:00 /server
-bmolnar     4448  0.0  0.0   6416  1860 pts/0    S+   16:39   0:00 grep --color=auto server
-```
-
-The one we are looking for is on line 3, running with the name "/server".
-We need the second column because that one is the PID.
-In this case, it is 3587.
-Next, run the Camblet CLI to generate a policy and save it into the default policy directory as echo-server.yaml.
-
-```sh
- sudo camblet --config /etc/camblet/config.yaml agent generate-policy 3587 server | sudo tee /etc/camblet/policies/echo-server.yaml
+```yaml
 - certificate:
     ttl: 86400s
-    workloadID: server
+    workloadID: echo-server
   connection:
     mtls: STRICT
   selectors:
   - k8s:container:name: echo-service
-    k8s:pod:name: echo-54c896dd86-x9tdj
+    k8s:pod:name: echo-54c896dd86-tnvpq
     k8s:pod:namespace: default
     k8s:pod:serviceaccount: default
     process:binary:path: /server
@@ -298,11 +227,11 @@ Next, run the Camblet CLI to generate a policy and save it into the default poli
     process:uid: "65532"
 ```
 
-Camblet will use these selectors to identify the echo server. As you can see, there are multiple Kubernetes-related entries present. It means that the same echo server running purely on the machine will be identified as a different process. The connection part configures the mTLS. Since it is strict, only clients with certificates can communicate with it. To verify that, let's try it with cURL from the Alpine container
+> The saved policy file is automatically read by the running Camblet agent and gets updated within the kernel.
 
-### Try to connect to the echo server without certificate
+Camblet will use these selectors to identify the echo server. In a well-written policy the selectors should describe a particular process as precisely as possible, there are various [metadata collectors](/docs/concepts/process-metadata) available to achieve that goal. The `connection` part configures the TLS settings where `STRICT` mTLS value means only clients with trusted certificates can communicate with it.
 
-From your local machine (outside of the Lima VM), run the following commands:
+#### To verify that, let's try it with cURL from the Alpine container
 
 ```sh
 kubectl exec -it alpine sh
@@ -311,44 +240,42 @@ kubectl exec -it alpine sh
 Inside the Alpine container, first, we have to install cURL:
 
 ```sh
-apk update
 apk add curl
 ```
 
-Next, we can try to connect to the echo server on echo:80:
+Next, try to connect to the echo server on echo:
 
 ```sh
-curl echo:80
+curl echo
 ```
 
-As we waited, we received the following:
+> A second try could be necessary to achive the wanted effect!
+
+The output should be similar:
 
 ```sh
-/ # curl echo:80
 curl: (56) Recv failure: Connection reset by peer
 ```
 
-To create a new policy for cURL to communicate with the server, we need the PID of cURL. Since cURL is not running continuously like the server, we have to use a "dummy" command to force it to run as long as we can gather the PID. To do that, we need two terminals: one running inside the Alpine container and another one running inside Lima. This must be done before cURL times out; otherwise, the PID changes.
+The connection failed, as it was supposed to. Since Camblet now protects the echo-server workload with mTLS nothing can communicate with it without a trusted client certificate.
 
-Inside the container:
+Now exit from the Alpine container and let's create a policy for cURL as well. A running process of cURL is the easiest way to create a new policy for cURL with the Camblet CLI. Since cURL is not running continuously like the server, a "dummy" command is needed to force it to run until generate the policy.
+
+The following command will run a cURL process for 30 seconds, the 1.2.3.4 IP address is non-routed and the connection to it going to time out. This is plenty of time to generate the policy.
 
 ```sh
-curl 1.2.3.4
+kubectl exec alpine -- sh -c "curl --connect-timeout 30 1.2.3.4 >/dev/null 2>&1 &"
 ```
 
-In the meantime, in the Lima environment:
+Let's generate a policy for cURL
 
 ```sh
-ps aux | grep curl
-root       37848  0.0  0.1   9468  4508 pts/0    S+   09:22   0:00 curl 1.2.3.4
-bmolnar    37879  0.0  0.0   6416  1860 pts/0    S+   09:22   0:00 grep --color=auto curl
+camblet --config /etc/camblet/config.yaml agent generate-policy $(pidof curl) curl | sudo tee /etc/camblet/policies/curl.yaml
 ```
 
-Like earlier, we need the data from the second column and look for `curl 1.2.3.4`. In our case, the number we are looking for is `37848`.
-Let's generate configuration for cURL:
+The output should be similar:
 
-```sh
-sudo camblet --config /etc/camblet/config.yaml agent generate-policy 37848 curl | sudo tee /etc/camblet/policies/curl.yaml
+```yaml
 - certificate:
     ttl: 86400s
     workloadID: curl
@@ -365,61 +292,59 @@ sudo camblet --config /etc/camblet/config.yaml agent generate-policy 37848 curl 
     process:uid: "0"
 ```
 
-Using this policy, cURL running inside the Alpine container will require mTLS. Let's try to communicate with the echo server once again.
+Using this policy, cURL gets an identity and will use mTLS. Let's try to communicate with the nginx once again.
 
 ### Try to connect to the echo server with certificate
 
 ```sh
-curl echo:80
+$ kubectl exec -it alpine -- curl echo
 curl: (56) Recv failure: Connection reset by peer
 ```
 
-It still doesn't work. One last piece of the puzzle is missing. 
-In this early phase of the project, the Camblet driver, which handles the TLS behind the scenes, does not know that the echo server we are trying to communicate with has strict mTLS settings. The Camblet driver cannot use mTLS communication for all outbound/egress connections because that would restrict the process to the internet. Using mTLS for every egress connection would mean that cURL cannot access GitHub either. 
-Instead, we have something called a service discovery file. A sample looks like this:
+It still doesn't work, one last piece of the puzzle is missing. Camblet must ascertain the target destination for the application of policies.
+Enforcing policies on every egress connection implies that cURL won't be able to reach destinations beyond the Camblet-managed environment.
+Services has to be registered into the [service registry](/docs/concepts/service-registry) through service definitions.
+
+**Sample Service discovery configuration file**
 
 ```sh
-# Sample Service discovery configuration file.
-# See https://camblet.io/docs/concepts/service-registry-entry for more information.
 - addresses:
   - address: localhost
     port: 80
   labels:
-    app:label: nginx
+    app:label: app
 ```
 
-Let's ignore the labels part for now; it is meant for more advanced configuration. 
-The addresses part tells Camblet which outgoing connections require mTLS. 
-Let's create our own services.yaml where we place the echo server's service IP and port number. 
-Get the IP and port of the service by running the following command on your local machine:
+Let's ignore the labels part for now; it is meant for more advanced configuration.
+The `addresses` section specifies the registered destination addresses to which the policies should be applied.
+
+Let's create a service registry entry for the echo-server service with the following command:
 
 ```sh
-kubectl get services
-NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
-kubernetes   ClusterIP   10.43.0.1    <none>        443/TCP   2d19h
-echo         ClusterIP   10.43.14.8   <none>        80/TCP    2d17h
-```
-
-The interesting part is the echo service cluster IP and the ports; these should be placed into a service discovery file.
-
-```sh
-sudo tee /etc/camblet/services/services.yaml >/dev/null  <<EOF
+SVC_IP=$(kubectl get svc echo -o jsonpath='{@.spec.clusterIP}')
+envsubst <<EOF | sudo tee /etc/camblet/services/echo-service.yaml >/dev/null
 - addresses:
-  - address: 10.43.14.8
+  - address: $SVC_IP
     port: 80
   labels:
     app:label: echo-server
 EOF
 ```
 
-With this in place, let's check if it fixed the error. 
-To do that, execute once again into the Alpine container using, then use cURL for connection.
-
 ### Try to connect to the echo server with certificate and configured Camblet
 
+With the service registry entry for the echo-server service in place, let's check if its indeed fixed the error.
+To do that, execute once again into the Alpine container and run cURL.
+
 ```sh
-kubectl exec -it alpine sh
-curl echo:80
+kubectl exec -it alpine -- curl echo
+```
+
+> A second try could be necessary to achive the wanted effect!
+
+The output should be similar:
+
+```sh
 Hostname: echo-54c896dd86-x9tdj
 
 Pod Information:
@@ -442,3 +367,11 @@ Request Body:
 ```
 
 It finally works.
+
+### Cleanup
+
+Exit from the Lima VM and delete it to cleanup.
+
+```sh
+limactl delete quickstart --force
+```
