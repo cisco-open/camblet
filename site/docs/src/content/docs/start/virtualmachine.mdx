@@ -103,8 +103,7 @@ The command prints out every available metadata for the specified process. These
 
 ### Create policy for NGINX
 
-The policy can be written by hand, but the Camblet CLI can do the work for you with the `generate-policy` command. There are two mandatory
-parameters, the PID of the process and the workload ID.
+The [policy](/docs/concepts/policy) can be written by hand, but the Camblet CLI can do the work for you with the `generate-policy` command. There are two mandatory parameters, the PID of the process and the workload ID.
 
 First, determine the process ID of NGINX by using the following command:
 
@@ -149,6 +148,8 @@ $ curl localhost
 curl: (56) Recv failure: Connection reset by peer
 ```
 
+The connection failed, as it was supposed to. Since Camblet now protects NGINX with mTLS, so nothing can communicate with it without a trusted client certificate.
+
 ### Create policy for cURL
 
 To create a new policy for cURL to communicate with the server, we need the PID of cURL. Since cURL is not running continuously like the server, a "dummy" command is needed to force it to run until the policy is generated.
@@ -159,7 +160,7 @@ $ curl 1.2.3.4 &
 [1] 5966
 ```
 
-Let's generate configuration for cURL
+Let's generate a policy for cURL
 
 `This must be done before cURL times out and the process terminates.`
 
@@ -249,3 +250,11 @@ Commercial support is available at
 ```
 
 It finally works.
+
+### Cleanup
+
+Exit from the Lima VM and delete it to cleanup.
+
+```sh
+limactl delete quickstart --force
+```
