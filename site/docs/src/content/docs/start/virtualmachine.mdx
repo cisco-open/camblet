@@ -145,7 +145,7 @@ The connection failed, as it was supposed to. Since Camblet now protects NGINX w
 The protection can be simply checked by `openssl s_client`.
 
 ```sh
-openssl s_client -connect echo:80 2>/dev/null
+openssl s_client -connect localhost:80 2>/dev/null
 ```
 
 ```shellsession title="output"
