@@ -146,3 +146,16 @@ header div.right-group {
 .hero:not(:has(img)) {
     grid-template-columns: initial;
 }
+
+.expressive-code pre {
+    white-space: pre-wrap !important;
+}
+
+.expressive-code figure.has-title {
+    margin-top: -25px !important;
+}
+
+.expressive-code figure.has-title figcaption,
+.expressive-code figure.has-title div.copy {
+    display: none !important;
+}
