@@ -247,7 +247,7 @@ sudo camblet agent generate-policy $(pidof curl) curl | sudo tee /etc/camblet/po
 Using this policy, cURL gets an identity and will use mTLS. Let's try to communicate with the NGINX once again.
 
 ```sh
-curl localhost:80
+curl localhost
 ```
 
 ```shellsession title="output"
