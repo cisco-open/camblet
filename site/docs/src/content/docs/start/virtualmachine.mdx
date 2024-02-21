@@ -9,10 +9,10 @@ This guide will walk you through a basic Camblet scenario.
 It will deploy Camblet into the kernel to assign strong identities to processes and transparently establish mTLS connections.
 Simple NGINX server with cURL will be used for demostration.
 
-### Prerequisites
-
-> This guide assumes the existance of a Lima instance called `quickstart` with Camblet installed.
-> It can be created following the [installation guide](/docs/start/installation).
+:::note[Prerequisites]
+This guide assumes the existance of a Lima instance called `quickstart` with Camblet installed.
+It can be created following the [installation guide](/docs/start/installation).
+:::
 
 In this scenario there will be a NGINX server which will work as an echo server.
 On client side cURL will be used.
@@ -105,20 +105,10 @@ The command prints out every available metadata for the specified process. These
 
 The [policy](/docs/concepts/policy) can be written by hand, but the Camblet CLI can do the work for you with the `generate-policy` command. There are two mandatory parameters, the PID of the process and the workload ID.
 
-First, determine the process ID of NGINX by using the following command:
+Let's run the Camblet CLI to generate a policy and save it into the default policy directory as nginx.yaml.
 
 ```sh
-$ pidof -s nginx
-
-# Sample output
-
-5241
-```
-
-Next, run the Camblet CLI to generate a policy and save it into the default policy directory as nginx.yaml.
-
-```sh
-sudo camblet agent generate-policy 5241 nginx | sudo tee /etc/camblet/policies/nginx.yaml
+sudo camblet agent generate-policy $(pidof -s nginx) nginx | sudo tee /etc/camblet/policies/nginx.yaml
 ```
 
 **Generated policy**
@@ -149,6 +139,75 @@ curl: (56) Recv failure: Connection reset by peer
 ```
 
 The connection failed, as it was supposed to. Since Camblet now protects NGINX with mTLS, so nothing can communicate with it without a trusted client certificate.
+
+
+The protection can be simply checked by `openssl s_client`:
+
+```sh
+$ openssl s_client -connect echo:80 2>/dev/null
+CONNECTED(00000003)
+---
+Certificate chain
+ 0 s:CN = camblet-protected-workload
+   i:CN = Camblet root CA
+   a:PKEY: rsaEncryption, 2048 (bit); sigalg: RSA-SHA256
+   v:NotBefore: Feb 21 13:44:20 2024 GMT; NotAfter: Feb 22 13:44:20 2024 GMT
+---
+Server certificate
+-----BEGIN CERTIFICATE-----
+MIIDSDCCAjCgAwIBAgIUGBEwCjEpqr+6IuiCLtk6TLIh2oIwDQYJKoZIhvcNAQEL
+BQAwGjEYMBYGA1UEAxMPQ2FtYmxldCByb290IENBMB4XDTI0MDIyMTEzNDQyMFoX
+DTI0MDIyMjEzNDQyMFowJTEjMCEGA1UEAxMaY2FtYmxldC1wcm90ZWN0ZWQtd29y
+a2xvYWQwggEgMA0GCSqGSIb3DQEBAQUAA4IBDQAwggEIAoIBAQDCgZnRjiiSlrAZ
+QqOr0C4o+2uWKqPQdFENNqp3qZAMkq6tSYlkEyf6q9KPFI+V9gOxwPkAFPamizTH
+3d57974oBmNK2BwtYiyhLus0AnAVahSYgqefCJ7EyYXw62Ip93Bqjdvu+P4KLLHe
+2Vdy/tT3T05aQTn9yguvhdQjIncUoPleU+UFFatv+/qkBUKQnr284ado+YQvTD2U
+jCL/s/yhyhbZ0M3NugZn+dZuqDRB7dt6/rZOQ/McPJ0FzxZDK53dWz6xQb+5yGHm
+YbJKNcGtPyPycKjhnmcEzowBT4L+uTnVPxSr8kP8KqzspfIBRLPC4vURyYwl9to9
+fJBkY7AFAgEDo30wezAOBgNVHQ8BAf8EBAMCBaAwHQYDVR0lBBYwFAYIKwYBBQUH
+AwIGCCsGAQUFBwMBMB8GA1UdIwQYMBaAFKGmr3y8dJsskFwuowJaVVzBru2kMCkG
+A1UdEQQiMCCGHnNwaWZmZTovL2FjbWUuY29ycC9lY2hvLXNlcnZlcjANBgkqhkiG
+9w0BAQsFAAOCAQEAFm5svzOUQAMR79d+MbCOHtrixGzipPCuIa2locGo7vLk/mdk
+PYSU1dQsR0pCBpXuSfuTIhLG1WvSN6weIHisVhikWKKq0WCw02MwhyyZoh0E3PXu
+3iE+nY2w6RUCAR6Ok2goH0bw6vVpmHklFJl4XHSzmzVbvNwqg3IL1+lR2cf67Feo
+N3Wmi0wD0Pe0E5Z5ObQ1uHaxOvoDl4OqBfu7M5HOyq1eUcxWyj15Zbp/aUq/Uil0
+5YYSndYJ49nDAki5jWVjXPlnehtvVV0pHtSzuOcXDlOaBEpuAiadO6/gqPQFm4++
+0uQsSZHkbGhwqHCfsBVudroOusDXAKvDIuLmwA==
+-----END CERTIFICATE-----
+subject=CN = camblet-protected-workload
+issuer=CN = Camblet root CA
+---
+Acceptable client certificate CA names
+CN = Camblet root CA
+Client Certificate Types: RSA sign
+Requested Signature Algorithms: RSA+SHA256:RSA+SHA384:RSA+SHA512:RSA+SHA224:RSA+SHA1
+Shared Requested Signature Algorithms: RSA+SHA256:RSA+SHA384:RSA+SHA512:RSA+SHA224
+Peer signing digest: SHA256
+Peer signature type: RSA
+Server Temp Key: X25519, 253 bits
+---
+SSL handshake has read 1294 bytes and written 398 bytes
+Verification error: unable to verify the first certificate
+---
+New, TLSv1.2, Cipher is ECDHE-RSA-AES256-GCM-SHA384
+Server public key is 2048 bit
+Secure Renegotiation IS supported
+No ALPN negotiated
+SSL-Session:
+    Protocol  : TLSv1.2
+    Cipher    : ECDHE-RSA-AES256-GCM-SHA384
+    Session-ID: 64217D9B0EE7BE52F229F9D30BD7949C3494019E957A76C9385F60C146030F09
+    Session-ID-ctx:
+    Master-Key: 0C1F47031A5C1408C3B85D09F492FAC3086112F5A8AA800145AB1E49163A446A09CD56F7EC59EF195453E1E158EB0A25
+    PSK identity: None
+    PSK identity hint: None
+    SRP username: None
+    Start Time: 1708523445
+    Timeout   : 7200 (sec)
+    Verify return code: 21 (unable to verify the first certificate)
+    Extended master secret: no
+---
+```
 
 ### Create policy for cURL
 
