@@ -84,7 +84,7 @@ Let's check if the agent is indeed able to collect metadata from Kubernetes for 
 K3s comes with Traefik installed so the following command can be used as a test.
 
 ```sh
-$ camblet agent augment $(pidof traefik)
+camblet agent augment $(pidof traefik)
 k8s:annotation:kubernetes.io/config.seen:2024-01-26T14:56:05.047670838Z
 k8s:annotation:kubernetes.io/config.source:api
 k8s:annotation:prometheus.io/path:/metrics
@@ -249,7 +249,7 @@ Next, try to connect to the echo server on echo:
 curl echo
 ```
 
-> A second try could be necessary to achive the wanted effect!
+> A second attempt may be necessary to achieve the desired effect.
 
 The output should be similar:
 
@@ -270,7 +270,7 @@ kubectl exec alpine -- sh -c "curl --connect-timeout 30 1.2.3.4 >/dev/null 2>&1 
 Let's generate a policy for cURL
 
 ```sh
-camblet --config /etc/camblet/config.yaml agent generate-policy $(pidof curl) curl | sudo tee /etc/camblet/policies/curl.yaml
+camblet agent generate-policy $(pidof curl) curl | sudo tee /etc/camblet/policies/curl.yaml
 ```
 
 The output should be similar:
@@ -340,7 +340,7 @@ To do that, execute once again into the Alpine container and run cURL.
 kubectl exec -it alpine -- curl echo
 ```
 
-> A second try could be necessary to achive the wanted effect!
+> A second attempt may be necessary to achieve the desired effect.
 
 The output should be similar:
 
