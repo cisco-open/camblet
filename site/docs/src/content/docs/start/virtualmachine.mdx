@@ -70,7 +70,7 @@ Camblet can utilize metadata from these sources to identify processes and enforc
 Let's gather metadata for the NGINX web server that was just installed.
 
 ```sh
-camblet agent augment $(pidof nginx)
+camblet agent augment $(pidof -s nginx)
 ```
 
 ```shellsession title="output"
