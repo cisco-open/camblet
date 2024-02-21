@@ -24,7 +24,7 @@ limactl shell quickstart
 
 Configure the agent to access Kubernetes metadata.
 This data comes from the kubelet, so the proper certificates and keys must be provided to the agent.
-Copy the keys and certificates used by k3s to the Camblet directory:
+Copy the keys and certificates used by k3s to the Camblet directory.
 
 ```sh
 sudo cp /var/lib/rancher/k3s/server/tls/client-admin.key /etc/camblet/kubelet-client.key
@@ -37,7 +37,7 @@ sudo chmod 644 /etc/camblet/kubelet-ca.crt
 
 The agent configuration resides in /etc/camblet/config.yaml, modify it the enable the Kubernetes metadata collector.
 
-Add the following to the config under `agent.metadataCollectors`:
+Add the following to the config under `agent.metadataCollectors`.
 
 ```yaml
 kubernetes:
@@ -46,7 +46,7 @@ kubernetes:
   credentials: /etc/camblet/kubelet-client.crt,/etc/camblet/kubelet-client.key
 ```
 
-The config should resemble the following:
+The config should resemble the following.
 
 ```yaml
 agent:
@@ -87,7 +87,7 @@ K3s comes with Traefik installed so the following command can be used as a test.
 camblet agent augment $(pidof traefik)
 ```
 
-```sh frame="none"
+```shellsession title="output" frame="code"
 k8s:annotation:kubernetes.io/config.seen:2024-01-26T14:56:05.047670838Z
 k8s:annotation:kubernetes.io/config.source:api
 k8s:annotation:prometheus.io/path:/metrics
@@ -120,7 +120,7 @@ Upon successful Camblet re-configuration, Kubernetes-associated labels can be ut
 
 An echo server running as a Kubernetes deployment and a simple Alpine pod with cURL are going to be used to showcase how Camblet integrates with Kubernetes.
 
-First, install the echo server using kubectl:
+First, install the echo server using kubectl.
 
 ```sh
 kubectl create -f - <<EOF
@@ -211,7 +211,7 @@ The [policy](/docs/concepts/policy) can be written by hand, but the Camblet CLI 
 camblet agent generate-policy $(pidof server) echo-server | sudo tee /etc/camblet/policies/echo-server.yaml
 ```
 
-```yaml
+```yaml title="output"
 - certificate:
     ttl: 86400s
     workloadID: echo-server
@@ -228,7 +228,9 @@ camblet agent generate-policy $(pidof server) echo-server | sudo tee /etc/camble
     process:uid: "65532"
 ```
 
-> The saved policy file is automatically read by the running Camblet agent and gets updated within the kernel.
+:::note
+The saved policy file is automatically read by the running Camblet agent and gets updated within the kernel.
+:::
 
 Camblet will use these selectors to identify the echo server. In a well-written policy the selectors should describe a particular process as precisely as possible, there are various [metadata collectors](/docs/concepts/process-metadata) available to achieve that goal. The `connection` part configures the TLS settings where `STRICT` mTLS value means only clients with trusted certificates can communicate with it.
 
@@ -238,30 +240,35 @@ Camblet will use these selectors to identify the echo server. In a well-written 
 kubectl exec -it alpine sh
 ```
 
-Inside the Alpine container, first, we have to install cURL (and openssl):
+Inside the Alpine container, first, we have to install cURL (and openssl).
 
 ```sh
 apk add curl openssl
 ```
 
-Next, try to connect to the echo server on echo:
+Next, try to connect to the echo server on echo.
 
-> A second attempt may be necessary to achieve the desired effect.
+:::note
+A second attempt may be necessary to achieve the desired effect.
+:::
 
 ```sh
 curl echo
 ```
 
-```sh frame="none"
+```shellsession title="output" frame="code"
 curl: (56) Recv failure: Connection reset by peer
 ```
 
 The connection failed, as it was supposed to. Camblet now protects the echo-server workload with mTLS nothing can communicate with it without a trusted client certificate.
 
-The protection can be simply checked by `openssl s_client`:
+The protection can be simply checked by `openssl s_client`.
 
 ```sh
-$ openssl s_client -connect echo:80 2>/dev/null
+openssl s_client -connect echo:80 2>/dev/null
+```
+
+```shellsession frame="code" title="output"
 CONNECTED(00000003)
 ---
 Certificate chain
@@ -336,15 +343,13 @@ The following command will run a cURL process for 30 seconds, the 1.2.3.4 IP add
 kubectl exec alpine -- sh -c "curl --connect-timeout 30 1.2.3.4 >/dev/null 2>&1 &"
 ```
 
-Let's generate a policy for cURL:
+Let's generate a policy for cURL.
 
 ```sh
 camblet agent generate-policy $(pidof curl) curl | sudo tee /etc/camblet/policies/curl.yaml
 ```
 
-The output should be similar:
-
-```yaml
+```yaml title="output" frame="code"
 - certificate:
     ttl: 86400s
     workloadID: curl
@@ -366,7 +371,10 @@ Using this policy, cURL gets an identity and will use mTLS. Let's try to communi
 ### Try to connect to the echo server with certificate
 
 ```sh
-$ kubectl exec -it alpine -- curl echo
+kubectl exec -it alpine -- curl echo
+```
+
+```shellsession title="output"
 curl: (56) Recv failure: Connection reset by peer
 ```
 
@@ -387,7 +395,7 @@ Services has to be registered into the [service registry](/docs/concepts/service
 Let's ignore the labels part for now; it is meant for more advanced configuration.
 The `addresses` section specifies the registered destination addresses to which the policies should be applied.
 
-Let's create a service registry entry for the echo-server service with the following command:
+Let's create a service registry entry for the echo-server service with the following command.
 
 ```sh
 SVC_IP=$(kubectl get svc echo -o jsonpath='{@.spec.clusterIP}')
@@ -405,15 +413,15 @@ EOF
 With the service registry entry for the echo-server service in place, let's check if its indeed fixed the error.
 To do that, execute once again into the Alpine container and run cURL.
 
+:::note
+A second attempt may be necessary to achieve the desired effect.
+:::
+
 ```sh
 kubectl exec -it alpine -- curl echo
 ```
 
-> A second attempt may be necessary to achieve the desired effect.
-
-The output should be similar:
-
-```sh
+```shellsession title="output"
 Hostname: echo-54c896dd86-x9tdj
 
 Pod Information:
