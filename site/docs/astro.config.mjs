@@ -60,6 +60,12 @@ export default defineConfig({
 			expressiveCode: {
 				themes: ['dracula-soft'],
 				useStarlightDarkModeSwitch: false,
+				defaultProps: {
+					wrap: true,
+					overridesByLang: {
+						'bash,sh,zsh': { wrap: true }
+					}
+				},
 			},
 			head: [
 				{

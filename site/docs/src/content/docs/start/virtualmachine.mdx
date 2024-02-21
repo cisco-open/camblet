@@ -70,10 +70,10 @@ Camblet can utilize metadata from these sources to identify processes and enforc
 Let's gather metadata for the NGINX web server that was just installed.
 
 ```sh
-$ camblet agent augment $(pidof nginx)
+camblet agent augment $(pidof nginx)
+```
 
-# Sample output
-
+```shellsession title="output"
 linuxos:kernel:release:linux-6.5.0-14-generic
 linuxos:kernel:version:#14-Ubuntu SMP PREEMPT_DYNAMIC Tue Nov 14 14:59:49 UTC 2023
 linuxos:name:ubuntu
@@ -111,9 +111,7 @@ Let's run the Camblet CLI to generate a policy and save it into the default poli
 sudo camblet agent generate-policy $(pidof -s nginx) nginx | sudo tee /etc/camblet/policies/nginx.yaml
 ```
 
-**Generated policy**
-
-```yaml
+```yaml title="output"
 - certificate:
     ttl: 86400s
     workloadID: nginx
@@ -126,25 +124,31 @@ sudo camblet agent generate-policy $(pidof -s nginx) nginx | sudo tee /etc/cambl
     process:uid: "33"
 ```
 
-> The saved policy file is automatically read by the running Camblet agent and gets updated within the kernel.
+:::note
+The saved policy file is automatically read by the running Camblet agent and gets updated within the kernel.
+:::
 
 Camblet will use the `selectors` to identify the NGINX server. The `connection` part configures the TLS settings where `STRICT` mTLS value means only clients with trusted certificates can communicate with it.
 
 To verify that, let's try connecting to NGINX with cURL.
 
 ```sh
-$ curl localhost
+curl localhost
+```
 
+```shellsession title="output"
 curl: (56) Recv failure: Connection reset by peer
 ```
 
 The connection failed, as it was supposed to. Since Camblet now protects NGINX with mTLS, so nothing can communicate with it without a trusted client certificate.
 
-
-The protection can be simply checked by `openssl s_client`:
+The protection can be simply checked by `openssl s_client`.
 
 ```sh
-$ openssl s_client -connect echo:80 2>/dev/null
+openssl s_client -connect echo:80 2>/dev/null
+```
+
+```shellsession title="output"
 CONNECTED(00000003)
 ---
 Certificate chain
@@ -214,9 +218,7 @@ SSL-Session:
 To create a new policy for cURL to communicate with the server, we need the PID of cURL. Since cURL is not running continuously like the server, a "dummy" command is needed to force it to run until the policy is generated.
 
 ```sh
-$ curl 1.2.3.4 &
-
-[1] 5966
+curl 1.2.3.4 &
 ```
 
 Let's generate a policy for cURL
@@ -224,7 +226,10 @@ Let's generate a policy for cURL
 `This must be done before cURL times out and the process terminates.`
 
 ```sh
-sudo camblet agent generate-policy 5966 curl | sudo tee /etc/camblet/policies/curl-simple.yaml
+sudo camblet agent generate-policy $(pidof curl) curl | sudo tee /etc/camblet/policies/curl-simple.yaml
+```
+
+```shellsession title="output"
 - certificate:
     ttl: 86400s
     workloadID: curl
@@ -241,9 +246,11 @@ sudo camblet agent generate-policy 5966 curl | sudo tee /etc/camblet/policies/cu
 
 Using this policy, cURL gets an identity and will use mTLS. Let's try to communicate with the NGINX once again.
 
-```bash
-$ curl localhost:80
+```sh
+curl localhost:80
+```
 
+```shellsession title="output"
 curl: (56) Recv failure: Connection reset by peer
 ```
 
@@ -281,8 +288,10 @@ EOF
 With the service registry entry for NGINX in place, let's check if its indeed fixed the error.
 
 ```sh
-$ curl localhost
+curl localhost
+```
 
+```shellsession title="output"
 <!DOCTYPE html>
 <html>
 <head>
