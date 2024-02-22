@@ -22,56 +22,29 @@ limactl shell quickstart
 
 ### Configure Camblet agent
 
-Configure the agent to access Kubernetes metadata.
-This data comes from the kubelet, so the proper certificates and keys must be provided to the agent.
-Copy the keys and certificates used by k3s to the Camblet directory.
+Camblet consist of two building blocks:
 
-```sh
-sudo cp /var/lib/rancher/k3s/server/tls/client-admin.key /etc/camblet/kubelet-client.key
-sudo cp /var/lib/rancher/k3s/server/tls/client-admin.crt /etc/camblet/kubelet-client.crt
-sudo cp /var/lib/rancher/k3s/server/tls/server-ca.crt /etc/camblet/kubelet-ca.crt 
-sudo chmod 644 /etc/camblet/kubelet-client.key
-sudo chmod 644 /etc/camblet/kubelet-client.crt
-sudo chmod 644 /etc/camblet/kubelet-ca.crt
-```
+- Kernel module: Handles transparent TLS and enforces policies.
+- Agent: Signs certificates and collects metadata for processes.
+
+Camblet support various [metadata sources](/docs/concepts/process-metadata), those can be configured under the `metadataCollectors` block within the configuration. Camblet can utilize metadata from these sources to identify processes and enforce policies. The [procfs](/docs/concepts/process-metadata#proc-fs), [linuxos](/docs/concepts/process-metadata#linux-os), and [sysfsdmi](/docs/concepts/process-metadata#sys-fs-dmi) are enabled by default.
+
+The Kubernetes metadata collector gathers data from the kubelet that runs on the same node as the agent, but it is not enabled by default.
+Proper authentication credentials are necessary to enable that collector.
 
 The agent configuration resides in `/etc/camblet/config.yaml`, modify it the enable the Kubernetes metadata collector.
 
-Add the following to the config under `agent.metadataCollectors`.
-
-```yaml
-kubernetes:
-  enabled: true
-  kubeletCA: /etc/camblet/kubelet-ca.crt
-  credentials: /etc/camblet/kubelet-client.crt,/etc/camblet/kubelet-client.key
-```
-
-The config should resemble the following.
+The config should resemble the following:
 
 ```yaml
 agent:
   trustDomain: acme.corp
   defaultCertTTL: 2h
   metadataCollectors:
-    procfs:
-      enabled: true
-      extractEnvs: false
-    linuxos:
-      enabled: true
-    sysfsdmi:
-      enabled: true
-    azure:
-      enabled: false
-    ec2:
-      enabled: false
-    gcp:
-      enabled: false
     kubernetes:
       enabled: true
-      kubeletCA: /etc/camblet/kubelet-ca.crt
-      credentials: /etc/camblet/kubelet-client.crt,/etc/camblet/kubelet-client.key
-    docker:
-      enabled: false
+      kubeletCA: /var/lib/rancher/k3s/server/tls/server-ca.crt
+      credentials: /var/lib/rancher/k3s/server/tls/client-admin.crt,/var/lib/rancher/k3s/server/tls/client-admin.key
 ```
 
 The Camblet agent must be restarted after the configuration change.
