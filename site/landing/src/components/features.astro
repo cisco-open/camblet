@@ -2,6 +2,7 @@
 // @ts-ignore
 import { Icon } from "astro-icon";
 import Sectionhead from "@components/sectionhead.astro";
+import Container from "./container.astro";
 
 const features = [
   {
@@ -43,36 +44,41 @@ const features = [
 ];
 ---
 
-<Sectionhead align="left">
-  <Fragment slot="title">
-    <h2
-      class="text-4xl lg:text-5xl py-1 font-extrabold lg:tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-red-500">
-      A purpose-built tool for securing network connections
-    </h2>
-  </Fragment>
-  <Fragment slot="desc">
-    Camblet, a bespoke solution designed specifically for securing internal
-    workload communication, effectively implements the zero trust model of
-    "never trust, always verify". It safeguards against insider threats and
-    prevents lateral movements during breaches.<br />By automatically
-    authenticating and encrypting traffic through mutual TLS, and enforcing
-    custom access control policies set by administrators, Camblet ensures a secure
-    and controlled network environment.
-  </Fragment>
-</Sectionhead>
+<Container>
+  <div
+    class="shadow-lg rounded-3xl p-12 md:p-16 mt-32 bg-gradient-to-tr from-blue-100/60 via-slate-50 to-pink-50">
+    <div class="md:mt-0">
+      <h2
+        class="text-4xl lg:text-5xl py-1 font-extrabold lg:tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-red-500">
+        A purpose-built tool for securing network connections
+      </h2>
+      <p class="text-lg mt-4 text-slate-600">
+        Camblet, a bespoke solution designed specifically for securing internal
+        workload communication, effectively implements the zero trust model of
+        "never trust, always verify". It safeguards against insider threats and
+        prevents lateral movements during breaches.<br />By automatically
+        authenticating and encrypting traffic through mutual TLS, and enforcing
+        custom access control policies set by administrators, Camblet ensures a
+        secure and controlled network environment.
+      </p>
+    </div>
 
-<div class="grid sm:grid-cols-2 md:grid-cols-3 mt-16 gap-16">
-  {
-    features.map((item) => (
-      <div class="flex gap-4 items-start">
-        <div class="mt-1 bg-black rounded-full  p-2 w-8 h-8 shrink-0">
-          <Icon class="text-white" name={item.icon} />
-        </div>
-        <div>
-          <h3 class="font-semibold text-lg">{item.title}</h3>{" "}
-          <p class="text-slate-500 mt-2 leading-relaxed">{item.description}</p>
-        </div>
-      </div>
-    ))
-  }
-</div>
+    <div class="grid sm:grid-cols-3 md:grid-cols-2 mt-16 gap-16">
+      {
+        features.map((item) => (
+          <div class="flex gap-4 items-start">
+            <div class="mt-1 bg-black rounded-full  p-2 w-8 h-8 shrink-0">
+              <Icon class="text-white" name={item.icon} />
+            </div>
+            <div>
+              <h3 class="font-semibold text-lg">{item.title}</h3>{" "}
+              <p class="text-slate-500 mt-2 leading-relaxed">
+                {item.description}
+              </p>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</Container>

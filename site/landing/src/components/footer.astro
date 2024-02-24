@@ -2,27 +2,22 @@
 import { Icon } from "astro-icon";
 ---
 
-<!-- <footer class="my-20">
-  <p class="text-center text-sm text-slate-500">
-    Copyright © {new Date().getFullYear()} Camblet maintainers. All rights reserved.
-  </p>
-</footer> --><!-- Foooter -->
-<footer class="mt-32 relative z-0">
-  <section class="bg-black">
+<footer class="mt-40 md:mt-auto relative z-0 max-w-screen-xl mx-auto w-full">
+  <section class="bg-black rounded-t-3xl">
     <div
       class="max-w-screen-xl px-4 py-12 mx-auto space-y-8 overflow-hidden sm:px-6 lg:px-8">
       <nav class="flex flex-wrap justify-center -mx-5 -my-2">
         <div class="px-5 py-2">
           <a
             href="/docs"
-            class="text-base leading-6 text-gray-500 hover:text-gray-300">
+            class="text-base leading-6 text-gray-300 hover:text-gray-300">
             Docs
           </a>
         </div>
         <div class="px-5 py-2">
           <a
             href="/blog"
-            class="text-base leading-6 text-gray-500 hover:text-gray-300">
+            class="text-base leading-6 text-gray-300 hover:text-gray-300">
             Blog
           </a>
         </div>
@@ -30,7 +25,7 @@ import { Icon } from "astro-icon";
       <div class="flex justify-center mt-8 space-x-6">
         <a
           href="https://x.com/outshiftbycisco"
-          class="text-gray-400 hover:text-gray-500">
+          class="text-gray-400 hover:text-gray-300">
           <span class="sr-only">X</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -45,15 +40,21 @@ import { Icon } from "astro-icon";
         </a>
         <a
           href="https://github.com/cisco-open/camblet"
-          class="text-gray-400 hover:text-gray-500">
+          class="text-gray-400 hover:text-gray-300">
           <span class="sr-only">GitHub</span>
           <Icon class="w-6 h-6" name="simple-icons:github" />
         </a>
+        <a
+          href="https://outshift.com/slack"
+          class="text-gray-400 hover:text-gray-300">
+          <span class="sr-only">Slack</span>
+          <Icon class="w-6 h-6" name="simple-icons:slack" />
+        </a>
       </div>
-      <p class="mt-8 text-base leading-6 text-center text-gray-400">
+      <p class="mt-8 text-base text-center text-gray-400">
         Copyright © {new Date().getFullYear()} Camblet maintainers. All rights reserved.
       </p>
-      <p class="text-center text-xs text-slate-500 mt-1">
+      <p class="text-center text-xs text-slate-700">
         Based on a template by <a
           href="https://web3templates.com"
           target="_blank"

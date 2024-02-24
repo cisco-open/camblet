@@ -1,0 +1,77 @@
+---
+import Container from "./container.astro";
+---
+
+<Container>
+  <div class="my-40">
+    <Fragment slot="title">
+      <h2
+        class="text-4xl lg:text-5xl py-5 font-extrabold lg:tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-red-500">
+        Check out our blogs!
+      </h2>
+    </Fragment>
+    <!-- Cards Container -->
+    <div class="flex flex-row mt-6 md:mt-10 gap-6 justify-center">
+      <!-- Card one -->
+      <a href="/blog/camblet-intro">
+        <div
+          class="card min-w-[300px] max-w-sm glass shadow-2xl h-[600px] transition hover:scale-105 hover:bg-white lg:block">
+          <figure class="h-[300px]">
+            <img
+              class="h-full w-full"
+              src="/blog/camblet-intro/image.png"
+              alt="Evolution of Zero Trust in workload communication with Camblet"
+            />
+          </figure>
+          <div class="card-body">
+            <h2 class="card-title">
+              Evolution of Zero Trust in workload communication with Camblet
+            </h2>
+            <p>How does Camblet implement Zero Trust for workloads?</p>
+            <div class="badge badge-outline mt-5">Janos Matyas</div>
+          </div>
+        </div>
+      </a>
+      <!-- Card two -->
+      <div
+        class="card min-w-[300px] max-w-sm glass shadow-2xl h-[600px] md:blur hidden lg:block">
+        <figure class="h-[300px]">
+          <img
+            class="h-full w-full"
+            src="https://images.unsplash.com/photo-1677611998429-1baa4371456b?q=80&w=3132&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            alt="Evolution of Zero Trust in workload communication with Camblet"
+          />
+        </figure>
+        <div class="card-body">
+          <h2 class="card-title">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          </h2>
+          <p>
+            Ut finibus leo vel enim sollicitudin, vitae placerat est sodales?
+          </p>
+          <div class="badge badge-outline mt-5">Janos Matyas</div>
+        </div>
+      </div>
+      <!-- Card three -->
+      <div
+        class="card min-w-[300px] max-w-sm glass shadow-2xl h-[600px] md:blur hidden lg:block">
+        <figure class="h-[300px]">
+          <img
+            class="h-full w-full"
+            src="https://images.unsplash.com/photo-1655841439659-0afc60676b70?q=80&w=3270&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            alt="Evolution of Zero Trust in workload communication with Camblet"
+          />
+        </figure>
+        <div class="card-body">
+          <h2 class="card-title">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          </h2>
+          <p>
+            Ut finibus leo vel enim sollicitudin, vitae placerat est sodales?
+          </p>
+          <div class="badge badge-outline mt-5">Janos Matyas</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Container>

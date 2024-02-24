@@ -3,25 +3,41 @@ import { Image } from "@astrojs/image/components";
 import architecture from "assets/camblet-architecture.png";
 import Link from "@components/ui/link.astro";
 import Sectionhead from "@components/sectionhead.astro";
+import Container from "./container.astro";
 ---
 
-<Sectionhead align="left">
-  <Fragment slot="title">
-    <h2
-      class="text-4xl lg:text-5xl py-1 font-extrabold lg:tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-red-500">
-      How it works
-    </h2>
-  </Fragment>
-  <Fragment slot="desc">
-    Camblet operates primarily through a Linux Kernel module at its core.
-    This module is responsible for initiating the certificate issuance process.
-    It integrates into network system calls, facilitating the TLS handshake and enforcing security policies.
-    Additionally, a node agent complements the Kernel module.
-    It augments Kernel-level information of processes with metadata from containers and orchestration systems like Kubernetes.
-    This agent is crucial for managing certificates and policies, which can be defined either directly on the node or by integrating an external control layer.
-  </Fragment>
-</Sectionhead>
+<Container>
+  <div
+    class="relative w-full max-w-full lg:max-w-6xl xl:max-w-screen-2xl mx-auto my-20 md:my-40">
+    <!-- Background skewed card -->
+    <div
+      class="absolute inset-0 -mr-3.5 bg-gradient-to-r from-red-100/50 to-blue-500/20 shadow-lg transform -skew-y-3 sm:skew-y-0 sm:rotate-3 rounded-3xl">
+    </div>
+    <!-- Content Card -->
+    <div class="relative bg-white/80 shadow-lg rounded-3xl p-12 md:p-16">
+      <Sectionhead align="left">
+        <Fragment slot="title">
+          <h2
+            class="text-4xl lg:text-5xl font-extrabold lg:tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-red-500">
+            How it works
+          </h2>
+        </Fragment>
+        <Fragment slot="desc">
+          Camblet operates primarily through a Linux Kernel module at its core.
+          This module is responsible for initiating the certificate issuance
+          process. It integrates into network system calls, facilitating the TLS
+          handshake and enforcing security policies. Additionally, a node agent
+          complements the Kernel module. It augments Kernel-level information of
+          processes with metadata from containers and orchestration systems like
+          Kubernetes. This agent is crucial for managing certificates and
+          policies, which can be defined either directly on the node or by
+          integrating an external control layer.
+        </Fragment>
+      </Sectionhead>
 
-<main class="place-items-center pt-16 pb-8">
-  <Image src={architecture} alt="Logo" height={968} width={1806} />
-</main>
+      <main class="place-items-center pt-16 pb-8 mix-blend-darken">
+        <Image src={architecture} alt="Logo" height={968} width={1806} />
+      </main>
+    </div>
+  </div>
+</Container>
