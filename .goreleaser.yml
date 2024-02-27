@@ -9,7 +9,7 @@ builds:
       - amd64
     env:
       - CGO_ENABLED=0
-    ldflags: -w -s
+    ldflags: -w -s -X main.configDir={{ .Env.CONFIG_DIR }} -X main.version={{ .Version }} -X main.commitHash={{ .Commit }} -X main.buildDate={{ .Date }}
 nfpms:
   -
     package_name: camblet-agent

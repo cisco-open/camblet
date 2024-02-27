@@ -2,7 +2,7 @@ Section: misc
 Priority: optional
 Standards-Version: 3.9.2
 Package: camblet
-Version: 0.6.0
+Version: 0.6.1
 Maintainer: Camblet Maintainers <team@camblet.io>
 Architecture: all
 Depends: camblet-agent, camblet-driver
