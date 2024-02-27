@@ -1,5 +1,5 @@
 Name:           camblet
-Version:        0.5.0
+Version:        0.6.0
 Release:        1%{?dist}
 Summary:        Camblet is a network acceleration and security platform
 
