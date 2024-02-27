@@ -1,0 +1,100 @@
+---
+import Container from "./container.astro";
+
+const qa = [
+  {
+    question: "Is Camblet open source?",
+    answer:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ullamcorper eu ante in mollis. Suspendisse est massa, auctor a ex ac, varius sodales nulla. Maecenas semper purus eu porttitor condimentum. Fusce consectetur eget lacus sit amet tempus. Duis egestas ante sed tincidunt auctor. Pellentesque id maximus nunc, sit amet molestie nulla.",
+  },
+  {
+    question: "Why not eBPF?",
+    answer:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ullamcorper eu ante in mollis. Suspendisse est massa, auctor a ex ac, varius sodales nulla. Maecenas semper purus eu porttitor condimentum. Fusce consectetur eget lacus sit amet tempus. Duis egestas ante sed tincidunt auctor. Pellentesque id maximus nunc, sit amet molestie nulla.!",
+  },
+  {
+    question: "Is Windows or MacOS supported?",
+    answer:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ullamcorper eu ante in mollis. Suspendisse est massa, auctor a ex ac, varius sodales nulla. Maecenas semper purus eu porttitor condimentum. Fusce consectetur eget lacus sit amet tempus. Duis egestas ante sed tincidunt auctor. Pellentesque id maximus nunc, sit amet molestie nulla.",
+  },
+];
+---
+
+<Container>
+  <section class="py-10 sm:py-16 lg:py-24">
+    <div class="px-4 mx-auto sm:px-6 lg:px-8 max-w-7xl">
+      <div class="max-w-2xl mx-auto text-center">
+        <h2
+          class="text-3xl font-bold leading-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-red-500 sm:text-4xl lg:text-5xl">
+          Explore Common Questions
+        </h2>
+      </div>
+      <div class="max-w-5xl mx-auto mt-8 space-y-4 md:mt-16">
+        {
+          qa.map((item, id) => (
+            <div class="transition duration-200 rounded-2xl backdrop-blur-lg border border-gray-200 shadow-lg cursor-pointer ">
+              <button
+                type="button"
+                id={`question${id}`}
+                data-state="closed"
+                class="flex items-center justify-between w-full px-4 py-5 sm:p-6">
+                <span class="flex text-sm md:text-lg font-semibold text-black">
+                  {item.question}
+                </span>
+                <svg
+                  id={`arrow${id}`}
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  class="w-6 h-6 text-gray-400">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+              <div
+                id={`answer${id}`}
+                class="px-4 pb-5 sm:px-6 sm:pb-6 hidden transition">
+                <p>{item.answer}</p>
+              </div>
+            </div>
+          ))
+        }
+
+        <p class="text-center text-gray-600 textbase mt-9">
+          Still have questions?
+          <a
+            href="https://outshift.com/slack"
+            class="cursor-pointer font-medium text-tertiary transition-all duration-200 hover:text-tertiary focus:text-tertiary hover-underline"
+            >Contact us on Slack
+          </a>
+        </p>
+      </div>
+      <script>
+        document
+          .querySelectorAll('[id^="question"]')
+          .forEach(function (button, index) {
+            button.addEventListener("click", function () {
+              var answer = document.getElementById("answer" + index);
+              var arrow = document.getElementById("arrow" + index);
+
+              if (
+                answer.style.display === "none" ||
+                answer.style.display === ""
+              ) {
+                answer.style.display = "block";
+                arrow.style.transform = "rotate(0.5turn)";
+              } else {
+                answer.style.display = "none";
+                arrow.style.transform = "unset";
+              }
+            });
+          });
+      </script>
+    </div>
+  </section>
+</Container>
