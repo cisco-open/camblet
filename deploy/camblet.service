@@ -3,7 +3,7 @@ Description=Camblet Agent Service
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/camblet agent --config /etc/camblet/config.yaml --policies-path /etc/camblet/policies --services-path /etc/camblet/services
+ExecStart=/usr/bin/camblet agent
 Restart=always
 User=root
 Group=root
