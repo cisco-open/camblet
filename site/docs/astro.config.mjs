@@ -15,8 +15,8 @@ export default defineConfig({
 		starlight({
 			title: 'Camblet documentation',
 			logo: {
-				dark: './src/assets/logo-white.svg',
-				light: './src/assets/logo.svg',
+				dark: './src/assets/newlogo.png',
+				light: './src/assets/newlogo.png',
 			},
 			social: {
 				github: 'https://github.com/cisco-open/camblet',

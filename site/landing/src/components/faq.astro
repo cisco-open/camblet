@@ -4,18 +4,17 @@ import Container from "./container.astro";
 const qa = [
   {
     question: "Is Camblet open source?",
-    answer:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ullamcorper eu ante in mollis. Suspendisse est massa, auctor a ex ac, varius sodales nulla. Maecenas semper purus eu porttitor condimentum. Fusce consectetur eget lacus sit amet tempus. Duis egestas ante sed tincidunt auctor. Pellentesque id maximus nunc, sit amet molestie nulla.",
+    answer: "Camblet is fully open source and will remain open source.",
   },
   {
-    question: "Why not eBPF?",
+    question: "Why are you not using eBPF?",
     answer:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ullamcorper eu ante in mollis. Suspendisse est massa, auctor a ex ac, varius sodales nulla. Maecenas semper purus eu porttitor condimentum. Fusce consectetur eget lacus sit amet tempus. Duis egestas ante sed tincidunt auctor. Pellentesque id maximus nunc, sit amet molestie nulla.!",
+      "We opt not to use eBPF for our operations because we handle TLS handshakes directly within the kernel. A TLS handshake is a relatively complex process that is not supported by built-in kernel libraries - and to the best of our knowledge - it cannot be implemented within eBPF itself. However, we continue to monitor developments and keep an eye on sockmap, and for other future opportunities.",
   },
   {
     question: "Is Windows or MacOS supported?",
     answer:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ullamcorper eu ante in mollis. Suspendisse est massa, auctor a ex ac, varius sodales nulla. Maecenas semper purus eu porttitor condimentum. Fusce consectetur eget lacus sit amet tempus. Duis egestas ante sed tincidunt auctor. Pellentesque id maximus nunc, sit amet molestie nulla.",
+      "Currently Camblet supports every platform with a Linux kernel - including Kubernetes. Adding Windows and MacOS support is something that is definitely on our roadmap.",
   },
 ];
 ---

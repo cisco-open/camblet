@@ -8,7 +8,7 @@ import Container from "./container.astro";
 
 <Container>
   <div
-    class="relative w-full max-w-full lg:max-w-6xl xl:max-w-screen-2xl mx-auto my-20">
+    class="relative w-full max-w-full lg:max-w-6xl xl:max-w-screen-2xl mx-auto mt-40 mb-20">
     <!-- Background skewed card -->
     <div
       class="absolute inset-0 -mr-3.5 bg-gradient-to-r from-red-100/50 to-blue-500/20 shadow-lg transform -skew-y-3 sm:skew-y-0 sm:rotate-3 rounded-3xl">
@@ -37,7 +37,12 @@ import Container from "./container.astro";
       </Sectionhead>
 
       <main class="place-items-center pt-16 pb-8 mix-blend-darken">
-        <Image src={architecture} alt="Logo" height={968} width={1806} />
+        <Image
+          src={architecture}
+          alt="architecture"
+          height={968}
+          width={1806}
+        />
       </main>
     </div>
   </div>

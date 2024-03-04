@@ -96,6 +96,14 @@
     unist-util-visit "^4.1.2"
     vfile "^5.3.7"
 
+"@astrojs/partytown@^2.0.2":
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/@astrojs/partytown/-/partytown-2.0.4.tgz#402ebabf2813f916bd9fb9fb8a85b0cb98133d03"
+  integrity sha512-yC1smFLOBn7CWNAzaigXAr4bSJSgRJYF4g9jDuSR0NbShLd1SVUpRm9QOmOIrfSFGh2YtZEW8gnwvI5SZw+WmA==
+  dependencies:
+    "@builder.io/partytown" "^0.8.0"
+    mrmime "^1.0.1"
+
 "@astrojs/prism@^3.0.0":
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@astrojs/prism/-/prism-3.0.0.tgz#c9443e4cbf435acf0b5adc2c627d9789991514e7"
@@ -354,6 +362,11 @@
     "@babel/helper-string-parser" "^7.23.4"
     "@babel/helper-validator-identifier" "^7.22.20"
     to-fast-properties "^2.0.0"
+
+"@builder.io/partytown@^0.8.0":
+  version "0.8.2"
+  resolved "https://registry.yarnpkg.com/@builder.io/partytown/-/partytown-0.8.2.tgz#bd3689aac3965d7dc05e56c1bb0ef357fdd1d0b0"
+  integrity sha512-WKGE+SO0qUGirW8J+xOWkHeCkfFEoPPvHnFkcdMl+MY3kDbAcTwjZCzjg27JCvoD0h8fH47FR7DSIss0/S5lyg==
 
 "@ctrl/tinycolor@^3.6.0":
   version "3.6.1"
@@ -3068,6 +3081,11 @@ mri@^1.1.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/mri/-/mri-1.2.0.tgz#6721480fec2a11a4889861115a48b6cbe7cc8f0b"
   integrity sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==
+
+mrmime@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/mrmime/-/mrmime-1.0.1.tgz#5f90c825fad4bdd41dc914eff5d1a8cfdaf24f27"
+  integrity sha512-hzzEagAgDyoU1Q6yg5uI+AorQgdvMCur3FcKf7NhMKWsaYg+RnbTyHRa/9IlLF9rf455MOCtcqqrQQ83pPP7Uw==
 
 ms@2.0.0:
   version "2.0.0"
