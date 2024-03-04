@@ -25,7 +25,7 @@
     process:name: [python3, file-server]
     destination:port: [8000, 8080]
   certificate:
-    workloadID: accounting/department-a/important-backend
+    workloadID: accounting/department-a/important-backend/[process:uid]
     dnsNames:
     - a.acme.corp
     - b.acme.corp
