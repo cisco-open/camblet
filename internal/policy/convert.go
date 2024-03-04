@@ -89,7 +89,7 @@ func flattenAndStringifySelectors(selectors *structpb.Struct) [][]string {
 
 		values := getValueForKind(v)
 		for _, val := range values {
-			m = append(m, fmt.Sprintf("%s:%s", k, val))
+			m = append(m, fmt.Sprintf("%s=%s", k, val))
 		}
 
 		if len(m) > 0 {

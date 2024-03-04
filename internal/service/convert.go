@@ -87,7 +87,7 @@ func flattenLabels(labels map[string]string) []string {
 	flattened := make([]string, 0)
 
 	for k, v := range labels {
-		flattened = append(flattened, k+":"+v)
+		flattened = append(flattened, k+"="+v)
 	}
 
 	return flattened
