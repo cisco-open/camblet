@@ -3,6 +3,7 @@ import { SEO } from "astro-seo";
 import Footer from "@components/footer.astro";
 import Navbar from "@components/navbar/navbar.astro";
 import "@fontsource/inter/variable.css";
+import { ViewTransitions } from "astro:transitions";
 
 export interface Props {
   title: string;
@@ -12,12 +13,14 @@ const { title } = Astro.props;
 ---
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth antialiased" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
+    <meta name="color-scheme" content="only light" />
+    <ViewTransitions />
 
     <SEO
       title={`${title}${
@@ -40,7 +43,8 @@ const { title } = Astro.props;
       gtag("config", "G-K315W0LM1X");
     </script>
   </head>
-  <body>
+  <body
+    class="flex flex-col min-h-screen bg-gradient-to-tr lg:from-blue-100 lg:via-slate-50 lg:to-pink-50/80 from-blue-100/70 via-slate-50 to-pink-50">
     <Navbar />
     <slot />
     <Footer />

@@ -1,42 +1,52 @@
 ---
-import { Picture } from "@astrojs/image/components";
-import heroImage from "assets/logo.svg";
 import Link from "@components/ui/link.astro";
+import { Icon } from "astro-icon";
 ---
 
-<main class="grid lg:grid-cols-2 place-items-center pt-16 pb-8 md:pt-8">
-  <div class="py-6 md:order-1 hidden lg:block">
-    <Picture
-      src={heroImage}
-      alt="Logo"
-      widths={[1500]}
-      sizes="(max-width: 800px) 100vw, 400px"
-      aspectRatio={1.2}
-      loading="eager"
-      format="avif"
-    />
-  </div>
-  <div>
-    <h1 class="text-5xl lg:text-6xl xl:text-7xl font-bold lg:tracking-tight">
-      Kernel Space Access Control for Zero Trust Networking
-    </h1>
-    <p class="text-lg mt-4 text-slate-600 max-w-xl">
-      Camblet is an open source cloud native security tool that authenticates,
-      encrypts, and authorizes network communication between workloads. It
-      assigns strong identities to processes and transparently establishes mTLS
-      connections in Kernel space. Camblet facilitates the creation of a robust
-      zero-trust networking environment.
-    </p>
-    <div class="mt-6 flex flex-col sm:flex-row gap-3">
-      <Link href="docs/start/installation">Get Started</Link>
-      <Link
-        size="lg"
-        style="outline"
-        rel="noopener"
-        href="https://github.com/cisco-open/camblet"
-        target="_blank">
-        View Repo
-      </Link>
-    </div>
+<main class="flex flex-col items-center lg:pt-28 pb-8 pt-10 mb-20 md:mb-50">
+  <a
+    href="https://sched.co/1YhDw"
+    <div
+    class="flex flex-row gap-3 items-center pl-2 pr-6 py-2 mb-10 md:mb-20 rounded-full bg-blue-300/50 transition hover:scale-105 hover:bg-blue-400">
+    <button
+      type="button"
+      class="rounded-full px-3 bg-white p-0.5 text-sm md:text-base font-bold leading-none flex items-center">
+      New
+    </button>
+    <span class="text-sm md:text-base font-bold">Meet us at Kubecon EU!</span>
+  </a>
+
+  <h1
+    class="text-center text-5xl lg:text-6xl xl:text-7xl font-bold lg:tracking-tight">
+    Kernel Space Access Control for Zero Trust Networking
+  </h1>
+  <p class="text-center text-xl md:text-3xl mt-10 text-slate-600">
+    Camblet is an open source cloud native security tool that authenticates,
+    encrypts, and authorizes network communication between workloads. It assigns
+    strong identities to processes and transparently establishes mTLS
+    connections in Kernel space. Camblet facilitates the creation of a robust
+    zero-trust networking environment.
+  </p>
+  <div class="flex md:flex-row md:justify-center mt-20 flex-col gap-3">
+    <Link
+      style="outline"
+      class="hover:scale-105 rounded-full shadow-lg"
+      href="docs/start/installation"
+      href="docs">
+      <span
+        class="text-lg font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-pink-500"
+        >Get Started
+      </span>
+    </Link>
+    <Link
+      size="lg"
+      style="primary"
+      class="hover:scale-105 rounded-full shadow-lg text-lg font-bold items-center justify-center flex gap-1"
+      rel="noopener"
+      href="https://github.com/cisco-open/camblet"
+      target="_blank">
+      <Icon class="text-white w-4 h-4" name="bx:bxl-github" />
+      View Repo
+    </Link>
   </div>
 </main>

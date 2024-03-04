@@ -1,18 +1,21 @@
-import { defineConfig } from 'astro/config';
+import { defineConfig } from "astro/config";
 import tailwind from "@astrojs/tailwind";
 import alpinejs from "@astrojs/alpinejs";
 import image from "@astrojs/image";
 import mdx from "@astrojs/mdx";
-import partytown from '@astrojs/partytown';
+import partytown from "@astrojs/partytown";
 
 export default defineConfig({
+  experimental: {
+    viewTransitions: true,
+  },
   site: "http://localhost:8080/",
   base: "/",
   integrations: [
     alpinejs(),
     tailwind(),
     image({
-      serviceEntryPoint: "@astrojs/image/sharp"
+      serviceEntryPoint: "@astrojs/image/sharp",
     }),
     mdx(),
     partytown({
@@ -20,5 +23,5 @@ export default defineConfig({
         forward: ["dataLayer.push"],
       },
     }),
-  ]
+  ],
 });
