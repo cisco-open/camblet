@@ -49,3 +49,7 @@ rpm: ## Build RPM the meta package
 .PHONY: run
 run: ## Run the binary
 	sudo build/camblet agent --policies-path ./camblet.d/policies/ --services-path ./camblet.d/services/
+
+.PHONY: site-dev
+site-dev: ## Run the site in dev mode
+	cd site/docs/ && pnpm install && pnpm dev
