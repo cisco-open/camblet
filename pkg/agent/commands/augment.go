@@ -89,7 +89,7 @@ func (c *augmentCommand) HandleCommand(cmd messenger.Command) (string, error) {
 	response.Labels = make(map[string]bool)
 
 	for _, label := range md.GetLabelsSlice() {
-		response.Labels[fmt.Sprintf("%s:%s", label.Name, label.Value)] = true
+		response.Labels[fmt.Sprintf("%s=%s", label.Name, label.Value)] = true
 	}
 
 	j, err := json.Marshal(response)

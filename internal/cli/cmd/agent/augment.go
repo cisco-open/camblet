@@ -57,7 +57,7 @@ func NewAugmentCommand(c cli.CLI) *cobra.Command {
 			}
 
 			for _, label := range md.GetLabelsSlice() {
-				fmt.Println(label.Name + ":" + label.Value)
+				fmt.Println(label.Name + "=" + label.Value)
 			}
 
 			return err
