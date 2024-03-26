@@ -11,4 +11,14 @@ hero:
       icon: external
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import { Card, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+<div class="text-2xl my-14">
+Camblet is an open source cloud native security tool that authenticates, encrypts, and authorizes network communication between workloads. It assigns strong identities to processes and transparently establishes mTLS connections in Kernel space. Camblet facilitates the creation of a robust zero-trust networking environment.
+</div>
+<CardGrid>
+    <LinkCard title="Getting started" description="Installation steps"  href="/docs/start/installation" />
+    <LinkCard title="Concepts" href="/docs/concepts/cli-agent" description="Dive in to Camblet" icon="open-book" />
+    <LinkCard title="Contributing" href="/docs/contributing" description="See how you can contribute" icon="add-document"/>
+    <LinkCard title="Support" href="/docs/support" description="Reach out for help" icon="information" />
+</CardGrid>
