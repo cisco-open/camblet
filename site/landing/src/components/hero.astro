@@ -1,21 +1,12 @@
 ---
 import Link from "@components/ui/link.astro";
+import NewsBanner from "./newsbanner.astro";
 import { Icon } from "astro-icon";
 ---
 
 <main class="flex flex-col items-center lg:pt-28 pb-8 pt-10 mb-20 md:mb-50">
-  <a
-    href="https://sched.co/1YhDw"
-    <div
-    class="flex flex-row gap-3 items-center pl-2 pr-6 py-2 mb-10 md:mb-20 rounded-full bg-blue-300/50 transition hover:scale-105 hover:bg-blue-400">
-    <button
-      type="button"
-      class="rounded-full px-3 bg-white p-0.5 text-sm md:text-base font-bold leading-none flex items-center">
-      New
-    </button>
-    <span class="text-sm md:text-base font-bold">Meet us at Kubecon EU!</span>
-  </a>
-
+  <!-- Uncomment and update if news is needed -->
+  <!-- <NewsBanner /> -->
   <h1
     class="text-center text-5xl lg:text-6xl xl:text-7xl font-bold lg:tracking-tight">
     Kernel Space Access Control for Zero Trust Networking
@@ -30,7 +21,7 @@ import { Icon } from "astro-icon";
   <div class="flex md:flex-row md:justify-center mt-20 flex-col gap-3">
     <Link
       style="outline"
-      class="hover:scale-105 rounded-full shadow-lg"
+      class="rounded-full hover:scale-105 shadow-lg"
       href="docs/start/installation"
       href="docs">
       <span
