@@ -143,7 +143,7 @@ func resolveAddress(address string) []netip.AddrPort {
 			for _, ip := range netips {
 				if addr, ok := netip.AddrFromSlice(ip); ok {
 					// if the address is ipv4 in ipv6 format and it is a loopback address, convert it to ipv6 loopback
-					if addr.Is4In6() && addr.IsLoopback() {
+					if addr.Is4In6() && ip.IsLoopback() {
 						addr = netip.IPv6Loopback()
 					}
 					addrs[addr] = struct{}{}
