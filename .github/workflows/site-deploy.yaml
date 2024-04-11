@@ -124,3 +124,10 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
+  
+  test-package:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install camblet-driver and camblet-agent packages
+        run: curl -s https://camblet.io/install.sh | bash
