@@ -47,6 +47,14 @@ deb: ## Build DEB the meta package
 rpm: ## Build RPM the meta package
 	rpmbuild -ba --define '_rpmdir ./deploy/rpmbuild/' deploy/rpmbuild/SPECS/camblet.spec
 
+.PHONY: _run
+_run: ## Run the binary
+	sudo build/camblet agent --policies-path /etc/camblet/policies/ --services-path /etc/camblet/services/
+
+.PHONY: _sync-config
+_sync-config: ## Sync the configuration files to /etc/camblet
+	$(shell while true; do sudo rsync -av ./camblet.d/ /etc/camblet/; sleep 2; done)
+
 .PHONY: run
-run: ## Run the binary
-	sudo build/camblet agent --policies-path ./camblet.d/policies/ --services-path ./camblet.d/services/
+run: ## Run the binary in live edit mode
+	@$(MAKE) -j2 _run _sync-config
