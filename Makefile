@@ -53,7 +53,7 @@ _run: ## Run the binary
 
 .PHONY: _sync-config
 _sync-config: ## Sync the configuration files to /etc/camblet
-	$(shell while true; do sudo rsync -av ./camblet.d/ /etc/camblet/; sleep 2; done)
+	watch sudo rsync -av ./camblet.d/ /etc/camblet/ > /dev/null
 
 .PHONY: run
 run: ## Run the binary in live edit mode
