@@ -2,6 +2,8 @@
   - address: localhost
     port: 8000
   - address: localhost
+    port: 8010
+  - address: localhost
     port: 8080
   labels:
     app:label: nginx
