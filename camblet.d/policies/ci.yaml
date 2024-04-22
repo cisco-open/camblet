@@ -61,3 +61,11 @@
     - app:label: nginx
     certificate:
       workloadID: egress-specific-workload-id
+
+# python3 with SSL to file-server with TLS
+- selectors:
+  - process:uid: [501, 1001]
+    process:name: [python3, file-server]
+    destination:port: [8010]
+  certificate:
+    workloadID: passthrough-test
