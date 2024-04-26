@@ -35,6 +35,7 @@
     - spiffe://{{.TrustDomain}}/accounting
     - spiffe://{{.TrustDomain}}/curl
     - spiffe://{{.TrustDomain}}/egress-specific-workload-id
+    - spiffe://{{.TrustDomain}}/flags
 
 # curl or wrk connection to port 8000 or 8080
 - selectors:
@@ -69,3 +70,11 @@
     destination:port: [8010]
   certificate:
     workloadID: passthrough-test
+
+# simple flags connection to port 8000
+- selectors:
+  - process:uid: [501, 1001]
+    process:name: flags
+    destination:port: 8000
+  certificate:
+    workloadID: flags
