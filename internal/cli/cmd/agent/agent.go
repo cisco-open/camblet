@@ -24,6 +24,7 @@ import (
 	"crypto/x509/pkix"
 	"encoding/json"
 	"os"
+	"path"
 
 	"emperror.dev/errors"
 	"github.com/bufbuild/protovalidate-go"
@@ -102,6 +103,12 @@ func (c *agentCommand) runCommander(ctx context.Context) error {
 	ca, err := tls.NewCertificateAuthority(caOpts...)
 	if err != nil {
 		return err
+	}
+
+	publicCAPemPath := path.Dir(caPEMPath) + "/public_ca.crt"
+
+	if err := os.WriteFile(publicCAPemPath, ca.GetTrustAnchor().GetPEM(), 0644); err != nil {
+		return errors.WrapIf(err, "could not write CA certificate to file")
 	}
 
 	csrSign, err := commands.CSRSign(ca, c.cli.Configuration().Agent.DefaultCertTTLDuration)
