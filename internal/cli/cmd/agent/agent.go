@@ -131,8 +131,11 @@ func (c *agentCommand) runCommander(ctx context.Context) error {
 
 func (c *agentCommand) ensureCACertificate() (string, error) {
 	path := c.cli.Configuration().Agent.CAPemPath
-
 	if _, err := os.Stat(path); path != "" && err == nil {
+		err = changePermissionsToUserReadonly(path)
+		if err != nil {
+			return "", errors.WrapIf(err, "could not set permissions for existing self signed root CA certificate")
+		}
 		return path, nil
 	}
 
@@ -148,6 +151,10 @@ func (c *agentCommand) ensureCACertificate() (string, error) {
 	if file, err := os.Create(path); err != nil {
 		return "", errors.WrapIf(err, "could not write generated self signed root CA certificate")
 	} else {
+		err = changePermissionsToUserReadonly(path)
+		if err != nil {
+			return "", errors.WrapIf(err, "could not set permissions for new self signed root CA certificate")
+		}
 		defer file.Close()
 		if _, err := file.Write(append(cert.GetPEM(), pkey.GetPEM()...)); err != nil {
 			return "", errors.WrapIf(err, "could not write generated self signed root CA certificate")
@@ -156,6 +163,13 @@ func (c *agentCommand) ensureCACertificate() (string, error) {
 	}
 
 	return path, nil
+}
+
+func changePermissionsToUserReadonly(path string) error {
+	if err := os.Chmod(path, 0600); err != nil {
+		return errors.WrapIf(err, "could not change file to user readonly")
+	}
+	return nil
 }
 
 func (c *agentCommand) run(cmd *cobra.Command) error {
