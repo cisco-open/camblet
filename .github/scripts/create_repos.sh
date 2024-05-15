@@ -35,38 +35,60 @@ main() {
       for release_id in $release_ids;
       do
         echo "Processing release ID: $release_id for $package_name"
-        if deb_asset_ids=$(curl -fqs https://api.github.com/repos/${repo}/releases/${release_id}/assets | jq -r '.[] | select(.name | endswith(".deb")) | .id')
-        then
-          for deb_asset_id in $deb_asset_ids;
-          do
-            GOT_DEB=1
-            mkdir -p "${DEB_POOL}/${package_name}"
-            pushd "${DEB_POOL}/${package_name}" >/dev/null
-            echo "Getting DEB"
-            curl -LOJ -H "Accept: application/octet-stream" "https://api.github.com/repos/${repo}/releases/assets/${deb_asset_id}"
-            popd >/dev/null
-          done
+        response=$(curl -fsS https://api.github.com/repos/${repo}/releases/${release_id}/assets)
+        curl_status=$?
+        if [ $curl_status -ne 0 ]; then
+          echo "Curl failed with status: $curl_status"
+          echo "Response was: $response"
+          exit 1
         fi
-        if rpm_asset_ids=$(curl -fqs https://api.github.com/repos/${repo}/releases/${release_id}/assets | jq -r '.[] | select(.name | endswith(".rpm")) | .id')
-        then
-          for rpm_asset_id in $rpm_asset_ids;
-          do
-            GOT_RPM=1
-            mkdir -p generated_repo/rpm
-            pushd generated_repo/rpm >/dev/null
-            echo "Getting RPM"
-            rpm_file=$(curl -fqs https://api.github.com/repos/${repo}/releases/assets/${rpm_asset_id} | jq -r '.name')
-            curl -LOJ -H "Accept: application/octet-stream" "https://api.github.com/repos/${repo}/releases/assets/${rpm_asset_id}"
-            (
-              if [ -n "$GPG_FINGERPRINT" ]
-              then
-                echo "Signing RPM"
-                rpm --define "%_signature gpg" --define "%_gpg_name ${GPG_FINGERPRINT}" --addsign "${rpm_file}"
-              fi
-            )
-            popd >/dev/null
-          done
+        deb_asset_ids=$(echo "$response" | jq -r '.[] | select(.name | endswith(".deb")) | .id')
+        if [ -z "$deb_asset_ids" ]; then
+          echo "No .deb assets found."
+          exit 1
         fi
+        for deb_asset_id in $deb_asset_ids;
+        do
+          GOT_DEB=1
+          mkdir -p "${DEB_POOL}/${package_name}"
+          pushd "${DEB_POOL}/${package_name}" >/dev/null
+          echo "Getting DEB"
+          curl -LOJ -H "Accept: application/octet-stream" "https://api.github.com/repos/${repo}/releases/assets/${deb_asset_id}"
+          curl_status=$?
+          if [ $curl_status -ne 0 ]; then
+            echo "Curl failed with status: $curl_status"
+            exit 1
+          fi
+          popd >/dev/null
+        done
+        
+        rpm_asset_ids=$(echo "$response" | jq -r '.[] | select(.name | endswith(".rpm")) | .id')
+        if [ -z "$rpm_asset_ids" ]; then
+          echo "No .rpm assets found."
+          exit 1
+        fi
+        for rpm_asset_id in $rpm_asset_ids;
+        do
+          GOT_RPM=1
+          mkdir -p generated_repo/rpm
+          pushd generated_repo/rpm >/dev/null
+          echo "Getting RPM"
+          rpm_file=$(curl -fqs https://api.github.com/repos/${repo}/releases/assets/${rpm_asset_id} | jq -r '.name')
+          curl -LOJ -H "Accept: application/octet-stream" "https://api.github.com/repos/${repo}/releases/assets/${rpm_asset_id}"
+          curl_status=$?
+          if [ $curl_status -ne 0 ]; then
+            echo "Curl failed with status: $curl_status"
+            exit 1
+          fi
+          (
+            if [ -n "$GPG_FINGERPRINT" ]
+            then
+              echo "Signing RPM"
+              rpm --define "%_signature gpg" --define "%_gpg_name ${GPG_FINGERPRINT}" --addsign "${rpm_file}"
+            fi
+          )
+          popd >/dev/null
+        done
       done
     fi
   done < "$REPOS_PATH"
