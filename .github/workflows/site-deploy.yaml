@@ -38,6 +38,8 @@ jobs:
           gpg_private_key: ${{ secrets.PGP_PRIVATE_KEY }}
 
       - name: Build DEB/RPM Repos
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           export GPG_FINGERPRINT="${{ steps.import_gpg.outputs.fingerprint }}"
           export ORIGIN="${{ steps.import_gpg.outputs.name }}"
