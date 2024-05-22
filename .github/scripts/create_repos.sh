@@ -30,12 +30,12 @@ main() {
   while IFS= read -r repo;
   do
     package_name="${repo##*/}"
-    if release_ids=$(curl -fqs https://api.github.com/repos/${repo}/releases?per_page=100 | jq -r '.[].id')
+    if release_ids=$(curl -fqs -H "Authorization: Bearer ${GH_TOKEN}" https://api.github.com/repos/${repo}/releases?per_page=3 | jq -r '.[].id')
     then
       for release_id in $release_ids;
       do
         echo "Processing release ID: $release_id for $package_name"
-        response=$(curl -fsS https://api.github.com/repos/${repo}/releases/${release_id}/assets)
+        response=$(curl -fsS -H "Authorization: Bearer ${GH_TOKEN}" https://api.github.com/repos/${repo}/releases/${release_id}/assets)
         curl_status=$?
         if [ $curl_status -ne 0 ]; then
           echo "Curl failed with status: $curl_status"
@@ -53,7 +53,7 @@ main() {
           mkdir -p "${DEB_POOL}/${package_name}"
           pushd "${DEB_POOL}/${package_name}" >/dev/null
           echo "Getting DEB"
-          curl -LOJ -H "Accept: application/octet-stream" "https://api.github.com/repos/${repo}/releases/assets/${deb_asset_id}"
+          curl -LOJ -H "Accept: application/octet-stream" -H "Authorization: Bearer ${GH_TOKEN}" "https://api.github.com/repos/${repo}/releases/assets/${deb_asset_id}"
           curl_status=$?
           if [ $curl_status -ne 0 ]; then
             echo "Curl failed with status: $curl_status"
@@ -61,7 +61,6 @@ main() {
           fi
           popd >/dev/null
         done
-        
         rpm_asset_ids=$(echo "$response" | jq -r '.[] | select(.name | endswith(".rpm")) | .id')
         if [ -z "$rpm_asset_ids" ]; then
           echo "No .rpm assets found."
@@ -73,8 +72,8 @@ main() {
           mkdir -p generated_repo/rpm
           pushd generated_repo/rpm >/dev/null
           echo "Getting RPM"
-          rpm_file=$(curl -fqs https://api.github.com/repos/${repo}/releases/assets/${rpm_asset_id} | jq -r '.name')
-          curl -LOJ -H "Accept: application/octet-stream" "https://api.github.com/repos/${repo}/releases/assets/${rpm_asset_id}"
+          rpm_file=$(curl -fqs -H "Authorization: Bearer ${GH_TOKEN}" https://api.github.com/repos/${repo}/releases/assets/${rpm_asset_id} | jq -r '.name')
+          curl -LOJ -H "Accept: application/octet-stream" -H "Authorization: Bearer ${GH_TOKEN}" "https://api.github.com/repos/${repo}/releases/assets/${rpm_asset_id}"
           curl_status=$?
           if [ $curl_status -ne 0 ]; then
             echo "Curl failed with status: $curl_status"
