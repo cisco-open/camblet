@@ -30,7 +30,7 @@ main() {
   while IFS= read -r repo;
   do
     package_name="${repo##*/}"
-    if release_ids=$(curl -fqs -H "Authorization: Bearer ${GH_TOKEN}" https://api.github.com/repos/${repo}/releases?per_page=100 | jq -r '.[].id')
+    if release_ids=$(curl -fqs -H "Authorization: Bearer ${GH_TOKEN}" https://api.github.com/repos/${repo}/releases?per_page=3 | jq -r '.[].id')
     then
       for release_id in $release_ids;
       do
