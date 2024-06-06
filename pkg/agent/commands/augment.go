@@ -113,7 +113,8 @@ func (c *augmentCommand) init() {
 	for _, pid := range pids {
 		logger := c.logger.WithValues("pid", pid)
 		cmdCtx, err := getCMDContextFromPID(pid)
-		if err != nil && !errors.Is(err, os.ErrNotExist) && !errors.Is(err, os.ErrPermission) {
+		if err != nil && !errors.Is(err, os.ErrNotExist) && !errors.Is(err, os.ErrPermission) &&
+			!errors.Is(err, process.ErrorProcessNotRunning) {
 			logger.Error(err, "could not get command context for pid")
 			continue
 		}
